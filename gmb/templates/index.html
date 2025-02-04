@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Results</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Search for Leads for your business</h1>
+        <h2>Try: Schools in Hyderabad</h2>
+        <form method="post">
+            <input type="text" name="query" placeholder="Enter your search query" required>
+            <input type="number" name="limit" value="10" min="1" placeholder="Number of results">
+            <button type="submit">Search</button>
+        </form>
+
+        {% if results %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Address</th>
+                    <th>Rating</th>
+                    <th>Phone</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for result in results %}
+                <tr>
+                    <td>{{ result.Name }}</td>
+                    <td>{{ result.Address }}</td>
+                    <td>{{ result.Rating }}</td>
+                    <td>{{ result.Phone }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <div class="button-container">
+            <a href="{{ url_for('download_file') }}" class="download-btn">Download as Excel</a>
+            <form method="post" style="display:inline;">
+                <button type="submit" name="clear" class="clear-btn">Clear</button>
+            </form>
+        </div>
+        {% endif %}
+    </div>
+</body>
+</html>
