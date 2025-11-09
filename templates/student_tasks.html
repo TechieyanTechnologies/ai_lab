@@ -1,0 +1,162 @@
+{% extends "base.html" %}
+
+{% block title %}Student Tasks - {{ config.school_name }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h3 mb-0">
+                    <i class="fas fa-tasks me-2"></i>My Tasks
+                </h1>
+                <div>
+                    <span class="badge bg-success">Student</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Available Tasks -->
+    <div class="row g-4">
+        <div class="col-md-6 col-lg-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="fas fa-chart-bar fa-2x text-primary me-3"></i>
+                        <div>
+                            <h5 class="card-title mb-0">Plot Graphs</h5>
+                            <span class="badge bg-success">Available</span>
+                        </div>
+                    </div>
+                    <p class="card-text">Create various types of charts and graphs using the provided sample datasets. Learn about data visualization and chart selection.</p>
+                    <ul class="list-unstyled small text-muted">
+                        <li><i class="fas fa-check me-1"></i> Bar charts</li>
+                        <li><i class="fas fa-check me-1"></i> Line graphs</li>
+                        <li><i class="fas fa-check me-1"></i> Scatter plots</li>
+                        <li><i class="fas fa-check me-1"></i> Histograms</li>
+                        <li><i class="fas fa-check me-1"></i> Box plots</li>
+                        <li><i class="fas fa-check me-1"></i> Pie charts</li>
+                    </ul>
+                </div>
+                <div class="card-footer bg-transparent">
+                    <a href="{{ url_for('plot_graphs') }}" class="btn btn-primary w-100">
+                        <i class="fas fa-play me-2"></i>Start Task
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6 col-lg-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="fas fa-database fa-2x text-info me-3"></i>
+                        <div>
+                            <h5 class="card-title mb-0">Data Analysis</h5>
+                            <span class="badge bg-warning">Coming Soon</span>
+                        </div>
+                    </div>
+                    <p class="card-text">Perform statistical analysis on datasets including mean, median, mode, and correlation analysis.</p>
+                    <ul class="list-unstyled small text-muted">
+                        <li><i class="fas fa-clock me-1"></i> Basic statistics</li>
+                        <li><i class="fas fa-clock me-1"></i> Correlation analysis</li>
+                        <li><i class="fas fa-clock me-1"></i> Data cleaning</li>
+                    </ul>
+                </div>
+                <div class="card-footer bg-transparent">
+                    <button class="btn btn-outline-secondary w-100" disabled>
+                        <i class="fas fa-lock me-2"></i>Coming Soon
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6 col-lg-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="fas fa-file-alt fa-2x text-success me-3"></i>
+                        <div>
+                            <h5 class="card-title mb-0">Create Report</h5>
+                            <span class="badge bg-warning">Coming Soon</span>
+                        </div>
+                    </div>
+                    <p class="card-text">Generate professional reports combining your analysis and visualizations into a comprehensive document.</p>
+                    <ul class="list-unstyled small text-muted">
+                        <li><i class="fas fa-clock me-1"></i> Report templates</li>
+                        <li><i class="fas fa-clock me-1"></i> PDF export</li>
+                        <li><i class="fas fa-clock me-1"></i> Presentation mode</li>
+                    </ul>
+                </div>
+                <div class="card-footer bg-transparent">
+                    <button class="btn btn-outline-secondary w-100" disabled>
+                        <i class="fas fa-lock me-2"></i>Coming Soon
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Task Progress -->
+    <div class="row mt-5">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-chart-line me-2"></i>Task Progress
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="text-center">
+                                <div class="progress mb-2" style="height: 20px;">
+                                    <div class="progress-bar bg-success" role="progressbar" style="width: 100%">
+                                        Plot Graphs
+                                    </div>
+                                </div>
+                                <small class="text-muted">Ready to start</small>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="text-center">
+                                <div class="progress mb-2" style="height: 20px;">
+                                    <div class="progress-bar bg-secondary" role="progressbar" style="width: 0%">
+                                        Data Analysis
+                                    </div>
+                                </div>
+                                <small class="text-muted">Not available yet</small>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="text-center">
+                                <div class="progress mb-2" style="height: 20px;">
+                                    <div class="progress-bar bg-secondary" role="progressbar" style="width: 0%">
+                                        Create Report
+                                    </div>
+                                </div>
+                                <small class="text-muted">Not available yet</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Help Section -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="help-section">
+                <h4><i class="fas fa-question-circle me-2"></i>About Student Tasks</h4>
+                <p class="mb-0">
+                    <strong>Plot Graphs:</strong> Start with this task to learn data visualization. Use the sample datasets to create different types of charts.
+                    <br><strong>Data Analysis:</strong> Coming soon - perform statistical analysis on your data.
+                    <br><strong>Create Report:</strong> Coming soon - combine your work into professional reports.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

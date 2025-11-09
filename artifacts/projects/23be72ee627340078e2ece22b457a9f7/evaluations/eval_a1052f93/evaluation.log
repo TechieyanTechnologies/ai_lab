@@ -1,0 +1,11 @@
+Evaluation started at 2025-10-29 17:35:14.095303
+Model: model_702dc41f.pt
+Confidence threshold: 0.25
+IoU threshold: 0.45
+
+
+Evaluation completed!
+mAP50: 0.000
+mAP50-95: 0.000
+Precision: 0.000
+Recall: 0.000

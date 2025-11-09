@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block title %}Create Class - {{ config.school_name }}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0">
+                        <i class="fas fa-plus me-2"></i>Create New Class
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <form method="POST">
+                        <div class="mb-3">
+                            <label for="class_name" class="form-label">Class Name *</label>
+                            <input type="text" class="form-control" id="class_name" name="class_name" required
+                                   placeholder="e.g., Class 8A, Grade 8 Section B">
+                            <div class="form-text">Enter a descriptive name for the class</div>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between">
+                            <a href="{{ url_for('classes') }}" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>Back to Classes
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i>Create Class
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Help Section -->
+            <div class="help-section mt-4">
+                <h4><i class="fas fa-lightbulb me-2"></i>Class Management</h4>
+                <p class="mb-0">
+                    <strong>Class Name:</strong> Use descriptive names like "Class 8A" or "Grade 8 Section B"
+                    <br><strong>Student Assignment:</strong> Students can be assigned to classes during account creation
+                    <br><strong>Teacher Access:</strong> You will be the teacher for this class automatically
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

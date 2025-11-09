@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Lab - Choose Your Level</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .level-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+            height: 100%;
+        }
+        .level-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }
+        .level-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+        .hero-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 4rem 0;
+        }
+        .feature-list {
+            list-style: none;
+            padding: 0;
+        }
+        .feature-list li {
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #eee;
+        }
+        .feature-list li:last-child {
+            border-bottom: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- Hero Section -->
+    <div class="hero-section">
+        <div class="container">
+            <div class="row justify-content-center text-center">
+                <div class="col-lg-8">
+                    <h1 class="display-4 mb-4">
+                        <i class="fas fa-robot me-3"></i>
+                        AI Lab
+                    </h1>
+                    <p class="lead mb-4">
+                        Hands-on AI learning for students. Choose your level and start building intelligent systems!
+                    </p>
+                    <div class="row g-3">
+                        <div class="col-md-3">
+                            <div class="text-center">
+                                <i class="fas fa-chart-bar fa-2x mb-2"></i>
+                                <h6>Data Science</h6>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="text-center">
+                                <i class="fas fa-brain fa-2x mb-2"></i>
+                                <h6>Machine Learning</h6>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="text-center">
+                                <i class="fas fa-image fa-2x mb-2"></i>
+                                <h6>Computer Vision</h6>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="text-center">
+                                <i class="fas fa-comments fa-2x mb-2"></i>
+                                <h6>Natural Language</h6>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Level Selection -->
+    <div class="container py-5">
+        <div class="row g-4">
+            <!-- Level 1 -->
+            <div class="col-md-6 col-lg-3">
+                <div class="card level-card h-100" onclick="window.location.href='/level/1'">
+                    <div class="card-body text-center">
+                        <i class="fas fa-chart-bar level-icon text-primary"></i>
+                        <h3 class="card-title">Level 1</h3>
+                        <h5 class="card-subtitle mb-3 text-muted">Data Handling & Visualization</h5>
+                        <p class="card-text">
+                            Learn data literacy: load CSV files, clean data, explore datasets, and create beautiful visualizations.
+                        </p>
+                        <ul class="feature-list text-start">
+                            <li><i class="fas fa-check text-success me-2"></i>CSV data loading</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Data cleaning tools</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Chart creation</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Report generation</li>
+                        </ul>
+                    </div>
+                    <div class="card-footer bg-primary text-white text-center">
+                        <strong>Start Level 1</strong>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Level 2 -->
+            <div class="col-md-6 col-lg-3">
+                <div class="card level-card h-100" onclick="window.location.href='/level/2'">
+                    <div class="card-body text-center">
+                        <i class="fas fa-brain level-icon text-success"></i>
+                        <h3 class="card-title">Level 2</h3>
+                        <h5 class="card-subtitle mb-3 text-muted">Machine Learning</h5>
+                        <p class="card-text">
+                            Build regression and classification models using scikit-learn. Learn supervised learning fundamentals.
+                        </p>
+                        <ul class="feature-list text-start">
+                            <li><i class="fas fa-check text-success me-2"></i>Regression models</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Classification</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Model evaluation</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Inference scripts</li>
+                        </ul>
+                    </div>
+                    <div class="card-footer bg-success text-white text-center">
+                        <strong>Start Level 2</strong>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Level 3 -->
+            <div class="col-md-6 col-lg-3">
+                <div class="card level-card h-100" onclick="window.location.href='/level/3'">
+                    <div class="card-body text-center">
+                        <i class="fas fa-image level-icon text-info"></i>
+                        <h3 class="card-title">Level 3</h3>
+                        <h5 class="card-subtitle mb-3 text-muted">Image Recognition & Object Detection</h5>
+                        <p class="card-text">
+                            Build custom object detection models using YOLOv5. Label images, train models, and deploy for real-time inference.
+                        </p>
+                        <ul class="feature-list text-start">
+                            <li><i class="fas fa-check text-success me-2"></i>Custom labeling interface</li>
+                            <li><i class="fas fa-check text-success me-2"></i>YOLOv5 training</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Model evaluation</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Deployment interface</li>
+                        </ul>
+                    </div>
+                    <div class="card-footer bg-info text-white text-center">
+                        <strong>Start Level 3</strong>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Level 4 -->
+            <div class="col-md-6 col-lg-3">
+                <div class="card level-card h-100" onclick="window.location.href='/level/4'">
+                    <div class="card-body text-center">
+                        <i class="fas fa-comments level-icon text-warning"></i>
+                        <h3 class="card-title">Level 4</h3>
+                        <h5 class="card-subtitle mb-3 text-muted">NLP & Chatbot</h5>
+                        <p class="card-text">
+                            Process text data, build chatbots, and create text classification models using TF-IDF.
+                        </p>
+                        <ul class="feature-list text-start">
+                            <li><i class="fas fa-check text-success me-2"></i>Text preprocessing</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Chatbot building</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Text classification</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Similarity search</li>
+                        </ul>
+                    </div>
+                    <div class="card-footer bg-warning text-white text-center">
+                        <strong>Start Level 4</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Getting Started -->
+        <div class="row mt-5">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h4 class="card-title">
+                            <i class="fas fa-lightbulb me-2"></i>
+                            Getting Started
+                        </h4>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <h6><i class="fas fa-1 me-2"></i>Choose Your Level</h6>
+                                <p class="text-muted">Select a level that matches your experience and interests.</p>
+                            </div>
+                            <div class="col-md-4">
+                                <h6><i class="fas fa-2 me-2"></i>Create a Project</h6>
+                                <p class="text-muted">Start a new project or use our sample datasets to get started quickly.</p>
+                            </div>
+                            <div class="col-md-4">
+                                <h6><i class="fas fa-3 me-2"></i>Learn by Doing</h6>
+                                <p class="text-muted">Follow guided tutorials and build real AI applications step by step.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

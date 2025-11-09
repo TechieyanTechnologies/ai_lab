@@ -1,0 +1,16 @@
+{
+  "project_id": "d03007f606cd4b009125d4a8cbe8bd67",
+  "title": "Data Analysis Project",
+  "level": 1,
+  "created_at": "2025-10-27T15:47:30.352545",
+  "datasets": [
+    {
+      "filename": "original.csv",
+      "path": "dataset/original.csv",
+      "uploaded_at": "2025-10-27T15:47:30.353350"
+    }
+  ],
+  "cleaned_versions": [],
+  "runs": [],
+  "reports": []
+}

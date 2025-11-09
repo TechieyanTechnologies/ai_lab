@@ -1,0 +1,32 @@
+{
+  "project_id": "724bc4e93fa140a282a2ade4b19ec8bc",
+  "title": "Data Analysis Project - weather_week",
+  "level": 1,
+  "created_at": "2025-10-27T12:08:34.134543",
+  "datasets": [
+    {
+      "filename": "original.csv",
+      "path": "dataset/original.csv",
+      "uploaded_at": "2025-10-27T12:08:34.136256",
+      "source": "sample_weather_week"
+    }
+  ],
+  "cleaned_versions": [
+    {
+      "name": "cleaned_v1.csv",
+      "path": "dataset/cleaned_v1.csv",
+      "notes": ""
+    }
+  ],
+  "runs": [
+    {
+      "run_id": "134b5812fe2945a3b12f52d236f07c3d",
+      "type": "summary",
+      "artifacts": [
+        "summary.json"
+      ],
+      "created_at": "2025-10-27T12:08:45.032859"
+    }
+  ],
+  "reports": []
+}

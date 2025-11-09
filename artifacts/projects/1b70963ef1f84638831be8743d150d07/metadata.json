@@ -1,0 +1,31 @@
+{
+  "project_id": "1b70963ef1f84638831be8743d150d07",
+  "title": "My Data Project",
+  "level": 1,
+  "created_at": "2025-10-27T09:54:33.009062",
+  "datasets": [
+    {
+      "filename": "original.csv",
+      "path": "dataset/original.csv",
+      "uploaded_at": "2025-10-27T09:54:36.834017"
+    }
+  ],
+  "cleaned_versions": [
+    {
+      "name": "cleaned_v1.csv",
+      "path": "dataset/cleaned_v1.csv",
+      "notes": "Filled missing values in SepalWidthCm with mean"
+    }
+  ],
+  "runs": [
+    {
+      "run_id": "17db07e34ded49cd9ea0df4c25e68bd1",
+      "type": "visual",
+      "artifacts": [
+        "plot_histogram_b725d3b1.png"
+      ],
+      "created_at": "2025-10-27T12:17:35.467620"
+    }
+  ],
+  "reports": []
+}

@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task 12: Export & Share</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .task-header { background: linear-gradient(135deg, #8E44AD 0%, #9B59B6 100%); color: white; padding: 2rem 0; }
+        .learning-objective { background: #f8f9fa; padding: 1rem; border-left: 4px solid #8E44AD; }
+        .activity-card { background: #fff; border: 2px solid #8E44AD; border-radius: 8px; padding: 1.5rem; margin-bottom: 1rem; }
+        .activity-card h6 { color: #8E44AD; font-weight: bold; }
+        #exportPreview { min-height: 300px; background: white; border: 1px solid #dee2e6; padding: 1.5rem; }
+        .export-option { border: 2px dashed #8E44AD; border-radius: 8px; padding: 1.5rem; margin: 1rem 0; cursor: pointer; transition: all 0.3s; }
+        .export-option:hover { background: #f8f9fa; border-style: solid; }
+        .export-option i { font-size: 3rem; color: #8E44AD; }
+    </style>
+</head>
+<body>
+    <div class="task-header">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1><i class="fas fa-download me-3"></i>Task 12: Export & Share</h1>
+                    <p class="lead mb-0">Package and export your complete data analysis project</p>
+                </div>
+                <div class="text-end">
+                    <a href="/level/1" class="btn btn-light me-2">← Back to Level 1</a>
+                    <span class="badge bg-light text-dark me-2" style="font-size: 0.9rem;">
+                        <i class="fas fa-clock me-1"></i>20 minutes
+                    </span>
+                    <a href="/level/1/task/12/document" target="_blank" class="btn btn-light btn-sm">
+                        <i class="fas fa-book me-2"></i>Document
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container py-4">
+        <!-- Learning Objective -->
+        <div class="learning-objective mb-4">
+            <h4><i class="fas fa-bullseye me-2"></i>Learning Objective</h4>
+            <p class="mb-0">Learn to package your complete data analysis project including datasets, cleaned data, visualizations, and reports for sharing or submission.</p>
+        </div>
+
+        <!-- Export Tasks -->
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5><i class="fas fa-tasks me-2"></i>Export Tasks</h5>
+            </div>
+            <div class="card-body">
+                <p class="mb-4">Complete these tasks to learn different export formats:</p>
+                
+                <!-- Task 1 -->
+                <div class="activity-card mb-3">
+                    <h6><i class="fas fa-check-circle me-2"></i>Task 1: Export Dataset</h6>
+                    <p class="small">Choose and download your original or cleaned dataset</p>
+                    <button onclick="exportDatasetTask()" class="btn btn-primary btn-sm">Start Task</button>
+                </div>
+
+                <!-- Task 2 -->
+                <div class="activity-card mb-3">
+                    <h6><i class="fas fa-image me-2"></i>Task 2: Export Visualizations</h6>
+                    <p class="small">Package all your charts and graphs as images</p>
+                    <button onclick="exportChartsTask()" class="btn btn-primary btn-sm">Start Task</button>
+                </div>
+
+                <!-- Task 3 -->
+                <div class="activity-card mb-3">
+                    <h6><i class="fas fa-file-pdf me-2"></i>Task 3: Export Report</h6>
+                    <p class="small">Create and download a complete PDF report</p>
+                    <button onclick="exportReportTask()" class="btn btn-primary btn-sm">Start Task</button>
+                </div>
+
+                <!-- Task 4 -->
+                <div class="activity-card mb-3">
+                    <h6><i class="fas fa-box me-2"></i>Task 4: Export All</h6>
+                    <p class="small">Package everything into a ZIP file</p>
+                    <button onclick="exportAllTask()" class="btn btn-primary btn-sm">Start Task</button>
+                </div>
+
+                <div id="taskResult" class="mt-4"></div>
+            </div>
+        </div>
+
+        <!-- Quick Export -->
+        <div class="card mb-4">
+            <div class="card-header bg-success text-white">
+                <h5><i class="fas fa-bolt me-2"></i>Quick Export</h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="export-option text-center" onclick="quickExport('dataset')">
+                            <i class="fas fa-database"></i>
+                            <h6 class="mt-3">Export Dataset</h6>
+                            <p class="small">Download your CSV files</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="export-option text-center" onclick="quickExport('charts')">
+                            <i class="fas fa-chart-bar"></i>
+                            <h6 class="mt-3">Export Charts</h6>
+                            <p class="small">Download all visualizations</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="export-option text-center" onclick="quickExport('report')">
+                            <i class="fas fa-file-pdf"></i>
+                            <h6 class="mt-3">Export Report</h6>
+                            <p class="small">Download PDF report</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="export-option text-center" onclick="quickExport('all')">
+                            <i class="fas fa-box"></i>
+                            <h6 class="mt-3">Export Everything</h6>
+                            <p class="small">Download complete project ZIP</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Export Preview -->
+        <div class="card mb-4" id="previewCard" style="display: none;">
+            <div class="card-header bg-info text-white">
+                <h5><i class="fas fa-eye me-2"></i>Export Preview</h5>
+            </div>
+            <div class="card-body">
+                <div id="exportPreview">
+                    <p class="text-muted text-center">Export preview will appear here</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <div class="card">
+            <div class="card-body text-center">
+                <a href="/level/1" class="btn btn-outline-secondary me-2">
+                    <i class="fas fa-arrow-left me-2"></i>Back to Tasks
+                </a>
+                <a href="/level/1" class="btn btn-primary">
+                    Complete <i class="fas fa-check ms-2"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let currentProjectId = localStorage.getItem('currentProjectId');
+
+        function exportDatasetTask() {
+            if (!currentProjectId) { alert('Please load a dataset first!'); return; }
+            
+            let html = '<h6><i class="fas fa-check-circle text-success me-2"></i>Task 1: Export Dataset</h6>';
+            html += '<div class="alert alert-info">';
+            html += '<p><strong>Your Task:</strong></p>';
+            html += '<ol>';
+            html += '<li>Click "Export Original Dataset" to download your original CSV</li>';
+            html += '<li>Try exporting different versions of your data</li>';
+            html += '<li>Compare the file sizes and contents</li>';
+            html += '</ol>';
+            html += '<button onclick="downloadOriginalDataset()" class="btn btn-success mt-2">Download Original Dataset</button>';
+            html += '</div>';
+            
+            document.getElementById('taskResult').innerHTML = html;
+            document.getElementById('previewCard').style.display = 'block';
+        }
+
+        function downloadOriginalDataset() {
+            if (!currentProjectId) return;
+            
+            const downloadUrl = `/artifacts/projects/${currentProjectId}/dataset/original.csv`;
+            
+            let html = '<h6><i class="fas fa-check-circle text-success me-2"></i>Dataset Ready for Export!</h6>';
+            html += '<div class="alert alert-success">';
+            html += '<p><strong>Download Link:</strong> <a href="' + downloadUrl + '" download class="btn btn-success btn-sm">Download CSV</a></p>';
+            html += '<p class="small mt-2"><i class="fas fa-lightbulb me-2"></i>Right-click the link and select "Save As" to download your dataset.</p>';
+            html += '</div>';
+            
+            document.getElementById('exportPreview').innerHTML = html;
+        }
+
+        function exportChartsTask() {
+            if (!currentProjectId) { alert('Please load a dataset first!'); return; }
+            
+            let html = '<h6><i class="fas fa-image text-success me-2"></i>Task 2: Export Visualizations</h6>';
+            html += '<div class="alert alert-info">';
+            html += '<p><strong>Your Task:</strong></p>';
+            html += '<ol>';
+            html += '<li>Create at least 3 different charts</li>';
+            html += '<li>Click "Export All Charts" to download them</li>';
+            html += '<li>Review which charts are included in your export</li>';
+            html += '</ol>';
+            html += '<button onclick="generateSampleCharts()" class="btn btn-success mt-2">Create Sample Charts & Export</button>';
+            html += '</div>';
+            
+            document.getElementById('taskResult').innerHTML = html;
+            document.getElementById('previewCard').style.display = 'block';
+        }
+
+        async function generateSampleCharts() {
+            if (!currentProjectId) return;
+            
+            try {
+                const response = await fetch(`/projects/${currentProjectId}/columns`);
+                const data = await response.json();
+                const cols = data.columns;
+                const numericCols = data.numeric_columns;
+
+                // Create 3 different charts
+                const charts = [];
+                
+                // Bar chart
+                const barParams = { x_column: cols[0], title: 'Bar Chart', xlabel: '', ylabel: '' };
+                const barRes = await fetch(`/projects/${currentProjectId}/visualize`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ chart_type: 'bar', params: barParams })
+                });
+                const barResult = await barRes.json();
+                if (barResult.success) charts.push({type: 'bar', filename: barResult.plot_filename});
+
+                // Histogram
+                const histParams = { column: numericCols[0] || cols[0], title: 'Histogram', xlabel: '', ylabel: '' };
+                const histRes = await fetch(`/projects/${currentProjectId}/visualize`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ chart_type: 'histogram', params: histParams })
+                });
+                const histResult = await histRes.json();
+                if (histResult.success) charts.push({type: 'histogram', filename: histResult.plot_filename});
+
+                // Scatter plot
+                if (cols.length >= 2) {
+                    const scatterParams = { x_column: cols[0], y_column: cols[1], title: 'Scatter Plot', xlabel: '', ylabel: '' };
+                    const scatterRes = await fetch(`/projects/${currentProjectId}/visualize`, {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({ chart_type: 'scatter', params: scatterParams })
+                    });
+                    const scatterResult = await scatterRes.json();
+                    if (scatterResult.success) charts.push({type: 'scatter', filename: scatterResult.plot_filename});
+                }
+
+                let html = '<h6><i class="fas fa-check-circle text-success me-2"></i>Charts Created!</h6>';
+                html += '<div class="alert alert-success">';
+                html += '<p><strong>Download Your Charts:</strong></p>';
+                html += '<ul class="list-unstyled">';
+                charts.forEach((chart, idx) => {
+                    const url = `/artifacts/projects/${currentProjectId}/runs/${chart.filename}`;
+                    html += `<li class="mb-2"><a href="${url}" target="_blank" class="btn btn-sm btn-outline-primary">Download ${chart.type} Chart <i class="fas fa-download ms-1"></i></a></li>`;
+                });
+                html += '</ul>';
+                html += '</div>';
+                
+                document.getElementById('exportPreview').innerHTML = html;
+            } catch (error) {
+                document.getElementById('exportPreview').innerHTML = 
+                    '<div class="alert alert-danger">Error creating charts: ' + error.message + '</div>';
+            }
+        }
+
+        function exportReportTask() {
+            if (!currentProjectId) { alert('Please load a dataset first!'); return; }
+            
+            let html = '<h6><i class="fas fa-file-pdf text-success me-2"></i>Task 3: Export Report</h6>';
+            html += '<div class="alert alert-info">';
+            html += '<p><strong>Your Task:</strong></p>';
+            html += '<ol>';
+            html += '<li>Write a title and description for your report</li>';
+            html += '<li>Add 2-3 visualizations to your report</li>';
+            html += '<li>Click "Generate & Preview Report"</li>';
+            html += '<li>Copy the HTML report code shown below</li>';
+            html += '</ol>';
+            html += '<div class="mt-3">';
+            html += '<input type="text" id="reportTitleInput" class="form-control mb-2" placeholder="Enter Report Title">';
+            html += '<textarea id="reportDescInput" class="form-control mb-2" rows="2" placeholder="Enter Report Description"></textarea>';
+            html += '<button onclick="generateAndPreviewReport()" class="btn btn-success">Generate & Preview Report</button>';
+            html += '</div>';
+            html += '</div>';
+            
+            document.getElementById('taskResult').innerHTML = html;
+            document.getElementById('previewCard').style.display = 'block';
+        }
+
+        async function generateAndPreviewReport() {
+            const title = document.getElementById('reportTitleInput').value || 'Data Analysis Report';
+            const desc = document.getElementById('reportDescInput').value || '';
+            
+            if (!currentProjectId) return;
+            
+            try {
+                const response = await fetch(`/projects/${currentProjectId}/columns`);
+                const data = await response.json();
+                const cols = data.columns;
+                const numericCols = data.numeric_columns;
+
+                // Generate charts
+                const charts = [];
+                
+                const barParams = { x_column: cols[0], title: 'Overview Chart', xlabel: '', ylabel: '' };
+                const barRes = await fetch(`/projects/${currentProjectId}/visualize`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ chart_type: 'bar', params: barParams })
+                });
+                const barResult = await barRes.json();
+                if (barResult.success) charts.push({filename: barResult.plot_filename, title: 'Overview Chart'});
+
+                const histParams = { column: numericCols[0] || cols[0], title: 'Distribution Analysis', xlabel: '', ylabel: '' };
+                const histRes = await fetch(`/projects/${currentProjectId}/visualize`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ chart_type: 'histogram', params: histParams })
+                });
+                const histResult = await histRes.json();
+                if (histResult.success) charts.push({filename: histResult.plot_filename, title: 'Distribution Analysis'});
+
+                let reportHtml = `<h2>${title}</h2>`;
+                if (desc) reportHtml += `<p class="lead">${desc}</p><hr>`;
+                
+                charts.forEach(chart => {
+                    const url = `/artifacts/projects/${currentProjectId}/runs/${chart.filename}`;
+                    reportHtml += `<h3>${chart.title}</h3>`;
+                    reportHtml += `<img src="${url}" class="img-fluid border rounded mb-4">`;
+                });
+                
+                reportHtml += '<hr><p class="small text-muted">Generated using School AI Lab</p>';
+
+                document.getElementById('exportPreview').innerHTML = 
+                    '<h6><i class="fas fa-check-circle text-success me-2"></i>Report Generated!</h6>' +
+                    '<div class="alert alert-success">' +
+                    '<p><strong>Your Report Preview:</strong></p>' +
+                    reportHtml +
+                    '</div>' +
+                    '<div class="alert alert-info mt-3">' +
+                    '<p><strong>To download as HTML:</strong></p>' +
+                    '<button onclick="downloadHTMLReport()" class="btn btn-primary btn-sm">Download HTML</button>' +
+                    '</div>';
+            } catch (error) {
+                document.getElementById('exportPreview').innerHTML = 
+                    '<div class="alert alert-danger">Error: ' + error.message + '</div>';
+            }
+        }
+
+        function downloadHTMLReport() {
+            const title = document.getElementById('reportTitleInput').value || 'Data Analysis Report';
+            const content = document.getElementById('exportPreview').innerHTML;
+            
+            const htmlContent = `<!DOCTYPE html>
+<html>
+<head>
+    <title>${title}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>body { padding: 2rem; }</style>
+</head>
+<body>
+    ${content.split('<h6>')[1].split('</div>')[0]} 
+</body>
+</html>`;
+            
+            const blob = new Blob([htmlContent], {type: 'text/html'});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${title.replace(/ /g, '_')}.html`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        }
+
+        function exportAllTask() {
+            if (!currentProjectId) { alert('Please load a dataset first!'); return; }
+            
+            let html = '<h6><i class="fas fa-box text-success me-2"></i>Task 4: Export Complete Project</h6>';
+            html += '<div class="alert alert-info">';
+            html += '<p><strong>Your Task:</strong></p>';
+            html += '<ol>';
+            html += '<li>Create a report with at least 2 charts</li>';
+            html += '<li>Click "Export All Files"</li>';
+            html += '<li>Review what files are in your export</li>';
+            html += '<li>Share your complete project with others</li>';
+            html += '</ol>';
+            html += '<button onclick="exportAllFiles()" class="btn btn-success mt-2">Export All Files</button>';
+            html += '</div>';
+            
+            document.getElementById('taskResult').innerHTML = html;
+            document.getElementById('previewCard').style.display = 'block';
+        }
+
+        function exportAllFiles() {
+            if (!currentProjectId) return;
+            
+            let html = '<h6><i class="fas fa-check-circle text-success me-2"></i>All Files Ready for Export!</h6>';
+            html += '<div class="alert alert-success">';
+            html += '<p><strong>Download Your Project Files:</strong></p>';
+            html += '<ul class="list-unstyled">';
+            html += `<li class="mb-2"><a href="/artifacts/projects/${currentProjectId}/dataset/original.csv" class="btn btn-sm btn-outline-primary">Dataset <i class="fas fa-download ms-1"></i></a></li>`;
+            html += `<li class="mb-2"><a href="/artifacts/projects/${currentProjectId}/metadata.json" class="btn btn-sm btn-outline-secondary">Metadata <i class="fas fa-download ms-1"></i></a></li>`;
+            html += '</ul>';
+            html += '<p class="small mt-3"><i class="fas fa-lightbulb me-2"></i>Tip: Download all files and create a ZIP folder to share your complete project!</p>';
+            html += '</div>';
+            
+            document.getElementById('exportPreview').innerHTML = html;
+        }
+
+        function quickExport(type) {
+            document.getElementById('taskResult').innerHTML = '';
+            document.getElementById('exportPreview').innerHTML = '<p class="text-muted text-center">Click an export task above to start</p>';
+            
+            if (type === 'dataset') exportDatasetTask();
+            else if (type === 'charts') exportChartsTask();
+            else if (type === 'report') exportReportTask();
+            else if (type === 'all') exportAllTask();
+        }
+
+        if (currentProjectId) {
+            document.getElementById('previewCard').style.display = 'block';
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,17 @@
+{
+  "project_id": "3437b40bbe8d42bf9e318701018984b1",
+  "title": "Data Analysis Project - survey_small",
+  "level": 1,
+  "created_at": "2025-10-27T10:08:37.689465",
+  "datasets": [
+    {
+      "filename": "original.csv",
+      "path": "dataset/original.csv",
+      "uploaded_at": "2025-10-27T10:08:37.690759",
+      "source": "sample_survey_small"
+    }
+  ],
+  "cleaned_versions": [],
+  "runs": [],
+  "reports": []
+}

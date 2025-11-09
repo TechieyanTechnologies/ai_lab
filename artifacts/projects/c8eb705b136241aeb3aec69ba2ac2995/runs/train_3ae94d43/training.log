@@ -1,0 +1,16 @@
+Training started at 2025-11-03 16:19:39.572635
+Model: YOLOv5s
+Epochs: 10
+Batch size: 16
+Image size: 640
+
+Epoch 1/10: loss=1.9650
+Epoch 2/10: loss=1.9300
+Epoch 3/10: loss=1.8950
+Epoch 4/10: loss=1.8600
+Epoch 5/10: loss=1.8250
+Epoch 6/10: loss=1.7900
+Epoch 7/10: loss=1.7550
+Epoch 8/10: loss=1.7200
+Epoch 9/10: loss=1.6850
+Epoch 10/10: loss=1.6500

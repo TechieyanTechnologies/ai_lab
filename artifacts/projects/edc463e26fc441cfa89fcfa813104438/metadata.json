@@ -1,0 +1,13 @@
+{
+  "project_id": "edc463e26fc441cfa89fcfa813104438",
+  "level": 3,
+  "title": "My Image Project",
+  "classes": [
+    "cat"
+  ],
+  "created_at": "2025-10-29T16:42:23.489780",
+  "image_count": 0,
+  "annotated_count": 0,
+  "model_trained": false,
+  "runs": []
+}

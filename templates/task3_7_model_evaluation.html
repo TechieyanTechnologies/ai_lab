@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task 3.7: Model Evaluation</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .task-header { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; padding: 2rem 0; }
+        .learning-objective { background: #f8f9fa; padding: 1rem; border-left: 4px solid #f5576c; }
+        .metric-card { background: white; border: 2px solid #dee2e6; border-radius: 8px; padding: 1.5rem; text-align: center; margin-bottom: 1rem; }
+        .metric-value { font-size: 2.5rem; font-weight: bold; color: #f5576c; }
+        .metric-label { color: #6c757d; font-size: 0.9rem; margin-top: 0.5rem; }
+        .evaluation-config { background: #f8f9fa; padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; }
+        .log-output { background: #1e1e1e; color: #d4d4d4; font-family: 'Courier New', monospace; font-size: 0.85rem; 
+                      padding: 1rem; border-radius: 4px; max-height: 400px; overflow-y: auto; }
+        .confusion-matrix-img { max-width: 100%; border: 2px solid #dee2e6; border-radius: 4px; }
+        .per-class-table { font-size: 0.9rem; }
+        .status-badge { font-size: 1rem; padding: 0.5rem 1rem; }
+    </style>
+</head>
+<body>
+    <div class="task-header">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1><i class="fas fa-chart-line me-3"></i>Task 3.7: Model Evaluation</h1>
+                    <p class="lead mb-0">Evaluate your trained models on test dataset with comprehensive metrics</p>
+                </div>
+                <a href="/level/3" class="btn btn-light">← Back to Level 3</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="container py-4">
+        <!-- Learning Objective -->
+        <div class="learning-objective mb-4">
+            <h4><i class="fas fa-bullseye me-2"></i>Learning Objective</h4>
+            <p class="mb-0">Learn to evaluate object detection models using standard metrics: mAP50, mAP50-95, precision, recall, and F1-score. Understand per-class performance and confusion matrices.</p>
+        </div>
+
+        <!-- Project Check -->
+        <div class="card mb-4" id="noProjectCard" style="display: none;">
+            <div class="card-body text-center">
+                <i class="fas fa-exclamation-triangle text-warning" style="font-size: 3rem;"></i>
+                <h5 class="mt-3">No Project Found</h5>
+                <p>Please complete previous tasks to train and store models</p>
+                <a href="/level/3/task/1" class="btn btn-primary">
+                    <i class="fas fa-arrow-left me-2"></i>Go to Task 3.1: Project Setup
+                </a>
+            </div>
+        </div>
+
+        <!-- Evaluation Interface -->
+        <div id="evaluationInterface" style="display: none;">
+            <!-- Dataset Status -->
+            <div class="card mb-4">
+                <div class="card-header bg-info text-white">
+                    <h5><i class="fas fa-database me-2"></i>Test Dataset Status</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4 text-center">
+                            <h4 id="testImagesCount">0</h4>
+                            <p class="text-muted mb-0">Test Images</p>
+                        </div>
+                        <div class="col-md-4 text-center">
+                            <h4 id="testLabelsCount">0</h4>
+                            <p class="text-muted mb-0">Test Labels</p>
+                        </div>
+                        <div class="col-md-4 text-center">
+                            <h4 id="classesCount">0</h4>
+                            <p class="text-muted mb-0">Classes</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Evaluation Configuration -->
+            <div class="evaluation-config">
+                <h5><i class="fas fa-cog me-2"></i>Evaluation Configuration</h5>
+                <p class="text-muted small">Select a model and configure evaluation parameters</p>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label"><i class="fas fa-box me-2"></i>Select Model to Evaluate</label>
+                        <select id="modelSelector" class="form-select" onchange="onModelSelect()">
+                            <option value="">-- Select a stored model --</option>
+                        </select>
+                        <small class="text-muted">Only stored models can be evaluated</small>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label class="form-label">
+                            <i class="fas fa-sliders-h me-2"></i>Confidence Threshold: <span id="confThresholdLabel">0.25</span>
+                        </label>
+                        <input type="range" class="form-range" id="confThreshold" min="0.1" max="0.9" step="0.05" value="0.25" 
+                               oninput="document.getElementById('confThresholdLabel').textContent = this.value">
+                        <small class="text-muted">Lower = more detections, Higher = fewer but more confident</small>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label class="form-label">
+                            <i class="fas fa-crosshairs me-2"></i>IoU Threshold: <span id="iouThresholdLabel">0.45</span>
+                        </label>
+                        <input type="range" class="form-range" id="iouThreshold" min="0.1" max="0.9" step="0.05" value="0.45" 
+                               oninput="document.getElementById('iouThresholdLabel').textContent = this.value">
+                        <small class="text-muted">IoU threshold for Non-Maximum Suppression</small>
+                    </div>
+                </div>
+
+                <div class="text-center mt-3">
+                    <button class="btn btn-success btn-lg" id="startEvaluationBtn" onclick="startEvaluation()">
+                        <i class="fas fa-play me-2"></i>Start Evaluation
+                    </button>
+                </div>
+            </div>
+
+            <!-- Evaluation Progress -->
+            <div class="card mb-4" id="evaluationProgressCard" style="display: none;">
+                <div class="card-header bg-primary text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0"><i class="fas fa-spinner fa-spin me-2"></i>Evaluation in Progress</h5>
+                        <span class="badge bg-light text-dark status-badge" id="evaluationStatusBadge">Running</span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <!-- Progress Bar -->
+                    <div class="progress mb-3" style="height: 30px;">
+                        <div class="progress-bar progress-bar-striped progress-bar-animated" 
+                             role="progressbar" id="evaluationProgressBar" style="width: 0%">
+                            <span id="evaluationProgressText">0%</span>
+                        </div>
+                    </div>
+
+                    <!-- Evaluation Logs -->
+                    <div class="mb-3">
+                        <h6><i class="fas fa-file-alt me-2"></i>Evaluation Logs</h6>
+                        <div class="log-output" id="evaluationLogs">
+                            <div class="text-muted">Evaluation logs will appear here...</div>
+                        </div>
+                    </div>
+
+                    <button class="btn btn-sm btn-outline-secondary" onclick="refreshEvaluationStatus()">
+                        <i class="fas fa-sync me-2"></i>Refresh Status
+                    </button>
+                </div>
+            </div>
+
+            <!-- Evaluation Results -->
+            <div class="card mb-4" id="evaluationResultsCard" style="display: none;">
+                <div class="card-header bg-success text-white">
+                    <h5><i class="fas fa-check-circle me-2"></i>Evaluation Results</h5>
+                </div>
+                <div class="card-body">
+                    <!-- Overall Metrics -->
+                    <h6 class="mb-3"><i class="fas fa-chart-bar me-2"></i>Overall Metrics</h6>
+                    <div class="row mb-4">
+                        <div class="col-md-2">
+                            <div class="metric-card">
+                                <div class="metric-value" id="metricMap50">-</div>
+                                <div class="metric-label">mAP50</div>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="metric-card">
+                                <div class="metric-value" id="metricMap50_95">-</div>
+                                <div class="metric-label">mAP50-95</div>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="metric-card">
+                                <div class="metric-value" id="metricPrecision">-</div>
+                                <div class="metric-label">Precision</div>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="metric-card">
+                                <div class="metric-value" id="metricRecall">-</div>
+                                <div class="metric-label">Recall</div>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="metric-card">
+                                <div class="metric-value" id="metricF1">-</div>
+                                <div class="metric-label">F1-Score</div>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="metric-card">
+                                <div class="metric-value text-info" id="metricTestImages">-</div>
+                                <div class="metric-label">Test Images</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Confusion Matrix -->
+                    <div class="mb-4" id="confusionMatrixSection" style="display: none;">
+                        <h6 class="mb-3"><i class="fas fa-th me-2"></i>Confusion Matrix</h6>
+                        <div class="text-center">
+                            <img id="confusionMatrixImg" class="confusion-matrix-img" src="" alt="Confusion Matrix">
+                        </div>
+                    </div>
+
+                    <!-- Per-Class Metrics -->
+                    <div id="perClassMetricsSection" style="display: none;">
+                        <h6 class="mb-3"><i class="fas fa-table me-2"></i>Per-Class Performance</h6>
+                        <div class="table-responsive">
+                            <table class="table table-sm table-striped per-class-table">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>Class</th>
+                                        <th>Precision</th>
+                                        <th>Recall</th>
+                                        <th>mAP50</th>
+                                        <th>Support</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="perClassMetricsBody">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Previous Evaluations -->
+            <div class="card mb-4" id="previousEvaluationsCard" style="display: none;">
+                <div class="card-header bg-secondary text-white">
+                    <h5><i class="fas fa-history me-2"></i>Previous Evaluations</h5>
+                </div>
+                <div class="card-body">
+                    <div id="evaluationsList"></div>
+                </div>
+            </div>
+
+            <!-- Evaluation Guide -->
+            <div class="card mt-4">
+                <div class="card-header bg-info text-white">
+                    <h5><i class="fas fa-info-circle me-2"></i>Understanding Evaluation Metrics</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>Key Metrics:</h6>
+                            <ul>
+                                <li><strong>mAP50:</strong> Mean Average Precision at IoU=0.50. Higher is better (range: 0-1)</li>
+                                <li><strong>mAP50-95:</strong> Average mAP across IoU thresholds 0.50 to 0.95. More strict metric.</li>
+                                <li><strong>Precision:</strong> Accuracy of positive predictions. True Positives / (True Positives + False Positives)</li>
+                                <li><strong>Recall:</strong> Ability to find all positive samples. True Positives / (True Positives + False Negatives)</li>
+                                <li><strong>F1-Score:</strong> Harmonic mean of Precision and Recall. Balanced metric.</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Thresholds:</h6>
+                            <ul>
+                                <li><strong>Confidence Threshold:</strong> Minimum confidence score for a detection. Lower values = more detections but potentially more false positives.</li>
+                                <li><strong>IoU Threshold:</strong> Intersection over Union for Non-Maximum Suppression. Used to remove overlapping boxes.</li>
+                            </ul>
+                            <p class="small text-muted mt-3">
+                                <strong>Tip:</strong> For production, aim for mAP50 > 0.80 and Precision > 0.85 for reliable object detection.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Navigation -->
+            <div class="card mt-4">
+                <div class="card-body text-center">
+                    <a href="/level/3/task/6" class="btn btn-outline-secondary me-2">
+                        <i class="fas fa-arrow-left me-2"></i>Previous Task
+                    </a>
+                    <a href="/level/3" class="btn btn-outline-secondary me-2">
+                        Back to Level 3
+                    </a>
+                    <a href="/level/3/task/8" class="btn btn-primary">
+                        Next Task <i class="fas fa-arrow-right ms-2"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let currentProjectId = null;
+        let currentEvalId = null;
+        let statusInterval = null;
+
+        // Initialize
+        window.addEventListener('DOMContentLoaded', async () => {
+            currentProjectId = localStorage.getItem('level3_project_id');
+            
+            if (!currentProjectId) {
+                document.getElementById('noProjectCard').style.display = 'block';
+                return;
+            }
+
+            document.getElementById('evaluationInterface').style.display = 'block';
+            await checkTestDataset();
+            await loadStoredModels();
+            await loadPreviousEvaluations();
+        });
+
+        async function checkTestDataset() {
+            try {
+                const response = await fetch(`/level/3/projects/${currentProjectId}/preparation-status`);
+                const status = await response.json();
+                
+                const testCount = status.split_counts?.test || 0;
+                document.getElementById('testImagesCount').textContent = testCount;
+                document.getElementById('testLabelsCount').textContent = status.label_count || 0;
+                
+                // Get class count
+                try {
+                    const metadataResponse = await fetch(`/level/3/projects/${currentProjectId}/metadata`);
+                    const metadata = await metadataResponse.json();
+                    document.getElementById('classesCount').textContent = metadata.classes?.length || 0;
+                } catch (e) {
+                    document.getElementById('classesCount').textContent = '?';
+                }
+                
+                if (testCount === 0) {
+                    alert('Warning: No test dataset found. Please complete Task 3.4 to split your dataset.');
+                }
+            } catch (error) {
+                console.error('Error checking test dataset:', error);
+            }
+        }
+
+        async function loadStoredModels() {
+            try {
+                const response = await fetch(`/level/3/projects/${currentProjectId}/models`);
+                const data = await response.json();
+                
+                const selector = document.getElementById('modelSelector');
+                selector.innerHTML = '<option value="">-- Select a stored model --</option>';
+                
+                if (data.stored_models && data.stored_models.length > 0) {
+                    data.stored_models.forEach(model => {
+                        const option = document.createElement('option');
+                        option.value = model.name;
+                        option.textContent = `${model.name} (v${model.version})`;
+                        selector.appendChild(option);
+                    });
+                } else {
+                    selector.innerHTML = '<option value="">No stored models available</option>';
+                    selector.disabled = true;
+                }
+            } catch (error) {
+                console.error('Error loading stored models:', error);
+            }
+        }
+
+        function onModelSelect() {
+            const modelName = document.getElementById('modelSelector').value;
+            const btn = document.getElementById('startEvaluationBtn');
+            btn.disabled = !modelName;
+        }
+
+        async function startEvaluation() {
+            const modelName = document.getElementById('modelSelector').value;
+            const confThreshold = parseFloat(document.getElementById('confThreshold').value);
+            const iouThreshold = parseFloat(document.getElementById('iouThreshold').value);
+            
+            if (!modelName) {
+                alert('Please select a model to evaluate');
+                return;
+            }
+            
+            const btn = document.getElementById('startEvaluationBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Starting Evaluation...';
+            
+            try {
+                const response = await fetch(`/level/3/projects/${currentProjectId}/evaluate-model`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        model_name: modelName,
+                        conf_threshold: confThreshold,
+                        iou_threshold: iouThreshold
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    currentEvalId = data.eval_id;
+                    
+                    // Show progress card
+                    document.getElementById('evaluationProgressCard').style.display = 'block';
+                    document.getElementById('evaluationResultsCard').style.display = 'none';
+                    
+                    // Start polling
+                    startStatusPolling();
+                    await loadEvaluationLogs();
+                } else {
+                    throw new Error(data.error || 'Failed to start evaluation');
+                }
+            } catch (error) {
+                alert('Error starting evaluation: ' + error.message);
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-play me-2"></i>Start Evaluation';
+            }
+        }
+
+        function startStatusPolling() {
+            if (statusInterval) {
+                clearInterval(statusInterval);
+            }
+            
+            statusInterval = setInterval(async () => {
+                await updateEvaluationStatus();
+            }, 2000);
+        }
+
+        async function updateEvaluationStatus() {
+            if (!currentEvalId) return;
+            
+            try {
+                const response = await fetch(`/level/3/projects/${currentProjectId}/evaluation-status/${currentEvalId}`);
+                const status = await response.json();
+                
+                // Update progress
+                const progress = status.progress || 0;
+                document.getElementById('evaluationProgressBar').style.width = progress + '%';
+                document.getElementById('evaluationProgressText').textContent = progress + '%';
+                
+                // Update status badge
+                const badge = document.getElementById('evaluationStatusBadge');
+                if (status.status === 'completed') {
+                    badge.textContent = 'Completed';
+                    badge.className = 'badge bg-success status-badge';
+                    clearInterval(statusInterval);
+                    showEvaluationResults(status);
+                    await loadPreviousEvaluations();
+                } else if (status.status === 'failed') {
+                    badge.textContent = 'Failed';
+                    badge.className = 'badge bg-danger status-badge';
+                    clearInterval(statusInterval);
+                    alert('Evaluation failed: ' + (status.error || 'Unknown error'));
+                } else {
+                    badge.textContent = 'Running';
+                    badge.className = 'badge bg-primary status-badge';
+                }
+                
+                // Load logs
+                await loadEvaluationLogs();
+                
+            } catch (error) {
+                console.error('Error updating evaluation status:', error);
+            }
+        }
+
+        async function loadEvaluationLogs() {
+            if (!currentEvalId) return;
+            
+            try {
+                const response = await fetch(`/level/3/projects/${currentProjectId}/evaluation-logs/${currentEvalId}`);
+                const data = await response.json();
+                
+                if (data.success && data.logs) {
+                    const logsDiv = document.getElementById('evaluationLogs');
+                    logsDiv.innerHTML = '<pre>' + data.logs.replace(/\n/g, '<br>') + '</pre>';
+                    logsDiv.scrollTop = logsDiv.scrollHeight;
+                }
+            } catch (error) {
+                console.error('Error loading logs:', error);
+            }
+        }
+
+        function refreshEvaluationStatus() {
+            if (currentEvalId) {
+                updateEvaluationStatus();
+                loadEvaluationLogs();
+            }
+        }
+
+        function showEvaluationResults(status) {
+            const resultsCard = document.getElementById('evaluationResultsCard');
+            resultsCard.style.display = 'block';
+            
+            const metrics = status.metrics || {};
+            
+            // Update overall metrics
+            document.getElementById('metricMap50').textContent = (metrics.mAP50 ? (metrics.mAP50 * 100).toFixed(1) + '%' : '-');
+            document.getElementById('metricMap50_95').textContent = (metrics['mAP50-95'] ? (metrics['mAP50-95'] * 100).toFixed(1) + '%' : '-');
+            document.getElementById('metricPrecision').textContent = (metrics.precision ? (metrics.precision * 100).toFixed(1) + '%' : '-');
+            document.getElementById('metricRecall').textContent = (metrics.recall ? (metrics.recall * 100).toFixed(1) + '%' : '-');
+            document.getElementById('metricF1').textContent = (metrics.f1_score ? (metrics.f1_score * 100).toFixed(1) + '%' : '-');
+            
+            // Update test images count
+            checkTestDataset().then(() => {
+                document.getElementById('metricTestImages').textContent = document.getElementById('testImagesCount').textContent;
+            });
+            
+            // Show confusion matrix if available
+            if (status.confusion_matrix_path) {
+                const img = document.getElementById('confusionMatrixImg');
+                img.src = `/artifacts/projects/${currentProjectId}/evaluations/${currentEvalId}/confusion_matrix.png`;
+                document.getElementById('confusionMatrixSection').style.display = 'block';
+            }
+            
+            // Show per-class metrics
+            if (metrics.per_class_metrics && Object.keys(metrics.per_class_metrics).length > 0) {
+                const tbody = document.getElementById('perClassMetricsBody');
+                tbody.innerHTML = '';
+                
+                Object.entries(metrics.per_class_metrics).forEach(([className, classMetrics]) => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td><strong>${className}</strong></td>
+                        <td>${(classMetrics.precision * 100).toFixed(1)}%</td>
+                        <td>${(classMetrics.recall * 100).toFixed(1)}%</td>
+                        <td>${(classMetrics.mAP50 * 100).toFixed(1)}%</td>
+                        <td>${classMetrics.support || '-'}</td>
+                    `;
+                    tbody.appendChild(row);
+                });
+                
+                document.getElementById('perClassMetricsSection').style.display = 'block';
+            }
+            
+            // Re-enable start button
+            document.getElementById('startEvaluationBtn').disabled = false;
+            document.getElementById('startEvaluationBtn').innerHTML = '<i class="fas fa-play me-2"></i>Start Evaluation';
+        }
+
+        async function loadPreviousEvaluations() {
+            try {
+                const response = await fetch(`/level/3/projects/${currentProjectId}/evaluations`);
+                const data = await response.json();
+                
+                if (data.evaluations && data.evaluations.length > 0) {
+                    document.getElementById('previousEvaluationsCard').style.display = 'block';
+                    
+                    const container = document.getElementById('evaluationsList');
+                    container.innerHTML = '';
+                    
+                    data.evaluations.forEach(eval => {
+                        const metrics = eval.metrics || {};
+                        const card = document.createElement('div');
+                        card.className = 'card mb-2';
+                        card.innerHTML = `
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <h6>${eval.model_name}</h6>
+                                        <p class="small text-muted mb-0">
+                                            ${new Date(eval.created_at).toLocaleString()}
+                                            <span class="badge bg-${eval.status === 'completed' ? 'success' : 'warning'} ms-2">${eval.status}</span>
+                                        </p>
+                                        ${metrics.mAP50 ? `
+                                            <p class="small mb-0 mt-2">
+                                                mAP50: ${(metrics.mAP50 * 100).toFixed(1)}% | 
+                                                Precision: ${(metrics.precision * 100).toFixed(1)}% | 
+                                                Recall: ${(metrics.recall * 100).toFixed(1)}%
+                                            </p>
+                                        ` : ''}
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                        container.appendChild(card);
+                    });
+                } else {
+                    document.getElementById('previousEvaluationsCard').style.display = 'none';
+                }
+            } catch (error) {
+                console.error('Error loading previous evaluations:', error);
+            }
+        }
+
+        // Initialize
+        onModelSelect();
+    </script>
+</body>
+</html>
+

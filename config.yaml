@@ -1,0 +1,8 @@
+school_name: "School AI Lab"
+primary_color: "#2563eb"
+accent_color: "#7c3aed"
+logo_path: null
+class8_enabled: true
+max_upload_size: 10  # MB
+max_rows: 50000
+artifact_path: "./artifacts"

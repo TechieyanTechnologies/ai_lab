@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task 3.5: Model Training</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .task-header { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; padding: 2rem 0; }
+        .learning-objective { background: #f8f9fa; padding: 1rem; border-left: 4px solid #f5576c; }
+        .config-card { border: 2px solid #f5576c; border-radius: 8px; padding: 1.5rem; margin-bottom: 1rem; }
+        .training-status { background: #fff; border: 1px solid #dee2e6; border-radius: 8px; padding: 1.5rem; }
+        .log-output { background: #1e1e1e; color: #d4d4d4; font-family: 'Courier New', monospace; font-size: 0.85rem; 
+                      padding: 1rem; border-radius: 4px; max-height: 400px; overflow-y: auto; }
+        .metric-badge { font-size: 1.2rem; padding: 0.5rem 1rem; }
+    </style>
+</head>
+<body>
+    <div class="task-header">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1><i class="fas fa-brain me-3"></i>Task 3.5: Model Training with YOLOv5</h1>
+                    <p class="lead mb-0">Train your custom object detection model using YOLOv5 pretrained weights</p>
+                </div>
+                <a href="/level/3" class="btn btn-light">← Back to Level 3</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="container py-4">
+        <!-- Learning Objective -->
+        <div class="learning-objective mb-4">
+            <h4><i class="fas fa-bullseye me-2"></i>Learning Objective</h4>
+            <p class="mb-0">Learn to train YOLOv5 models on custom datasets using transfer learning. Understand training hyperparameters, monitor progress, and save trained models.</p>
+        </div>
+
+        <!-- Project Check -->
+        <div class="card mb-4" id="noProjectCard">
+            <div class="card-body text-center">
+                <i class="fas fa-exclamation-triangle text-warning" style="font-size: 3rem;"></i>
+                <h5 class="mt-3">Dataset Not Prepared</h5>
+                <p>Please complete Task 3.4: Data Preparation first to convert annotations to YOLO format</p>
+                <a href="/level/3/task/4" class="btn btn-primary">
+                    <i class="fas fa-arrow-left me-2"></i>Go to Task 3.4: Data Preparation
+                </a>
+            </div>
+        </div>
+
+        <!-- Training Interface -->
+        <div id="trainingInterface" style="display: none;">
+            <!-- Dataset Status -->
+            <div class="card mb-4">
+                <div class="card-header bg-info text-white">
+                    <h5><i class="fas fa-database me-2"></i>Dataset Status</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row" id="datasetStatusDisplay">
+                        <div class="col-md-3 text-center">
+                            <h4 id="trainCount">0</h4>
+                            <p class="text-muted mb-0">Training Images</p>
+                        </div>
+                        <div class="col-md-3 text-center">
+                            <h4 id="valCount">0</h4>
+                            <p class="text-muted mb-0">Validation Images</p>
+                        </div>
+                        <div class="col-md-3 text-center">
+                            <h4 id="testCount">0</h4>
+                            <p class="text-muted mb-0">Test Images</p>
+                        </div>
+                        <div class="col-md-3 text-center">
+                            <h4 id="classCount">0</h4>
+                            <p class="text-muted mb-0">Classes</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Training Configuration -->
+            <div class="config-card mb-4" id="configCard">
+                <h5><i class="fas fa-cog me-2"></i>Training Configuration</h5>
+                <p class="text-muted small">Configure your YOLOv5 training parameters</p>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label"><i class="fas fa-layer-group me-2"></i>Model Size</label>
+                        <select id="modelSize" class="form-select">
+                            <option value="s" selected>YOLOv5s (Small - Fastest, Lower Accuracy)</option>
+                            <option value="m">YOLOv5m (Medium - Balanced)</option>
+                            <option value="l">YOLOv5l (Large - Higher Accuracy)</option>
+                            <option value="x">YOLOv5x (XLarge - Best Accuracy, Slowest)</option>
+                        </select>
+                        <small class="text-muted">Smaller models train faster but may have lower accuracy</small>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label"><i class="fas fa-redo me-2"></i>Number of Epochs: <span id="epochsLabel">50</span></label>
+                        <input type="range" class="form-range" id="epochs" min="10" max="200" value="50" step="5" oninput="updateEpochs(this.value)">
+                        <small class="text-muted">More epochs = better learning but longer training time</small>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label"><i class="fas fa-boxes me-2"></i>Batch Size: <span id="batchSizeLabel">16</span></label>
+                        <input type="range" class="form-range" id="batchSize" min="4" max="64" value="16" step="4" oninput="updateBatchSize(this.value)">
+                        <small class="text-muted">Larger batches use more memory but train faster</small>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label"><i class="fas fa-expand me-2"></i>Image Size: <span id="imgSizeLabel">640</span></label>
+                        <input type="range" class="form-range" id="imgSize" min="320" max="1280" value="640" step="32" oninput="updateImgSize(this.value)">
+                        <small class="text-muted">Higher resolution = better accuracy but slower training</small>
+                    </div>
+                </div>
+
+                <!-- Training Summary -->
+                <div class="alert alert-info mt-3">
+                    <h6><i class="fas fa-calculator me-2"></i>Training Estimate</h6>
+                    <p class="mb-0" id="trainingEstimate">
+                        Estimated time: <strong id="estTime">~5 minutes</strong> | 
+                        Memory usage: <strong id="estMemory">~4 GB</strong>
+                    </p>
+                </div>
+
+                <!-- Start Training Button -->
+                <div class="text-center mt-4">
+                    <button class="btn btn-success btn-lg" id="startTrainingBtn" onclick="startTraining()">
+                        <i class="fas fa-play me-2"></i>Start Training
+                    </button>
+                </div>
+            </div>
+
+            <!-- Training Status -->
+            <div class="training-status mb-4" id="trainingStatusCard" style="display: none;">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5><i class="fas fa-chart-line me-2"></i>Training Progress</h5>
+                    <span class="badge" id="statusBadge">Running</span>
+                </div>
+                
+                <!-- Progress Bar -->
+                <div class="progress mb-3" style="height: 30px;">
+                    <div class="progress-bar progress-bar-striped progress-bar-animated" 
+                         role="progressbar" id="progressBar" style="width: 0%">
+                        <span id="progressText">0%</span>
+                    </div>
+                </div>
+
+                <!-- Training Metrics -->
+                <div class="row mb-3" id="metricsDisplay" style="display: none;">
+                    <div class="col-md-3 text-center">
+                        <div class="metric-badge badge bg-primary">
+                            Epoch: <span id="currentEpoch">0</span>/<span id="totalEpochs">0</span>
+                        </div>
+                    </div>
+                    <div class="col-md-3 text-center">
+                        <div class="metric-badge badge bg-danger">
+                            Loss: <span id="currentLoss">-</span>
+                        </div>
+                    </div>
+                    <div class="col-md-3 text-center">
+                        <div class="metric-badge badge bg-success">
+                            mAP50: <span id="currentMap50">-</span>
+                        </div>
+                    </div>
+                    <div class="col-md-3 text-center">
+                        <div class="metric-badge badge bg-warning">
+                            Time: <span id="trainingTime">-</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Training Logs -->
+                <div class="mb-3">
+                    <h6><i class="fas fa-file-alt me-2"></i>Training Logs</h6>
+                    <div class="log-output" id="trainingLogs">
+                        <div class="text-muted">Training logs will appear here...</div>
+                    </div>
+                </div>
+
+                <!-- Training Actions -->
+                <div class="d-flex gap-2">
+                    <button class="btn btn-sm btn-outline-secondary" onclick="refreshStatus()">
+                        <i class="fas fa-sync me-2"></i>Refresh
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger" onclick="stopTraining()" id="stopBtn" style="display: none;">
+                        <i class="fas fa-stop me-2"></i>Stop Training
+                    </button>
+                </div>
+            </div>
+
+            <!-- Training Results -->
+            <div class="card mb-4" id="resultsCard" style="display: none;">
+                <div class="card-header bg-success text-white">
+                    <h5><i class="fas fa-check-circle me-2"></i>Training Complete!</h5>
+                </div>
+                <div class="card-body">
+                    <div id="resultsContent"></div>
+                    <div class="mt-3">
+                        <a href="/level/3/task/6" class="btn btn-primary">
+                            <i class="fas fa-arrow-right me-2"></i>Next: Model Storage
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Previous Training Runs -->
+            <div class="card mb-4" id="previousRunsCard" style="display: none;">
+                <div class="card-header bg-secondary text-white">
+                    <h5><i class="fas fa-history me-2"></i>Previous Training Runs</h5>
+                </div>
+                <div class="card-body">
+                    <div id="runsList"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Help Section -->
+        <div class="card mt-4">
+            <div class="card-header bg-info text-white">
+                <h5><i class="fas fa-question-circle me-2"></i>Training Tips</h5>
+            </div>
+            <div class="card-body">
+                <ul>
+                    <li><strong>Model Size:</strong> Start with YOLOv5s for faster training, upgrade to larger models for better accuracy</li>
+                    <li><strong>Epochs:</strong> 50-100 epochs usually sufficient for small datasets. Monitor validation loss to avoid overfitting</li>
+                    <li><strong>Batch Size:</strong> Adjust based on GPU memory. Reduce if you get "out of memory" errors</li>
+                    <li><strong>Image Size:</strong> 640px is standard. Increase for better accuracy on small objects, decrease for faster training</li>
+                    <li><strong>Transfer Learning:</strong> YOLOv5 uses pretrained weights, so training is faster and requires less data</li>
+                    <li><strong>Note:</strong> If YOLOv5 is not installed, training will run in simulation mode for demonstration</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <div class="card mt-4">
+            <div class="card-body text-center">
+                <a href="/level/3/task/4" class="btn btn-outline-secondary me-2">
+                    <i class="fas fa-arrow-left me-2"></i>Previous Task
+                </a>
+                <a href="/level/3" class="btn btn-outline-secondary me-2">
+                    Back to Level 3
+                </a>
+                <a href="/level/3/task/6" class="btn btn-primary" id="nextTaskBtn" style="display: none;">
+                    Next Task <i class="fas fa-arrow-right ms-2"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let currentProjectId = null;
+        let currentRunId = null;
+        let statusInterval = null;
+        let trainingStartTime = null;
+
+        // Initialize
+        window.addEventListener('DOMContentLoaded', async () => {
+            currentProjectId = localStorage.getItem('level3_project_id');
+            
+            if (!currentProjectId) {
+                document.getElementById('noProjectCard').style.display = 'block';
+                return;
+            }
+
+            await checkDatasetStatus();
+        });
+
+        async function checkDatasetStatus() {
+            try {
+                const response = await fetch(`/level/3/projects/${currentProjectId}/preparation-status`);
+                const status = await response.json();
+                
+                if (!status.yaml_config_exists || !status.dataset_split_exists) {
+                    document.getElementById('noProjectCard').style.display = 'block';
+                    return;
+                }
+
+                // Dataset is ready
+                document.getElementById('trainingInterface').style.display = 'block';
+                
+                // Update dataset status display
+                document.getElementById('trainCount').textContent = status.split_counts.train || 0;
+                document.getElementById('valCount').textContent = status.split_counts.val || 0;
+                document.getElementById('testCount').textContent = status.split_counts.test || 0;
+                
+                // Get class count from metadata
+                try {
+                    const metadataResponse = await fetch(`/level/3/projects/${currentProjectId}/metadata`);
+                    const metadata = await metadataResponse.json();
+                    document.getElementById('classCount').textContent = metadata.classes?.length || 0;
+                } catch (e) {
+                    document.getElementById('classCount').textContent = '?';
+                }
+
+                // Load previous runs
+                await loadPreviousRuns();
+                
+                // Update training estimate
+                updateTrainingEstimate();
+            } catch (error) {
+                console.error('Error checking dataset status:', error);
+                document.getElementById('noProjectCard').style.display = 'block';
+            }
+        }
+
+        function updateEpochs(value) {
+            document.getElementById('epochsLabel').textContent = value;
+            updateTrainingEstimate();
+        }
+
+        function updateBatchSize(value) {
+            document.getElementById('batchSizeLabel').textContent = value;
+            updateTrainingEstimate();
+        }
+
+        function updateImgSize(value) {
+            document.getElementById('imgSizeLabel').textContent = value;
+            updateTrainingEstimate();
+        }
+
+        function updateTrainingEstimate() {
+            const epochs = parseInt(document.getElementById('epochs').value);
+            const batchSize = parseInt(document.getElementById('batchSize').value);
+            const modelSize = document.getElementById('modelSize').value;
+            const imgSize = parseInt(document.getElementById('imgSize').value);
+            
+            // Rough estimates (can be improved)
+            const baseTime = {
+                's': 30, 'm': 60, 'l': 120, 'x': 240
+            }[modelSize] || 30;
+            
+            const timeMinutes = Math.round((baseTime * epochs) / 50);
+            const memoryGB = {
+                's': 2, 'm': 4, 'l': 8, 'x': 16
+            }[modelSize] || 2;
+            
+            document.getElementById('estTime').textContent = `~${timeMinutes} minutes`;
+            document.getElementById('estMemory').textContent = `~${memoryGB} GB`;
+        }
+
+        async function startTraining() {
+            const modelSize = document.getElementById('modelSize').value;
+            const epochs = parseInt(document.getElementById('epochs').value);
+            const batchSize = parseInt(document.getElementById('batchSize').value);
+            const imgSize = parseInt(document.getElementById('imgSize').value);
+            
+            const btn = document.getElementById('startTrainingBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Starting Training...';
+            
+            try {
+                const response = await fetch(`/level/3/projects/${currentProjectId}/train-yolo`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        model_size: modelSize,
+                        epochs: epochs,
+                        batch_size: batchSize,
+                        img_size: imgSize
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    currentRunId = data.run_id;
+                    trainingStartTime = Date.now();
+                    
+                    // Hide config, show training status
+                    document.getElementById('configCard').style.display = 'none';
+                    document.getElementById('trainingStatusCard').style.display = 'block';
+                    document.getElementById('statusBadge').textContent = 'Running';
+                    document.getElementById('statusBadge').className = 'badge bg-primary';
+                    
+                    // Start polling for status
+                    startStatusPolling();
+                    
+                    // Load initial logs
+                    await loadTrainingLogs();
+                } else {
+                    throw new Error(data.error || 'Failed to start training');
+                }
+            } catch (error) {
+                alert('Error starting training: ' + error.message);
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-play me-2"></i>Start Training';
+            }
+        }
+
+        function startStatusPolling() {
+            if (statusInterval) {
+                clearInterval(statusInterval);
+            }
+            
+            statusInterval = setInterval(async () => {
+                await updateTrainingStatus();
+            }, 2000); // Poll every 2 seconds
+        }
+
+        async function updateTrainingStatus() {
+            if (!currentRunId) return;
+            
+            try {
+                const response = await fetch(`/level/3/projects/${currentProjectId}/training-status/${currentRunId}`);
+                const status = await response.json();
+                
+                // Update progress bar
+                const progress = status.progress || 0;
+                document.getElementById('progressBar').style.width = progress + '%';
+                document.getElementById('progressText').textContent = progress + '%';
+                
+                // Update status badge
+                const badge = document.getElementById('statusBadge');
+                if (status.status === 'completed') {
+                    badge.textContent = 'Completed';
+                    badge.className = 'badge bg-success';
+                    clearInterval(statusInterval);
+                    showTrainingResults(status);
+                } else if (status.status === 'failed') {
+                    badge.textContent = 'Failed';
+                    badge.className = 'badge bg-danger';
+                    clearInterval(statusInterval);
+                    showTrainingError(status);
+                } else {
+                    badge.textContent = 'Running';
+                    badge.className = 'badge bg-primary';
+                }
+                
+                // Update metrics
+                if (status.epoch) {
+                    document.getElementById('metricsDisplay').style.display = 'block';
+                    document.getElementById('currentEpoch').textContent = status.epoch;
+                    document.getElementById('totalEpochs').textContent = document.getElementById('epochs').value;
+                    
+                    if (status.loss) {
+                        document.getElementById('currentLoss').textContent = status.loss.toFixed(4);
+                    }
+                    
+                    if (status.metrics) {
+                        document.getElementById('currentMap50').textContent = (status.metrics.mAP50 || 0).toFixed(3);
+                    }
+                    
+                    // Update training time
+                    if (trainingStartTime) {
+                        const elapsed = Math.floor((Date.now() - trainingStartTime) / 1000);
+                        const minutes = Math.floor(elapsed / 60);
+                        const seconds = elapsed % 60;
+                        document.getElementById('trainingTime').textContent = `${minutes}m ${seconds}s`;
+                    }
+                }
+                
+                // Load logs
+                await loadTrainingLogs();
+                
+            } catch (error) {
+                console.error('Error updating training status:', error);
+            }
+        }
+
+        async function loadTrainingLogs() {
+            if (!currentRunId) return;
+            
+            try {
+                const response = await fetch(`/level/3/projects/${currentProjectId}/training-logs/${currentRunId}`);
+                const data = await response.json();
+                
+                if (data.success && data.logs) {
+                    const logsDiv = document.getElementById('trainingLogs');
+                    logsDiv.innerHTML = '<pre>' + data.logs.replace(/\n/g, '<br>') + '</pre>';
+                    // Auto-scroll to bottom
+                    logsDiv.scrollTop = logsDiv.scrollHeight;
+                }
+            } catch (error) {
+                console.error('Error loading logs:', error);
+            }
+        }
+
+        function refreshStatus() {
+            if (currentRunId) {
+                updateTrainingStatus();
+                loadTrainingLogs();
+            }
+        }
+
+        function stopTraining() {
+            if (confirm('Are you sure you want to stop training? This cannot be undone.')) {
+                clearInterval(statusInterval);
+                document.getElementById('statusBadge').textContent = 'Stopped';
+                document.getElementById('statusBadge').className = 'badge bg-warning';
+            }
+        }
+
+        function showTrainingResults(status) {
+            const resultsCard = document.getElementById('resultsCard');
+            const resultsContent = document.getElementById('resultsContent');
+            
+            let html = '<div class="row mb-3">';
+            html += '<div class="col-md-6">';
+            html += '<h6>Training Summary:</h6>';
+            html += `<p><strong>Epochs Completed:</strong> ${status.epoch || 'N/A'}</p>`;
+            html += `<p><strong>Final Loss:</strong> ${status.loss ? status.loss.toFixed(4) : 'N/A'}</p>`;
+            if (status.metrics) {
+                html += `<p><strong>mAP50:</strong> ${status.metrics.mAP50 ? status.metrics.mAP50.toFixed(4) : 'N/A'}</p>`;
+                html += `<p><strong>mAP50-95:</strong> ${status.metrics['mAP50-95'] ? status.metrics['mAP50-95'].toFixed(4) : 'N/A'}</p>`;
+            }
+            html += '</div>';
+            html += '<div class="col-md-6">';
+            html += '<h6>Model Files:</h6>';
+            if (status.model_path) {
+                html += `<p><i class="fas fa-file-code me-2"></i><code>${status.model_path}</code></p>`;
+            }
+            html += '</div>';
+            html += '</div>';
+            
+            resultsContent.innerHTML = html;
+            resultsCard.style.display = 'block';
+            document.getElementById('nextTaskBtn').style.display = 'inline-block';
+            
+            // Reload previous runs
+            loadPreviousRuns();
+        }
+
+        function showTrainingError(status) {
+            const resultsCard = document.getElementById('resultsCard');
+            const resultsContent = document.getElementById('resultsContent');
+            
+            resultsCard.className = 'card mb-4 border-danger';
+            resultsCard.querySelector('.card-header').className = 'card-header bg-danger text-white';
+            resultsContent.innerHTML = `
+                <div class="alert alert-danger">
+                    <h6><i class="fas fa-exclamation-circle me-2"></i>Training Failed</h6>
+                    <p><strong>Error:</strong> ${status.error || 'Unknown error'}</p>
+                    <p class="small">Check the training logs above for more details.</p>
+                </div>
+            `;
+            resultsCard.style.display = 'block';
+        }
+
+        async function loadPreviousRuns() {
+            try {
+                const response = await fetch(`/level/3/projects/${currentProjectId}/models`);
+                const data = await response.json();
+                
+                if (data.models && data.models.length > 0) {
+                    document.getElementById('previousRunsCard').style.display = 'block';
+                    
+                    let html = '<div class="table-responsive"><table class="table table-sm">';
+                    html += '<thead><tr><th>Run ID</th><th>Status</th><th>Epochs</th><th>Loss</th><th>Created</th></tr></thead>';
+                    html += '<tbody>';
+                    
+                    data.models.forEach(model => {
+                        html += `<tr>`;
+                        html += `<td><code>${model.run_id}</code></td>`;
+                        html += `<td><span class="badge bg-${model.status === 'completed' ? 'success' : 'warning'}">${model.status}</span></td>`;
+                        html += `<td>${model.epochs}</td>`;
+                        html += `<td>${model.loss ? model.loss.toFixed(4) : '-'}</td>`;
+                        html += `<td>${new Date(model.created_at).toLocaleString()}</td>`;
+                        html += `</tr>`;
+                    });
+                    
+                    html += '</tbody></table></div>';
+                    document.getElementById('runsList').innerHTML = html;
+                }
+            } catch (error) {
+                console.error('Error loading previous runs:', error);
+            }
+        }
+
+        // Initialize training estimate
+        updateTrainingEstimate();
+    </script>
+</body>
+</html>
+

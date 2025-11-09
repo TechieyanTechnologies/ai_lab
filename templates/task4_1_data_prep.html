@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task 4.1: Data Preparation</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .task-header { background: linear-gradient(135deg, #36d1dc 0%, #5b86e5 100%); color: white; padding: 2rem 0; }
+        .learning-objective { background: #f8f9fa; padding: 1rem; border-left: 4px solid #5b86e5; }
+        .preview-table { font-size: 0.9rem; }
+        .bar { background: #5b86e5; height: 14px; border-radius: 4px; }
+        .upload-area { border: 2px dashed #5b86e5; border-radius: 8px; padding: 1.25rem; text-align: center; }
+        .upload-area.dragover { background: #eef6ff; }
+    </style>
+</head>
+<body>
+    <div class="task-header">
+        <div class="container d-flex justify-content-between align-items-center">
+            <div>
+                <h1><i class="fas fa-database me-3"></i>Task 4.1: Data Preparation</h1>
+                <p class="lead mb-0">Upload/choose a dataset, explore, clean text, and prepare for NLP tasks</p>
+            </div>
+            <a href="/level/4" class="btn btn-light">← Back to Level 4</a>
+        </div>
+    </div>
+
+    <div class="container py-4">
+        <div class="learning-objective mb-4">
+            <h4><i class="fas fa-bullseye me-2"></i>Learning Objective</h4>
+            <p class="mb-0">Learn to load text datasets, preview data, select text/label columns, clean text (lowercase, remove punctuation/stopwords), view class distribution, and plan train/test split.</p>
+        </div>
+
+        <!-- Dataset Selection -->
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5><i class="fas fa-folder-open me-2"></i>Select Dataset</h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3 align-items-end">
+                    <div class="col-md-6">
+                        <label class="form-label">Upload CSV</label>
+                        <div id="uploadArea" class="upload-area">
+                            <p class="mb-2"><i class="fas fa-cloud-upload-alt" style="font-size:2rem"></i></p>
+                            <p class="text-muted mb-2">Drag & drop a CSV here or</p>
+                            <input type="file" id="fileInput" accept=".csv" style="display:none" onchange="handleUpload(event)">
+                            <button class="btn btn-outline-primary" onclick="document.getElementById('fileInput').click()">Browse Files</button>
+                            <p class="small text-muted mt-2">Example: movie_reviews_small.csv with columns like text,label</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Or Load Sample Data</label><br>
+                        <button class="btn btn-outline-secondary btn-sm me-2" onclick="loadSample('movie_reviews_small.csv')">
+                            <i class="fas fa-file-import me-2"></i>movie_reviews_small.csv
+                        </button>
+                        <button class="btn btn-outline-secondary btn-sm" onclick="loadSample('faq_pairs.csv')">
+                            <i class="fas fa-file-import me-2"></i>faq_pairs.csv
+                        </button>
+                        <div class="small text-muted mt-2">Samples are small and offline-friendly.</div>
+                    </div>
+                </div>
+
+                <!-- Preview -->
+                <div id="preview" class="mt-4" style="display:none">
+                    <h6>Preview</h6>
+                    <div id="previewInfo" class="text-muted small mb-2"></div>
+                    <div class="table-responsive">
+                        <table class="table table-sm table-striped preview-table">
+                            <thead id="previewHead"></thead>
+                            <tbody id="previewBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Activity 1: Select Columns & Explore -->
+        <div class="card mb-4">
+            <div class="card-header bg-info text-white">
+                <h5><i class="fas fa-list me-2"></i>Activity 1: Select Text & Label Columns</h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3 align-items-end">
+                    <div class="col-md-6">
+                        <label class="form-label">Text Column</label>
+                        <select id="textColumn" class="form-select"></select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Label Column (optional)</label>
+                        <select id="labelColumn" class="form-select"></select>
+                    </div>
+                </div>
+                <div class="mt-3" id="columnStats" style="display:none"></div>
+                <div class="text-end mt-2">
+                    <button class="btn btn-outline-primary" onclick="showColumnStats()"><i class="fas fa-search me-2"></i>Explore</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Activity 2: Clean Text -->
+        <div class="card mb-4">
+            <div class="card-header bg-warning">
+                <h5 class="mb-0"><i class="fas fa-broom me-2"></i>Activity 2: Clean Text</h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3 align-items-end">
+                    <div class="col-md-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="lower" checked>
+                            <label class="form-check-label" for="lower">Lowercase</label>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="removePunct" checked>
+                            <label class="form-check-label" for="removePunct">Remove punctuation</label>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="removeStop">
+                            <label class="form-check-label" for="removeStop">Remove stopwords</label>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <input type="text" id="newCol" class="form-control" placeholder="New column name (optional)">
+                    </div>
+                </div>
+                <div class="text-end mt-3">
+                    <button class="btn btn-success" onclick="cleanText()"><i class="fas fa-magic me-2"></i>Clean & Save</button>
+                </div>
+                <div id="cleanResult" class="mt-3" style="display:none"></div>
+            </div>
+        </div>
+
+        <!-- Activity 3: Label Distribution -->
+        <div class="card mb-4">
+            <div class="card-header bg-secondary text-white">
+                <h5><i class="fas fa-chart-bar me-2"></i>Activity 3: Label Distribution</h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3 align-items-end">
+                    <div class="col-md-6">
+                        <label class="form-label">Label Column</label>
+                        <select id="distLabel" class="form-select"></select>
+                    </div>
+                    <div class="col-md-6 text-end">
+                        <button class="btn btn-outline-secondary" onclick="loadDistribution()"><i class="fas fa-chart-simple me-2"></i>Show Distribution</button>
+                    </div>
+                </div>
+                <div id="distView" class="mt-3"></div>
+            </div>
+        </div>
+
+        <!-- Activity 4: Data Validation -->
+        <div class="card mb-4">
+            <div class="card-header bg-danger text-white">
+                <h5><i class="fas fa-check-circle me-2"></i>Activity 4: Data Validation & Quality Checks</h5>
+            </div>
+            <div class="card-body">
+                <p class="text-muted small">Check for missing values, duplicates, empty rows, and data quality issues.</p>
+                <button class="btn btn-outline-danger" onclick="runValidation()"><i class="fas fa-search me-2"></i>Run Validation</button>
+                <div id="validationResult" class="mt-3" style="display:none"></div>
+            </div>
+        </div>
+
+        <!-- Activity 5: Missing Value Analysis -->
+        <div class="card mb-4">
+            <div class="card-header bg-warning">
+                <h5><i class="fas fa-exclamation-triangle me-2"></i>Activity 5: Missing Value Analysis</h5>
+            </div>
+            <div class="card-body">
+                <p class="text-muted small">Identify columns with missing values and decide on handling strategies.</p>
+                <button class="btn btn-outline-warning" onclick="analyzeMissing()"><i class="fas fa-chart-pie me-2"></i>Analyze Missing Values</button>
+                <div id="missingResult" class="mt-3" style="display:none"></div>
+            </div>
+        </div>
+
+        <!-- Activity 6: Class Imbalance Detection -->
+        <div class="card mb-4">
+            <div class="card-header bg-info text-white">
+                <h5><i class="fas fa-balance-scale me-2"></i>Activity 6: Class Imbalance Detection</h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3 align-items-end">
+                    <div class="col-md-6">
+                        <label class="form-label">Label Column</label>
+                        <select id="imbalanceCol" class="form-select"></select>
+                    </div>
+                    <div class="col-md-6 text-end">
+                        <button class="btn btn-outline-info" onclick="checkImbalance()"><i class="fas fa-chart-bar me-2"></i>Check Imbalance</button>
+                    </div>
+                </div>
+                <div id="imbalanceResult" class="mt-3" style="display:none"></div>
+            </div>
+        </div>
+
+        <!-- Activity 7: Train/Test Split Planning -->
+        <div class="card mb-4">
+            <div class="card-header bg-light">
+                <h5 class="mb-0"><i class="fas fa-sliders-h me-2"></i>Activity 7: Train/Test Split Planning</h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3 align-items-end">
+                    <div class="col-md-6">
+                        <label class="form-label">Test Size: <span id="splitLabel">0.2</span></label>
+                        <input type="range" min="0.1" max="0.4" step="0.05" value="0.2" class="form-range" id="split" oninput="document.getElementById('splitLabel').textContent=this.value; showSplitPlan()">
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="stratify" checked>
+                            <label class="form-check-label" for="stratify">Stratified split (maintain class balance)</label>
+                        </div>
+                    </div>
+                </div>
+                <div id="splitPlan" class="mt-2 text-muted"></div>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <div class="card">
+            <div class="card-body text-center">
+                <a href="/level/4" class="btn btn-outline-secondary me-2">Back to Level 4</a>
+                <a href="/level/4/task/2" class="btn btn-primary">Next: Text Cleaning <i class="fas fa-arrow-right ms-2"></i></a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentProjectId = null;
+        let lastPreview = null;
+
+        window.addEventListener('DOMContentLoaded', async () => {
+            currentProjectId = localStorage.getItem('level3_project_id') || localStorage.getItem('level4_project_id');
+            if (!currentProjectId) {
+                // fallback to level3 id if exists
+                alert('No project found. Please create/select a project.');
+                return;
+            }
+            setupUploadArea();
+            await loadPreview();
+            await populateColumns();
+            showSplitPlan();
+        });
+
+        function setupUploadArea() {
+            const area = document.getElementById('uploadArea');
+            area.addEventListener('dragover', e => { e.preventDefault(); area.classList.add('dragover'); });
+            area.addEventListener('dragleave', () => area.classList.remove('dragover'));
+            area.addEventListener('drop', async e => {
+                e.preventDefault(); area.classList.remove('dragover');
+                const file = e.dataTransfer.files && e.dataTransfer.files[0];
+                if (file) await uploadCSV(file);
+            });
+        }
+
+        async function handleUpload(evt) {
+            const f = evt.target.files[0];
+            if (f) await uploadCSV(f);
+        }
+
+        async function uploadCSV(file) {
+            const form = new FormData();
+            form.append('file', file);
+            try {
+                const res = await fetch(`/projects/${currentProjectId}/upload`, { method: 'POST', body: form });
+                await res.json();
+                await loadPreview();
+                await populateColumns();
+            } catch(e) { alert('Upload failed'); }
+        }
+
+        async function loadSample(filename) {
+            try {
+                const res = await fetch(`/level/4/load-sample/${encodeURIComponent(filename)}`, { 
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ project_id: currentProjectId })
+                });
+                await res.json();
+                await loadPreview();
+                await populateColumns();
+            } catch(e) { alert('Failed to load sample'); }
+        }
+
+        async function loadPreview() {
+            try {
+                const res = await fetch(`/projects/${currentProjectId}/dataset/preview`);
+                const data = await res.json();
+                lastPreview = data;
+                if (data.head && data.head.length > 0) {
+                    document.getElementById('preview').style.display = 'block';
+                    const cols = Object.keys(data.head[0]);
+                    document.getElementById('previewHead').innerHTML = '<tr>' + cols.map(c => `<th>${c}</th>`).join('') + '</tr>';
+                    const tbody = document.getElementById('previewBody');
+                    tbody.innerHTML = '';
+                    data.head.slice(0, 10).forEach(row => {
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = cols.map(c => `<td>${row[c]}</td>`).join('');
+                        tbody.appendChild(tr);
+                    });
+                    document.getElementById('previewInfo').textContent = `Rows: ${data.shape?.[0] || ''}, Cols: ${data.shape?.[1] || ''}`;
+                }
+            } catch(e) {}
+        }
+
+        async function populateColumns() {
+            try {
+                const res = await fetch(`/projects/${currentProjectId}/columns`);
+                const data = await res.json();
+                const cols = data.columns || [];
+                fillSelect('textColumn', cols);
+                fillSelect('labelColumn', cols);
+                fillSelect('distLabel', cols);
+                fillSelect('imbalanceCol', cols);
+            } catch(e) {}
+        }
+
+        function fillSelect(id, cols) {
+            const sel = document.getElementById(id);
+            sel.innerHTML = '';
+            cols.forEach(c => { const o = document.createElement('option'); o.value=c; o.textContent=c; sel.appendChild(o); });
+        }
+
+        async function showColumnStats() {
+            const textCol = document.getElementById('textColumn').value;
+            if (!lastPreview || !lastPreview.head) return;
+            const sample = lastPreview.head.slice(0, 3).map(r => r[textCol]);
+            let html = '<div class="alert alert-info">';
+            html += `<strong>Sample (${textCol}):</strong><br>`;
+            sample.forEach((s, i) => { html += `<div class='small mb-1'><em>${i+1}.</em> ${s}</div>`; });
+            html += '</div>';
+            document.getElementById('columnStats').innerHTML = html;
+            document.getElementById('columnStats').style.display = 'block';
+        }
+
+        async function cleanText() {
+            const textCol = document.getElementById('textColumn').value;
+            const lower = document.getElementById('lower').checked;
+            const rp = document.getElementById('removePunct').checked;
+            const rs = document.getElementById('removeStop').checked;
+            const newCol = document.getElementById('newCol').value.trim();
+            try {
+                const res = await fetch(`/level/4/projects/${currentProjectId}/prepare/clean`, {
+                    method: 'POST', headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ text_column: textCol, lower, remove_punct: rp, remove_stopwords: rs, new_column: newCol || undefined })
+                });
+                const data = await res.json();
+                if (!data.success) throw new Error(data.error || 'Clean failed');
+                let html = '<div class="alert alert-success">';
+                html += `<div><strong>New column:</strong> ${data.new_column}</div>`;
+                html += `<div><strong>Avg length:</strong> ${data.avg_length_before.toFixed(1)} → ${data.avg_length_after.toFixed(1)}</div>`;
+                if (data.samples) {
+                    html += '<div class="mt-2"><strong>Before → After:</strong></div>';
+                    for (let i=0;i<data.samples.before.length;i++) {
+                        const b = data.samples.before[i] || ''; const a = data.samples.after[i] || '';
+                        html += `<div class='small'><em>${i+1}.</em> ${b} <span class='text-muted'>→</span> <span class='text-success'>${a}</span></div>`;
+                    }
+                }
+                html += `<div class='mt-2'><a class='btn btn-sm btn-outline-primary' href='${data.cleaned_file}' target='_blank'><i class="fas fa-download me-1"></i>Download cleaned CSV</a></div>`;
+                html += '</div>';
+                document.getElementById('cleanResult').innerHTML = html;
+                document.getElementById('cleanResult').style.display = 'block';
+            } catch(e) { alert(e.message); }
+        }
+
+        async function loadDistribution() {
+            const labelCol = document.getElementById('distLabel').value;
+            try {
+                const res = await fetch(`/level/4/projects/${currentProjectId}/prepare/distribution?label=${encodeURIComponent(labelCol)}`);
+                const data = await res.json();
+                if (!data.success) throw new Error(data.error || 'Failed');
+                const top = data.top || [];
+                let html = '';
+                if (top.length === 0) { html = '<div class="text-muted">No labels to display</div>'; }
+                else {
+                    const maxVal = Math.max(...top.map(x => x[1]));
+                    top.forEach(([name, count]) => {
+                        const pct = maxVal ? Math.round((count / maxVal) * 100) : 0;
+                        html += `<div class='d-flex align-items-center mb-2'><div style='width:140px' class='text-truncate' title='${name}'>${name}</div><div class='flex-grow-1 mx-2'><div class='bar' style='width:${pct}%'></div></div><div style='width:60px' class='text-end'>${count}</div></div>`;
+                    });
+                }
+                document.getElementById('distView').innerHTML = html;
+            } catch(e) { alert(e.message); }
+        }
+
+        async function runValidation() {
+            try {
+                const res = await fetch(`/projects/${currentProjectId}/dataset/preview`);
+                const data = await res.json();
+                if (!data.head) throw new Error('No data');
+                const rows = data.head.length;
+                const cols = Object.keys(data.head[0]);
+                let duplicates = 0, emptyRows = 0, missingCols = [];
+                const seen = new Set();
+                data.head.forEach(row => {
+                    const key = JSON.stringify(row);
+                    if (seen.has(key)) duplicates++;
+                    else seen.add(key);
+                    const isEmpty = Object.values(row).every(v => !v || String(v).trim() === '');
+                    if (isEmpty) emptyRows++;
+                });
+                cols.forEach(col => {
+                    const missing = data.head.filter(r => !r[col] || String(r[col]).trim() === '').length;
+                    if (missing > 0) missingCols.push({ col, missing, pct: ((missing/rows)*100).toFixed(1) });
+                });
+                let html = '<div class="alert alert-info">';
+                html += `<div><strong>Total Rows:</strong> ${rows}</div>`;
+                html += `<div><strong>Total Columns:</strong> ${cols.length}</div>`;
+                html += `<div><strong>Duplicate Rows:</strong> ${duplicates} ${duplicates > 0 ? '<span class="text-danger">⚠</span>' : '<span class="text-success">✓</span>'}</div>`;
+                html += `<div><strong>Empty Rows:</strong> ${emptyRows} ${emptyRows > 0 ? '<span class="text-danger">⚠</span>' : '<span class="text-success">✓</span>'}</div>`;
+                if (missingCols.length > 0) {
+                    html += '<div class="mt-2"><strong>Columns with Missing Values:</strong></div><ul>';
+                    missingCols.forEach(({col, missing, pct}) => {
+                        html += `<li>${col}: ${missing} (${pct}%)</li>`;
+                    });
+                    html += '</ul>';
+                } else {
+                    html += '<div class="mt-2 text-success"><strong>✓ No missing values detected</strong></div>';
+                }
+                html += '</div>';
+                document.getElementById('validationResult').innerHTML = html;
+                document.getElementById('validationResult').style.display = 'block';
+            } catch(e) { alert('Validation failed: ' + e.message); }
+        }
+
+        async function analyzeMissing() {
+            try {
+                const res = await fetch(`/projects/${currentProjectId}/dataset/preview`);
+                const data = await res.json();
+                if (!data.head) throw new Error('No data');
+                const cols = Object.keys(data.head[0]);
+                const rows = data.head.length;
+                const missing = [];
+                cols.forEach(col => {
+                    const count = data.head.filter(r => !r[col] || String(r[col]).trim() === '').length;
+                    if (count > 0) missing.push({ col, count, pct: ((count/rows)*100).toFixed(1) });
+                });
+                let html = missing.length === 0 ? '<div class="alert alert-success">No missing values found!</div>' : '<div class="alert alert-warning">';
+                if (missing.length > 0) {
+                    html += '<table class="table table-sm"><thead><tr><th>Column</th><th>Missing Count</th><th>Percentage</th></tr></thead><tbody>';
+                    missing.sort((a,b) => b.count - a.count).forEach(({col, count, pct}) => {
+                        html += `<tr><td>${col}</td><td>${count}</td><td>${pct}%</td></tr>`;
+                    });
+                    html += '</tbody></table>';
+                    html += '<div class="mt-2"><strong>Strategies:</strong><ul><li>Drop rows if missing &lt;5%</li><li>Fill with mode/mean for categorical/numeric</li><li>Use "Unknown" category for text</li></ul></div>';
+                }
+                html += '</div>';
+                document.getElementById('missingResult').innerHTML = html;
+                document.getElementById('missingResult').style.display = 'block';
+            } catch(e) { alert('Analysis failed: ' + e.message); }
+        }
+
+        async function checkImbalance() {
+            const col = document.getElementById('imbalanceCol').value;
+            if (!col) { alert('Select a column'); return; }
+            try {
+                const res = await fetch(`/level/4/projects/${currentProjectId}/prepare/distribution?label=${encodeURIComponent(col)}`);
+                const data = await res.json();
+                if (!data.success) throw new Error(data.error || 'Failed');
+                const dist = data.distribution || {};
+                const total = Object.values(dist).reduce((a,b) => a+b, 0);
+                const entries = Object.entries(dist).sort((a,b) => b[1] - a[1]);
+                const max = entries[0]?.[1] || 0;
+                const min = entries[entries.length-1]?.[1] || 0;
+                const ratio = max > 0 ? (min / max).toFixed(2) : 0;
+                const isImbalanced = ratio < 0.3;
+                let html = `<div class="alert ${isImbalanced ? 'alert-warning' : 'alert-success'}">`;
+                html += `<div><strong>Total samples:</strong> ${total}</div>`;
+                html += `<div><strong>Class ratio (min/max):</strong> ${ratio} ${isImbalanced ? '<span class="text-danger">⚠ Imbalanced!</span>' : '<span class="text-success">✓ Balanced</span>'}</div>`;
+                html += '<div class="mt-2"><strong>Distribution:</strong></div>';
+                entries.forEach(([label, count]) => {
+                    const pct = ((count/total)*100).toFixed(1);
+                    const barW = max ? ((count/max)*100).toFixed(0) : 0;
+                    html += `<div class='d-flex align-items-center mb-1'><div style='width:120px' class='text-truncate' title='${label}'>${label}</div><div class='flex-grow-1 mx-2'><div class='bar' style='width:${barW}%'></div></div><div style='width:80px' class='text-end'>${count} (${pct}%)</div></div>`;
+                });
+                if (isImbalanced) {
+                    html += '<div class="mt-2"><strong>Strategies:</strong><ul><li>Oversample minority class</li><li>Undersample majority class</li><li>Use class weights in model</li><li>Collect more minority samples</li></ul></div>';
+                }
+                html += '</div>';
+                document.getElementById('imbalanceResult').innerHTML = html;
+                document.getElementById('imbalanceResult').style.display = 'block';
+            } catch(e) { alert('Failed: ' + e.message); }
+        }
+
+        function showSplitPlan() {
+            const ratio = parseFloat(document.getElementById('split').value);
+            const rows = (lastPreview && lastPreview.shape) ? lastPreview.shape[0] : 0;
+            const testN = Math.round(rows * ratio);
+            const trainN = rows - testN;
+            const stratify = document.getElementById('stratify').checked;
+            document.getElementById('splitPlan').innerHTML = `
+                <div><strong>Rows: ${rows}</strong> → Train: <strong>${trainN}</strong>, Test: <strong>${testN}</strong></div>
+                <div class="small text-muted mt-1">${stratify ? 'Stratified split will maintain class distribution' : 'Random split (may imbalance classes)'}</div>
+            `;
+        }
+    </script>
+</body>
+</html>
+
+

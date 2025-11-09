@@ -1,0 +1,217 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Panel - {{ config.school_name }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="h3 mb-4">
+                <i class="fas fa-cog me-2"></i>Admin Panel
+            </h1>
+        </div>
+    </div>
+    
+    <div class="row g-4">
+        <!-- System Settings -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-school me-2"></i>School Branding
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('update_branding') }}" enctype="multipart/form-data">
+                        <div class="mb-3">
+                            <label for="school_name" class="form-label">School Name</label>
+                            <input type="text" class="form-control" id="school_name" name="school_name" 
+                                   value="{{ config.school_name }}" required>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="primary_color" class="form-label">Primary Color</label>
+                                    <input type="color" class="form-control" id="primary_color" name="primary_color" 
+                                           value="{{ config.primary_color }}">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="accent_color" class="form-label">Accent Color</label>
+                                    <input type="color" class="form-control" id="accent_color" name="accent_color" 
+                                           value="{{ config.accent_color }}">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="logo" class="form-label">School Logo</label>
+                            <input type="file" class="form-control" id="logo" name="logo" accept="image/*">
+                            {% if config.logo_path %}
+                            <div class="mt-2">
+                                <img src="{{ config.logo_path }}" alt="Current logo" class="img-thumbnail" style="max-height: 50px;">
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>Save Branding
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Module Settings -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-puzzle-piece me-2"></i>Module Settings
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('update_module_settings') }}">
+                        <div class="mb-3">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="class8_enabled" name="class8_enabled" 
+                                       {{ 'checked' if config.class8_enabled else '' }}>
+                                <label class="form-check-label" for="class8_enabled">
+                                    Enable Class-8 Module
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="max_upload_size" class="form-label">Max Upload Size (MB)</label>
+                            <input type="number" class="form-control" id="max_upload_size" name="max_upload_size" 
+                                   value="{{ config.max_upload_size }}" min="1" max="100">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="max_rows" class="form-label">Max Rows per Dataset</label>
+                            <input type="number" class="form-control" id="max_rows" name="max_rows" 
+                                   value="{{ config.max_rows }}" min="1000" max="100000">
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>Save Settings
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- User Management -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">
+                            <i class="fas fa-users me-2"></i>User Management
+                        </h5>
+                        <div>
+                            <a href="{{ url_for('create_teacher') }}" class="btn btn-outline-primary btn-sm me-2">
+                                <i class="fas fa-user-plus me-1"></i>Add Teacher
+                            </a>
+                            <a href="{{ url_for('create_student') }}" class="btn btn-outline-success btn-sm me-2">
+                                <i class="fas fa-user-plus me-1"></i>Add Student
+                            </a>
+                            <a href="{{ url_for('bulk_import_students') }}" class="btn btn-outline-info btn-sm">
+                                <i class="fas fa-upload me-1"></i>Import Students
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Username</th>
+                                    <th>Full Name</th>
+                                    <th>Role</th>
+                                    <th>Created</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Users will be loaded here via AJAX or server-side rendering -->
+                                <tr>
+                                    <td colspan="5" class="text-center text-muted">
+                                        <i class="fas fa-spinner fa-spin me-2"></i>Loading users...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- System Status -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-server me-2"></i>System Status
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="text-center">
+                                <i class="fas fa-database fa-2x text-success mb-2"></i>
+                                <h6>Database</h6>
+                                <span class="badge bg-success">Connected</span>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="text-center">
+                                <i class="fas fa-hdd fa-2x text-info mb-2"></i>
+                                <h6>Storage</h6>
+                                <span class="badge bg-info">Local</span>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="text-center">
+                                <i class="fas fa-shield-alt fa-2x text-warning mb-2"></i>
+                                <h6>Security</h6>
+                                <span class="badge bg-warning">Offline</span>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="text-center">
+                                <i class="fas fa-chart-line fa-2x text-primary mb-2"></i>
+                                <h6>Performance</h6>
+                                <span class="badge bg-primary">Good</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Help Section -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="help-section">
+                <h4><i class="fas fa-question-circle me-2"></i>Admin Functions</h4>
+                <p class="mb-0">
+                    <strong>Branding:</strong> Customize the school name, colors, and logo for your institution.
+                    <br><strong>Module Settings:</strong> Enable/disable features and configure limits.
+                    <br><strong>User Management:</strong> Add teachers and import students in bulk.
+                    <br><strong>System Status:</strong> Monitor the health and performance of the platform.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

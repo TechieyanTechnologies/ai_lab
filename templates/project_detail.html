@@ -1,0 +1,161 @@
+{% extends "base.html" %}
+
+{% block title %}{{ project[1] }} - {{ config.school_name }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h1 class="h3 mb-0">{{ project[1] }}</h1>
+                    <p class="text-muted mb-0">{{ project[2] or 'No description' }}</p>
+                </div>
+                <div>
+                    <a href="{{ url_for('upload_dataset', project_id=project[0]) }}" class="btn btn-primary me-2">
+                        <i class="fas fa-upload me-2"></i>Upload Dataset
+                    </a>
+                    <a href="{{ url_for('create_visualization', project_id=project[0]) }}" class="btn btn-outline-primary">
+                        <i class="fas fa-chart-bar me-2"></i>Create Chart
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <!-- Datasets Section -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-database me-2"></i>Datasets ({{ datasets|length }})
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if datasets %}
+                        {% for dataset in datasets %}
+                        <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                            <div>
+                                <h6 class="mb-1">{{ dataset[2] }}</h6>
+                                <small class="text-muted">
+                                    {{ dataset[4] }} rows × {{ dataset[5] }} columns
+                                    <br>Uploaded: {{ dataset[3][:10] }}
+                                </small>
+                            </div>
+                            <div>
+                                <a href="{{ url_for('explore_dataset', project_id=project[0], dataset_id=dataset[0]) }}" 
+                                   class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-eye me-1"></i>Explore
+                                </a>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-database fa-2x text-muted mb-2"></i>
+                            <p class="text-muted">No datasets uploaded yet</p>
+                            <a href="{{ url_for('upload_dataset', project_id=project[0]) }}" class="btn btn-primary">
+                                <i class="fas fa-upload me-2"></i>Upload First Dataset
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Exports Section -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-download me-2"></i>Exports ({{ exports|length }})
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if exports %}
+                        {% for export in exports %}
+                        <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                            <div>
+                                <h6 class="mb-1">{{ export[1].title() }}</h6>
+                                <small class="text-muted">
+                                    Created: {{ export[2][:10] }}
+                                </small>
+                            </div>
+                            <div>
+                                <a href="#" class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-download me-1"></i>Download
+                                </a>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-chart-line fa-2x text-muted mb-2"></i>
+                            <p class="text-muted">No exports yet</p>
+                            <p class="text-muted small">Create visualizations to generate exports</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Quick Actions -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-bolt me-2"></i>Quick Actions
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-3">
+                            <a href="{{ url_for('upload_dataset', project_id=project[0]) }}" class="btn btn-outline-primary w-100">
+                                <i class="fas fa-upload fa-2x d-block mb-2"></i>
+                                Upload Data
+                            </a>
+                        </div>
+                        <div class="col-md-3">
+                            <a href="{{ url_for('explore_data', project_id=project[0]) }}" class="btn btn-outline-primary w-100">
+                                <i class="fas fa-search fa-2x d-block mb-2"></i>
+                                Explore Data
+                            </a>
+                        </div>
+                        <div class="col-md-3">
+                            <a href="{{ url_for('create_visualization', project_id=project[0]) }}" class="btn btn-outline-primary w-100">
+                                <i class="fas fa-chart-bar fa-2x d-block mb-2"></i>
+                                Create Chart
+                            </a>
+                        </div>
+                        <div class="col-md-3">
+                            <a href="{{ url_for('create_report', project_id=project[0]) }}" class="btn btn-outline-primary w-100">
+                                <i class="fas fa-file-alt fa-2x d-block mb-2"></i>
+                                Generate Report
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Help Section -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="help-section">
+                <h4><i class="fas fa-lightbulb me-2"></i>Project Workflow</h4>
+                <p class="mb-0">
+                    <strong>1. Upload:</strong> Start by uploading your CSV dataset
+                    <br><strong>2. Explore:</strong> Use the Data Explorer to understand your data
+                    <br><strong>3. Clean:</strong> Handle missing values and data quality issues
+                    <br><strong>4. Visualize:</strong> Create charts and visualizations
+                    <br><strong>5. Report:</strong> Generate professional reports and presentations
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

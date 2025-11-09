@@ -1,0 +1,195 @@
+{
+  "project_id": "b160f7fb1bf14d2bbd891744c3d1c120",
+  "title": "Data Analysis Project - survey_small",
+  "level": 1,
+  "created_at": "2025-10-28T11:15:06.344457",
+  "datasets": [
+    {
+      "filename": "original.csv",
+      "path": "dataset/original.csv",
+      "uploaded_at": "2025-10-28T11:15:06.348620",
+      "source": "sample_survey_small"
+    }
+  ],
+  "cleaned_versions": [],
+  "runs": [
+    {
+      "run_id": "4d5161a3631d4e7f82172f3aaf821c45",
+      "type": "visual",
+      "artifacts": [
+        "plot_bar_4c7fb853.png"
+      ],
+      "created_at": "2025-10-28T11:15:10.760037"
+    },
+    {
+      "run_id": "881bf58117eb470b9e4222d2f0b74189",
+      "type": "visual",
+      "artifacts": [
+        "plot_bar_0b95dce7.png"
+      ],
+      "created_at": "2025-10-28T11:15:21.987689"
+    },
+    {
+      "run_id": "708d8c7c3dc84415bbfc793ab9f3e436",
+      "type": "visual",
+      "artifacts": [
+        "plot_histogram_9783fc31.png"
+      ],
+      "created_at": "2025-10-28T11:15:22.297966"
+    },
+    {
+      "run_id": "0ce085d759b9493a80c10057bc606866",
+      "type": "visual",
+      "artifacts": [
+        "plot_pie_7d030b75.png"
+      ],
+      "created_at": "2025-10-29T09:25:25.763623"
+    },
+    {
+      "run_id": "b2823c31a1e24590872ae0440879b7b0",
+      "type": "visual",
+      "artifacts": [
+        "plot_boxplot_bc275064.png"
+      ],
+      "created_at": "2025-10-29T09:25:30.683607"
+    },
+    {
+      "run_id": "3a2eafd0dcb74700a2de4ae7545c8722",
+      "type": "visual",
+      "artifacts": [
+        "plot_line_86f752e9.png"
+      ],
+      "created_at": "2025-10-29T09:25:35.640332"
+    },
+    {
+      "run_id": "6502a89b9d5a467d965b4abc24ae69fe",
+      "type": "visual",
+      "artifacts": [
+        "plot_bar_77cdeed9.png"
+      ],
+      "created_at": "2025-10-29T09:58:46.138783"
+    },
+    {
+      "run_id": "0b337b09f056415595e0c0708d938f39",
+      "type": "visual",
+      "artifacts": [
+        "plot_line_213e3b07.png"
+      ],
+      "created_at": "2025-10-29T09:58:46.293126"
+    },
+    {
+      "run_id": "94628015b67444609de29767f60429f0",
+      "type": "visual",
+      "artifacts": [
+        "plot_scatter_06a6a031.png"
+      ],
+      "created_at": "2025-10-29T09:58:46.427482"
+    },
+    {
+      "run_id": "0020d0284a9a47ad86abdcee607983c0",
+      "type": "visual",
+      "artifacts": [
+        "plot_histogram_fb05f03c.png"
+      ],
+      "created_at": "2025-10-29T09:58:46.704078"
+    },
+    {
+      "run_id": "278c66f74ce04cd18a6dcb47ac2004a2",
+      "type": "visual",
+      "artifacts": [
+        "plot_pie_ac87cad0.png"
+      ],
+      "created_at": "2025-10-29T09:58:47.091803"
+    },
+    {
+      "run_id": "97ce8449401f490b8af0d146317b0ad9",
+      "type": "visual",
+      "artifacts": [
+        "plot_bar_998c802f.png"
+      ],
+      "created_at": "2025-10-29T09:58:59.627516"
+    },
+    {
+      "run_id": "a495d1ace5d94997833db32612b29b6d",
+      "type": "visual",
+      "artifacts": [
+        "plot_histogram_4de82e99.png"
+      ],
+      "created_at": "2025-10-29T09:58:59.900321"
+    },
+    {
+      "run_id": "0c8adc99fe354624b434372dc85d9559",
+      "type": "visual",
+      "artifacts": [
+        "plot_pie_04f14c7e.png"
+      ],
+      "created_at": "2025-10-29T09:59:00.299859"
+    },
+    {
+      "run_id": "a2668e7d2f3f4a248e722615650625a4",
+      "type": "visual",
+      "artifacts": [
+        "plot_scatter_c776afd3.png"
+      ],
+      "created_at": "2025-10-29T09:59:12.946104"
+    },
+    {
+      "run_id": "bbce5c09e298492aaa538aeaea00d7a4",
+      "type": "correlation",
+      "artifacts": [
+        "heatmap_c1ef6fe4.png",
+        "correlation.csv"
+      ],
+      "created_at": "2025-10-29T09:59:24.309439"
+    },
+    {
+      "run_id": "30beb78196bc476a8c0400d071b48a54",
+      "type": "visual",
+      "artifacts": [
+        "plot_bar_e9479161.png"
+      ],
+      "created_at": "2025-10-29T09:59:28.815358"
+    },
+    {
+      "run_id": "2d0fbf0358d04b208f49613716a9f1ba",
+      "type": "visual",
+      "artifacts": [
+        "plot_histogram_f10e4af5.png"
+      ],
+      "created_at": "2025-10-29T09:59:29.086951"
+    },
+    {
+      "run_id": "2ba7fb92f25a457fb64c17c7dbb548b9",
+      "type": "visual",
+      "artifacts": [
+        "plot_scatter_b443b40e.png"
+      ],
+      "created_at": "2025-10-29T09:59:29.229048"
+    },
+    {
+      "run_id": "a4db769b5099470b9b2534755b334c6b",
+      "type": "visual",
+      "artifacts": [
+        "plot_pie_a07d29bf.png"
+      ],
+      "created_at": "2025-10-29T09:59:29.614949"
+    },
+    {
+      "run_id": "32f5c20c0e9b4ee8b2b9a0e4b29e5fa6",
+      "type": "visual",
+      "artifacts": [
+        "plot_bar_073b6e1e.png"
+      ],
+      "created_at": "2025-10-29T10:00:17.820789"
+    },
+    {
+      "run_id": "6d3461b6be984633bcd1aa3e6d399e98",
+      "type": "visual",
+      "artifacts": [
+        "plot_histogram_26bdc4c4.png"
+      ],
+      "created_at": "2025-10-29T10:00:18.162839"
+    }
+  ],
+  "reports": []
+}

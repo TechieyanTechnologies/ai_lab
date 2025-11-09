@@ -1,0 +1,359 @@
+{% extends "base.html" %}
+
+{% block title %}Plot Graphs - {{ config.school_name }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .chart-container {
+        background: white;
+        border: 1px solid #dee2e6;
+        border-radius: 0.375rem;
+        padding: 1rem;
+        margin: 1rem 0;
+    }
+    .dataset-preview {
+        max-height: 300px;
+        overflow-y: auto;
+    }
+    .chart-result {
+        text-align: center;
+        padding: 2rem;
+        background: #f8f9fa;
+        border-radius: 0.375rem;
+        margin: 1rem 0;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h3 mb-0">
+                    <i class="fas fa-chart-bar me-2"></i>Plot Graphs Task
+                </h1>
+                <a href="{{ url_for('student_tasks') }}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Back to Tasks
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <!-- Dataset Selection -->
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-database me-2"></i>Select Dataset
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label for="datasetSelect" class="form-label">Choose a dataset:</label>
+                        <select class="form-select" id="datasetSelect">
+                            <option value="">Select a dataset...</option>
+                            {% for dataset in datasets %}
+                            <option value="{{ dataset.filename.replace('.csv', '') }}">{{ dataset.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div id="datasetInfo" class="mt-3" style="display: none;">
+                        <h6>Dataset Information:</h6>
+                        <div id="datasetDetails"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Chart Configuration -->
+            <div class="card mt-3" id="chartConfigCard" style="display: none;">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-cog me-2"></i>Chart Settings
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form id="chartForm">
+                        <div class="mb-3">
+                            <label for="chartType" class="form-label">Chart Type:</label>
+                            <select class="form-select" id="chartType" required>
+                                <option value="">Select chart type...</option>
+                                <option value="bar">Bar Chart</option>
+                                <option value="line">Line Graph</option>
+                                <option value="scatter">Scatter Plot</option>
+                                <option value="histogram">Histogram</option>
+                                <option value="box">Box Plot</option>
+                                <option value="pie">Pie Chart</option>
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="xColumn" class="form-label">X-Axis Column:</label>
+                            <select class="form-select" id="xColumn" required>
+                                <option value="">Select column...</option>
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3" id="yColumnDiv" style="display: none;">
+                            <label for="yColumn" class="form-label">Y-Axis Column:</label>
+                            <select class="form-select" id="yColumn">
+                                <option value="">Select column...</option>
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="chartTitle" class="form-label">Chart Title:</label>
+                            <input type="text" class="form-control" id="chartTitle" placeholder="Enter chart title...">
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="fas fa-chart-bar me-2"></i>Create Chart
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Chart Display -->
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-chart-line me-2"></i>Chart Display
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div id="chartDisplay" class="chart-result">
+                        <i class="fas fa-chart-bar fa-3x text-muted mb-3"></i>
+                        <h5 class="text-muted">Select a dataset and chart type to create your visualization</h5>
+                        <p class="text-muted">Use the controls on the left to configure your chart</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Data Preview -->
+            <div class="card mt-3" id="dataPreviewCard" style="display: none;">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-table me-2"></i>Data Preview
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div id="dataPreview" class="dataset-preview"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Instructions -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="help-section">
+                <h4><i class="fas fa-lightbulb me-2"></i>How to Create Charts</h4>
+                <ol>
+                    <li><strong>Select Dataset:</strong> Choose one of the available sample datasets</li>
+                    <li><strong>Choose Chart Type:</strong> Select the appropriate chart type for your data</li>
+                    <li><strong>Configure Columns:</strong> Select which columns to use for X and Y axes</li>
+                    <li><strong>Add Title:</strong> Give your chart a descriptive title</li>
+                    <li><strong>Create Chart:</strong> Click "Create Chart" to generate your visualization</li>
+                </ol>
+                <p class="mb-0">
+                    <strong>Tip:</strong> Try different chart types with the same data to see how different visualizations can tell different stories!
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let currentDataset = null;
+
+document.getElementById('datasetSelect').addEventListener('change', function() {
+    const datasetName = this.value;
+    if (datasetName) {
+        loadDataset(datasetName);
+    } else {
+        hideDatasetInfo();
+    }
+});
+
+document.getElementById('chartType').addEventListener('change', function() {
+    const chartType = this.value;
+    const yColumnDiv = document.getElementById('yColumnDiv');
+    
+    // Show/hide Y column based on chart type
+    if (['scatter', 'line'].includes(chartType)) {
+        yColumnDiv.style.display = 'block';
+        document.getElementById('yColumn').required = true;
+    } else {
+        yColumnDiv.style.display = 'none';
+        document.getElementById('yColumn').required = false;
+    }
+});
+
+document.getElementById('chartForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    createChart();
+});
+
+function loadDataset(datasetName) {
+    fetch(`/api/load_dataset?dataset=${datasetName}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                alert('Error loading dataset: ' + data.error);
+                return;
+            }
+            
+            currentDataset = data;
+            displayDatasetInfo(data);
+            populateColumnSelects(data);
+            showDatasetPreview(data);
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error loading dataset');
+        });
+}
+
+function displayDatasetInfo(data) {
+    const details = document.getElementById('datasetDetails');
+    details.innerHTML = `
+        <p><strong>Rows:</strong> ${data.shape[0]}</p>
+        <p><strong>Columns:</strong> ${data.shape[1]}</p>
+        <p><strong>Numeric Columns:</strong> ${data.numeric_columns.length}</p>
+        <p><strong>Categorical Columns:</strong> ${data.categorical_columns.length}</p>
+    `;
+    document.getElementById('datasetInfo').style.display = 'block';
+    document.getElementById('chartConfigCard').style.display = 'block';
+}
+
+function populateColumnSelects(data) {
+    const xColumn = document.getElementById('xColumn');
+    const yColumn = document.getElementById('yColumn');
+    
+    // Clear existing options
+    xColumn.innerHTML = '<option value="">Select column...</option>';
+    yColumn.innerHTML = '<option value="">Select column...</option>';
+    
+    // Add all columns to X
+    data.columns.forEach(col => {
+        const option = document.createElement('option');
+        option.value = col;
+        option.textContent = col;
+        xColumn.appendChild(option);
+    });
+    
+    // Add only numeric columns to Y
+    data.numeric_columns.forEach(col => {
+        const option = document.createElement('option');
+        option.value = col;
+        option.textContent = col;
+        yColumn.appendChild(option);
+    });
+}
+
+function showDatasetPreview(data) {
+    const preview = document.getElementById('dataPreview');
+    const table = document.createElement('table');
+    table.className = 'table table-sm table-striped';
+    
+    // Create header
+    const thead = document.createElement('thead');
+    const headerRow = document.createElement('tr');
+    data.columns.forEach(col => {
+        const th = document.createElement('th');
+        th.textContent = col;
+        headerRow.appendChild(th);
+    });
+    thead.appendChild(headerRow);
+    table.appendChild(thead);
+    
+    // Create body
+    const tbody = document.createElement('tbody');
+    data.head.forEach(row => {
+        const tr = document.createElement('tr');
+        data.columns.forEach(col => {
+            const td = document.createElement('td');
+            td.textContent = row[col];
+            tr.appendChild(td);
+        });
+        tbody.appendChild(tr);
+    });
+    table.appendChild(tbody);
+    
+    preview.innerHTML = '';
+    preview.appendChild(table);
+    document.getElementById('dataPreviewCard').style.display = 'block';
+}
+
+function createChart() {
+    const datasetName = document.getElementById('datasetSelect').value;
+    const chartType = document.getElementById('chartType').value;
+    const xColumn = document.getElementById('xColumn').value;
+    const yColumn = document.getElementById('yColumn').value;
+    const title = document.getElementById('chartTitle').value || `${chartType.charAt(0).toUpperCase() + chartType.slice(1)} Chart`;
+    
+    if (!datasetName || !chartType || !xColumn) {
+        alert('Please fill in all required fields');
+        return;
+    }
+    
+    const chartDisplay = document.getElementById('chartDisplay');
+    chartDisplay.innerHTML = '<div class="text-center"><i class="fas fa-spinner fa-spin fa-2x"></i><p>Creating chart...</p></div>';
+    
+    fetch('/api/create_chart', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            dataset: datasetName,
+            chart_type: chartType,
+            x_column: xColumn,
+            y_column: yColumn,
+            title: title
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            chartDisplay.innerHTML = `
+                <div class="text-center">
+                    <h5>${data.title}</h5>
+                    <img src="${data.chart_url}" class="img-fluid" alt="Generated Chart">
+                    <div class="mt-3">
+                        <a href="${data.chart_url}" download class="btn btn-outline-primary">
+                            <i class="fas fa-download me-2"></i>Download Chart
+                        </a>
+                    </div>
+                </div>
+            `;
+        } else {
+            alert('Error creating chart: ' + data.error);
+            chartDisplay.innerHTML = '<div class="text-center text-danger"><i class="fas fa-exclamation-triangle fa-2x"></i><p>Error creating chart</p></div>';
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error creating chart');
+        chartDisplay.innerHTML = '<div class="text-center text-danger"><i class="fas fa-exclamation-triangle fa-2x"></i><p>Error creating chart</p></div>';
+    });
+}
+
+function hideDatasetInfo() {
+    document.getElementById('datasetInfo').style.display = 'none';
+    document.getElementById('chartConfigCard').style.display = 'none';
+    document.getElementById('dataPreviewCard').style.display = 'none';
+    document.getElementById('chartDisplay').innerHTML = `
+        <i class="fas fa-chart-bar fa-3x text-muted mb-3"></i>
+        <h5 class="text-muted">Select a dataset and chart type to create your visualization</h5>
+        <p class="text-muted">Use the controls on the left to configure your chart</p>
+    `;
+}
+</script>
+{% endblock %}

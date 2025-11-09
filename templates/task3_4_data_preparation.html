@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task 3.4: Data Preparation</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .task-header { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; padding: 2rem 0; }
+        .learning-objective { background: #f8f9fa; padding: 1rem; border-left: 4px solid #f5576c; }
+        .step-card { border: 2px solid #f5576c; border-radius: 8px; padding: 1.5rem; margin-bottom: 1rem; }
+        .step-card.completed { background: #d4edda; border-color: #28a745; }
+        .step-card.in-progress { background: #fff3cd; border-color: #ffc107; }
+        .format-comparison { background: #f8f9fa; padding: 1rem; border-radius: 8px; font-family: monospace; font-size: 0.9rem; }
+        .yolo-format { color: #28a745; }
+        .json-format { color: #007bff; }
+    </style>
+</head>
+<body>
+    <div class="task-header">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1><i class="fas fa-cogs me-3"></i>Task 3.4: Data Preparation</h1>
+                    <p class="lead mb-0">Convert annotations to YOLO format and prepare dataset for training</p>
+                </div>
+                <a href="/level/3" class="btn btn-light">← Back to Level 3</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="container py-4">
+        <!-- Learning Objective -->
+        <div class="learning-objective mb-4">
+            <h4><i class="fas fa-bullseye me-2"></i>Learning Objective</h4>
+            <p class="mb-0">Learn to convert bounding box annotations from JSON format to YOLO format, split datasets into train/validation/test sets, and create YOLOv5 configuration files.</p>
+        </div>
+
+        <!-- Project Check -->
+        <div class="card mb-4" id="noProjectCard">
+            <div class="card-body text-center">
+                <i class="fas fa-exclamation-triangle text-warning" style="font-size: 3rem;"></i>
+                <h5 class="mt-3">No Project or Annotations Found</h5>
+                <p>Please complete previous tasks: create project, upload images, and annotate images</p>
+                <a href="/level/3/task/3" class="btn btn-primary">
+                    <i class="fas fa-arrow-left me-2"></i>Go to Task 3.3: Labeling
+                </a>
+            </div>
+        </div>
+
+        <!-- Data Preparation Interface -->
+        <div id="preparationInterface" style="display: none;">
+            <!-- Current Status -->
+            <div class="card mb-4">
+                <div class="card-header bg-info text-white">
+                    <h5><i class="fas fa-info-circle me-2"></i>Current Status</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row" id="statusDisplay">
+                        <div class="col-md-3 text-center">
+                            <h3 id="annotationCount">0</h3>
+                            <p class="text-muted mb-0">JSON Annotations</p>
+                        </div>
+                        <div class="col-md-3 text-center">
+                            <h3 id="yoloLabelCount">0</h3>
+                            <p class="text-muted mb-0">YOLO Labels</p>
+                            <span id="yoloStatus" class="badge bg-secondary">Not Converted</span>
+                        </div>
+                        <div class="col-md-3 text-center">
+                            <h3 id="yamlStatus">-</h3>
+                            <p class="text-muted mb-0">Config File</p>
+                            <span id="yamlStatusBadge" class="badge bg-secondary">Not Created</span>
+                        </div>
+                        <div class="col-md-3 text-center">
+                            <h3 id="splitStatus">-</h3>
+                            <p class="text-muted mb-0">Dataset Split</p>
+                            <span id="splitStatusBadge" class="badge bg-secondary">Not Split</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 1: Convert to YOLO Format -->
+            <div class="step-card" id="step1Card">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5><i class="fas fa-exchange-alt me-2"></i>Step 1: Convert Annotations to YOLO Format</h5>
+                    <span class="badge bg-secondary" id="step1Status">Pending</span>
+                </div>
+                <p class="text-muted">Convert your JSON annotations (saved in Task 3.3) to YOLO format (.txt files)</p>
+                
+                <div class="mb-3">
+                    <h6><i class="fas fa-info-circle me-2"></i>Format Comparison</h6>
+                    <div class="format-comparison">
+                        <div class="mb-2">
+                            <strong class="json-format">JSON Format (Task 3.3):</strong><br>
+                            <code>{"class": "person", "x": 0.2, "y": 0.3, "width": 0.4, "height": 0.5}</code>
+                        </div>
+                        <div>
+                            <strong class="yolo-format">YOLO Format (required):</strong><br>
+                            <code>0 0.4 0.55 0.4 0.5</code><br>
+                            <small>(class_id center_x center_y width height - all normalized 0-1)</small>
+                        </div>
+                    </div>
+                </div>
+                
+                <button class="btn btn-primary" onclick="convertToYOLO()" id="convertBtn">
+                    <i class="fas fa-sync me-2"></i>Convert to YOLO Format
+                </button>
+                <div id="convertResult" class="mt-3"></div>
+            </div>
+
+            <!-- Step 2: Split Dataset -->
+            <div class="step-card" id="step2Card">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5><i class="fas fa-cut me-2"></i>Step 2: Split Dataset</h5>
+                    <span class="badge bg-secondary" id="step2Status">Pending</span>
+                </div>
+                <p class="text-muted">Split your dataset into training, validation, and test sets</p>
+                
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <label class="form-label">Training Set Ratio</label>
+                        <div class="input-group">
+                            <input type="number" class="form-control" id="trainRatio" value="0.7" min="0.1" max="0.9" step="0.05" onchange="updateRatios()">
+                            <span class="input-group-text">%</span>
+                        </div>
+                        <input type="range" class="form-range mt-2" id="trainSlider" min="10" max="90" value="70" oninput="updateFromSlider()">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Validation Set Ratio</label>
+                        <div class="input-group">
+                            <input type="number" class="form-control" id="valRatio" value="0.2" min="0.05" max="0.5" step="0.05" onchange="updateRatios()">
+                            <span class="input-group-text">%</span>
+                        </div>
+                        <input type="range" class="form-range mt-2" id="valSlider" min="5" max="50" value="20" oninput="updateFromSlider()">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Test Set Ratio</label>
+                        <div class="input-group">
+                            <input type="number" class="form-control" id="testRatio" value="0.1" min="0.05" max="0.3" step="0.05" onchange="updateRatios()">
+                            <span class="input-group-text">%</span>
+                        </div>
+                        <input type="range" class="form-range mt-2" id="testSlider" min="5" max="30" value="10" oninput="updateFromSlider()">
+                    </div>
+                </div>
+                
+                <div class="alert alert-info">
+                    <strong>Total:</strong> <span id="ratioTotal">100%</span>
+                    <span id="ratioWarning" class="text-danger ms-2" style="display: none;">(Must equal 100%)</span>
+                </div>
+                
+                <button class="btn btn-primary" onclick="splitDataset()" id="splitBtn">
+                    <i class="fas fa-cut me-2"></i>Split Dataset
+                </button>
+                <div id="splitResult" class="mt-3"></div>
+            </div>
+
+            <!-- Step 3: Create YOLO Config -->
+            <div class="step-card" id="step3Card">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5><i class="fas fa-file-code me-2"></i>Step 3: YOLO Configuration</h5>
+                    <span class="badge bg-secondary" id="step3Status">Pending</span>
+                </div>
+                <p class="text-muted">The data.yaml configuration file is created automatically when you split the dataset. This file tells YOLOv5 where to find your data and what classes to detect.</p>
+                
+                <div id="configPreview" style="display: none;">
+                    <h6><i class="fas fa-eye me-2"></i>Configuration Preview (data.yaml)</h6>
+                    <div class="format-comparison">
+                        <pre id="yamlContent"></pre>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dataset Summary -->
+            <div class="card mt-4" id="summaryCard" style="display: none;">
+                <div class="card-header bg-success text-white">
+                    <h5><i class="fas fa-check-circle me-2"></i>Dataset Preparation Complete!</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4 text-center">
+                            <h3 id="trainCount">0</h3>
+                            <p class="text-muted mb-0">Training Images</p>
+                        </div>
+                        <div class="col-md-4 text-center">
+                            <h3 id="valCount">0</h3>
+                            <p class="text-muted mb-0">Validation Images</p>
+                        </div>
+                        <div class="col-md-4 text-center">
+                            <h3 id="testCount">0</h3>
+                            <p class="text-muted mb-0">Test Images</p>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <h6><i class="fas fa-folder me-2"></i>Dataset Structure</h6>
+                        <div class="format-comparison">
+                            <pre id="datasetStructure"></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Next Step -->
+            <div class="card mt-4" id="nextStepCard" style="display: none;">
+                <div class="card-body text-center">
+                    <h5><i class="fas fa-check-circle text-success me-2"></i>Ready for Training!</h5>
+                    <p class="mb-3">Your dataset is now prepared in YOLO format and ready for YOLOv5 training.</p>
+                    <a href="/level/3/task/5" class="btn btn-success btn-lg">
+                        <i class="fas fa-arrow-right me-2"></i>Next: Train YOLOv5 Model
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Help Section -->
+        <div class="card mt-4">
+            <div class="card-header bg-info text-white">
+                <h5><i class="fas fa-question-circle me-2"></i>Understanding YOLO Format</h5>
+            </div>
+            <div class="card-body">
+                <ul>
+                    <li><strong>YOLO Format:</strong> One .txt file per image with one line per bounding box</li>
+                    <li><strong>Format:</strong> <code>class_id center_x center_y width height</code> (all values normalized 0-1)</li>
+                    <li><strong>Class ID:</strong> Index of class in your class list (0, 1, 2, ...)</li>
+                    <li><strong>Coordinates:</strong> Normalized to image dimensions (center-based, not corner-based)</li>
+                    <li><strong>Train/Val/Test Split:</strong> Standard split is 70% train, 20% validation, 10% test</li>
+                    <li><strong>data.yaml:</strong> Configuration file that tells YOLOv5 where to find your data</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <div class="card mt-4">
+            <div class="card-body text-center">
+                <a href="/level/3/task/3" class="btn btn-outline-secondary me-2">
+                    <i class="fas fa-arrow-left me-2"></i>Previous Task
+                </a>
+                <a href="/level/3" class="btn btn-outline-secondary me-2">
+                    Back to Level 3
+                </a>
+                <a href="/level/3/task/5" class="btn btn-primary" id="nextTaskBtn" style="display: none;">
+                    Next Task <i class="fas fa-arrow-right ms-2"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let currentProjectId = null;
+        let projectClasses = [];
+
+        // Initialize
+        window.addEventListener('DOMContentLoaded', async () => {
+            currentProjectId = localStorage.getItem('level3_project_id');
+            
+            if (!currentProjectId) {
+                document.getElementById('noProjectCard').style.display = 'block';
+                return;
+            }
+
+            await loadProjectData();
+            await checkStatus();
+            document.getElementById('preparationInterface').style.display = 'block';
+        });
+
+        async function loadProjectData() {
+            try {
+                const response = await fetch(`/level/3/projects/${currentProjectId}/metadata`);
+                const data = await response.json();
+                projectClasses = data.classes || [];
+            } catch (error) {
+                console.error('Error loading project data:', error);
+            }
+        }
+
+        async function checkStatus() {
+            try {
+                const response = await fetch(`/level/3/projects/${currentProjectId}/preparation-status`);
+                const status = await response.json();
+                
+                // Update status display
+                document.getElementById('annotationCount').textContent = status.label_count || '0';
+                document.getElementById('yoloLabelCount').textContent = status.label_count || '0';
+                
+                const yoloStatus = document.getElementById('yoloStatus');
+                if (status.yolo_labels_exist) {
+                    yoloStatus.className = 'badge bg-success';
+                    yoloStatus.textContent = 'Converted';
+                    document.getElementById('step1Card').classList.add('completed');
+                    document.getElementById('step1Status').textContent = 'Completed';
+                    document.getElementById('convertBtn').disabled = true;
+                    document.getElementById('convertBtn').innerHTML = '<i class="fas fa-check me-2"></i>Already Converted';
+                }
+                
+                const yamlBadge = document.getElementById('yamlStatusBadge');
+                if (status.yaml_config_exists) {
+                    yamlBadge.className = 'badge bg-success';
+                    yamlBadge.textContent = 'Created';
+                    document.getElementById('yamlStatus').textContent = '✓';
+                    document.getElementById('step3Card').classList.add('completed');
+                    document.getElementById('step3Status').textContent = 'Completed';
+                } else {
+                    yamlBadge.className = 'badge bg-secondary';
+                    yamlBadge.textContent = 'Not Created';
+                }
+                
+                const splitBadge = document.getElementById('splitStatusBadge');
+                if (status.dataset_split_exists) {
+                    splitBadge.className = 'badge bg-success';
+                    splitBadge.textContent = 'Split';
+                    document.getElementById('splitStatus').textContent = '✓';
+                    document.getElementById('step2Card').classList.add('completed');
+                    document.getElementById('step2Status').textContent = 'Completed';
+                    document.getElementById('splitBtn').disabled = true;
+                    document.getElementById('splitBtn').innerHTML = '<i class="fas fa-check me-2"></i>Already Split';
+                    
+                    // Show summary
+                    if (status.split_counts) {
+                        document.getElementById('trainCount').textContent = status.split_counts.train || 0;
+                        document.getElementById('valCount').textContent = status.split_counts.val || 0;
+                        document.getElementById('testCount').textContent = status.split_counts.test || 0;
+                        document.getElementById('summaryCard').style.display = 'block';
+                        document.getElementById('nextStepCard').style.display = 'block';
+                        document.getElementById('nextTaskBtn').style.display = 'inline-block';
+                    }
+                } else {
+                    splitBadge.className = 'badge bg-secondary';
+                    splitBadge.textContent = 'Not Split';
+                }
+            } catch (error) {
+                console.error('Error checking status:', error);
+            }
+        }
+
+        async function convertToYOLO() {
+            const btn = document.getElementById('convertBtn');
+            const resultDiv = document.getElementById('convertResult');
+            
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Converting...';
+            resultDiv.innerHTML = '';
+            
+            try {
+                const response = await fetch(`/level/3/projects/${currentProjectId}/convert-to-yolo`, {
+                    method: 'POST'
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    resultDiv.innerHTML = `
+                        <div class="alert alert-success">
+                            <h6><i class="fas fa-check-circle me-2"></i>Conversion Successful!</h6>
+                            <ul class="mb-0">
+                                <li><strong>Converted:</strong> ${data.converted_count} annotation file(s)</li>
+                                <li><strong>Classes:</strong> ${data.classes.length} classes detected</li>
+                                ${data.errors.length > 0 ? `<li class="text-warning"><strong>Warnings:</strong> ${data.errors.length} error(s)</li>` : ''}
+                            </ul>
+                            ${data.errors.length > 0 ? `<div class="mt-2"><small>${data.errors.join('<br>')}</small></div>` : ''}
+                        </div>
+                    `;
+                    
+                    // Update UI
+                    document.getElementById('step1Card').classList.add('completed');
+                    document.getElementById('step1Status').textContent = 'Completed';
+                    document.getElementById('yoloStatus').className = 'badge bg-success';
+                    document.getElementById('yoloStatus').textContent = 'Converted';
+                    document.getElementById('yoloLabelCount').textContent = data.converted_count;
+                    
+                    // Enable next step
+                    document.getElementById('step2Card').classList.add('in-progress');
+                    
+                    await checkStatus();
+                } else {
+                    throw new Error(data.error || 'Conversion failed');
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-circle me-2"></i>Error: ${error.message}
+                    </div>
+                `;
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-sync me-2"></i>Convert to YOLO Format';
+            }
+        }
+
+        function updateRatios() {
+            const train = parseFloat(document.getElementById('trainRatio').value);
+            const val = parseFloat(document.getElementById('valRatio').value);
+            const test = parseFloat(document.getElementById('testRatio').value);
+            
+            const total = train + val + test;
+            const totalPercent = (total * 100).toFixed(0);
+            
+            document.getElementById('ratioTotal').textContent = totalPercent + '%';
+            
+            if (Math.abs(total - 1.0) > 0.01) {
+                document.getElementById('ratioWarning').style.display = 'inline';
+                document.getElementById('ratioTotal').classList.add('text-danger');
+            } else {
+                document.getElementById('ratioWarning').style.display = 'none';
+                document.getElementById('ratioTotal').classList.remove('text-danger');
+            }
+            
+            // Update sliders
+            document.getElementById('trainSlider').value = (train * 100);
+            document.getElementById('valSlider').value = (val * 100);
+            document.getElementById('testSlider').value = (test * 100);
+        }
+
+        function updateFromSlider() {
+            const train = parseFloat(document.getElementById('trainSlider').value) / 100;
+            const val = parseFloat(document.getElementById('valSlider').value) / 100;
+            const test = parseFloat(document.getElementById('testSlider').value) / 100;
+            
+            document.getElementById('trainRatio').value = train.toFixed(2);
+            document.getElementById('valRatio').value = val.toFixed(2);
+            document.getElementById('testRatio').value = test.toFixed(2);
+            
+            updateRatios();
+        }
+
+        async function splitDataset() {
+            const trainRatio = parseFloat(document.getElementById('trainRatio').value);
+            const valRatio = parseFloat(document.getElementById('valRatio').value);
+            const testRatio = parseFloat(document.getElementById('testRatio').value);
+            
+            if (Math.abs((trainRatio + valRatio + testRatio) - 1.0) > 0.01) {
+                alert('Ratios must sum to 100% (1.0)');
+                return;
+            }
+            
+            const btn = document.getElementById('splitBtn');
+            const resultDiv = document.getElementById('splitResult');
+            
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Splitting...';
+            resultDiv.innerHTML = '';
+            
+            try {
+                const response = await fetch(`/level/3/projects/${currentProjectId}/split-dataset`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        train_ratio: trainRatio,
+                        val_ratio: valRatio,
+                        test_ratio: testRatio
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    resultDiv.innerHTML = `
+                        <div class="alert alert-success">
+                            <h6><i class="fas fa-check-circle me-2"></i>Dataset Split Successful!</h6>
+                            <ul class="mb-0">
+                                <li><strong>Training:</strong> ${data.train_count} images</li>
+                                <li><strong>Validation:</strong> ${data.val_count} images</li>
+                                <li><strong>Test:</strong> ${data.test_count} images</li>
+                                <li><strong>Total:</strong> ${data.total_count} images</li>
+                            </ul>
+                        </div>
+                    `;
+                    
+                    // Show dataset structure
+                    const structure = `artifacts/projects/${currentProjectId}/yolo/
+├── train/
+│   ├── images/
+│   └── labels/
+├── val/
+│   ├── images/
+│   └── labels/
+└── test/
+    ├── images/
+    └── labels/
+
+Configuration: data.yaml`;
+                    
+                    document.getElementById('datasetStructure').textContent = structure;
+                    
+                    // Update UI
+                    document.getElementById('step2Card').classList.add('completed');
+                    document.getElementById('step2Status').textContent = 'Completed';
+                    document.getElementById('step3Card').classList.add('completed');
+                    document.getElementById('step3Status').textContent = 'Completed';
+                    document.getElementById('splitStatus').textContent = '✓';
+                    document.getElementById('splitStatusBadge').className = 'badge bg-success';
+                    document.getElementById('splitStatusBadge').textContent = 'Split';
+                    document.getElementById('yamlStatusBadge').className = 'badge bg-success';
+                    document.getElementById('yamlStatusBadge').textContent = 'Created';
+                    
+                    // Show summary
+                    document.getElementById('trainCount').textContent = data.train_count;
+                    document.getElementById('valCount').textContent = data.val_count;
+                    document.getElementById('testCount').textContent = data.test_count;
+                    document.getElementById('summaryCard').style.display = 'block';
+                    document.getElementById('nextStepCard').style.display = 'block';
+                    document.getElementById('nextTaskBtn').style.display = 'inline-block';
+                    
+                    // Show YAML preview
+                    const yamlContent = `train: ${data.split_paths.train_images}
+val: ${data.split_paths.val_images}
+nc: ${projectClasses.length}
+names: ${JSON.stringify(projectClasses)}`;
+                    
+                    document.getElementById('yamlContent').textContent = yamlContent;
+                    document.getElementById('configPreview').style.display = 'block';
+                    
+                    await checkStatus();
+                } else {
+                    throw new Error(data.error || 'Split failed');
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-circle me-2"></i>Error: ${error.message}
+                    </div>
+                `;
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-cut me-2"></i>Split Dataset';
+            }
+        }
+
+        // Initialize ratios display
+        window.addEventListener('DOMContentLoaded', () => {
+            updateRatios();
+        });
+    </script>
+</body>
+</html>
+

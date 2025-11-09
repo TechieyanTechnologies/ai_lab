@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task 4.9: Error Analysis</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .task-header { background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%); color: white; padding: 2rem 0; }
+        .learning-objective { background: #f8f9fa; padding: 1rem; border-left: 4px solid #eb3349; }
+    </style>
+</head>
+<body>
+    <div class="task-header">
+        <div class="container d-flex justify-content-between align-items-center">
+            <div>
+                <h1><i class="fas fa-search me-3"></i>Task 4.9: Error Analysis</h1>
+                <p class="lead mb-0">Analyze misclassifications to improve your model</p>
+            </div>
+            <a href="/level/4" class="btn btn-light">← Back to Level 4</a>
+        </div>
+    </div>
+
+    <div class="container py-4">
+        <div class="learning-objective mb-4">
+            <h4><i class="fas fa-bullseye me-2"></i>Learning Objective</h4>
+            <p class="mb-0">Identify patterns in model errors, analyze confusion patterns, find common mistakes, and develop strategies to fix them through data cleaning, feature engineering, or model adjustments.</p>
+        </div>
+
+        <!-- Activity 1: Load Misclassifications -->
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5><i class="fas fa-file-import me-2"></i>Activity 1: Load Misclassifications</h5>
+            </div>
+            <div class="card-body">
+                <label class="form-label">Select Classifier Run</label>
+                <select id="runSelector" class="form-select">
+                    <option value="">Loading...</option>
+                </select>
+                <button class="btn btn-primary mt-3" onclick="loadMisclassifications()"><i class="fas fa-search me-2"></i>Load Errors</button>
+                <div id="errorsSummary" class="mt-3" style="display:none"></div>
+            </div>
+        </div>
+
+        <!-- Activity 2: Analyze Error Patterns -->
+        <div class="card mb-4">
+            <div class="card-header bg-danger text-white">
+                <h5><i class="fas fa-chart-pie me-2"></i>Activity 2: Analyze Error Patterns</h5>
+            </div>
+            <div class="card-body">
+                <p class="text-muted">Identify which classes are most confused and common error patterns.</p>
+                <div id="errorPatterns" style="display:none"></div>
+            </div>
+        </div>
+
+        <!-- Activity 3: Filter & Explore Errors -->
+        <div class="card mb-4">
+            <div class="card-header bg-warning">
+                <h5><i class="fas fa-filter me-2"></i>Activity 3: Filter & Explore Specific Errors</h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3 align-items-end">
+                    <div class="col-md-4">
+                        <label class="form-label">Filter by True Label</label>
+                        <select id="filterTrue" class="form-select">
+                            <option value="">All</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Filter by Predicted Label</label>
+                        <select id="filterPred" class="form-select">
+                            <option value="">All</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <button class="btn btn-warning" onclick="filterErrors()"><i class="fas fa-search me-2"></i>Filter</button>
+                    </div>
+                </div>
+                <div id="filteredErrors" class="mt-3" style="display:none"></div>
+            </div>
+        </div>
+
+        <!-- Activity 4: Fix Strategies -->
+        <div class="card mb-4">
+            <div class="card-header bg-info text-white">
+                <h5><i class="fas fa-lightbulb me-2"></i>Activity 4: Develop Fix Strategies</h5>
+            </div>
+            <div class="card-body">
+                <div id="fixStrategies"></div>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <div class="card">
+            <div class="card-body text-center">
+                <a href="/level/4" class="btn btn-outline-secondary me-2">Back to Level 4</a>
+                <a href="/level/4/task/8" class="btn btn-outline-primary me-2">← Previous: Model Comparison</a>
+                <a href="/level/4/task/10" class="btn btn-primary">Next: Advanced Preprocessing <i class="fas fa-arrow-right ms-2"></i></a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentProjectId = null;
+        let misclassifications = [];
+
+        window.addEventListener('DOMContentLoaded', async () => {
+            currentProjectId = localStorage.getItem('level3_project_id') || localStorage.getItem('level4_project_id');
+            if (!currentProjectId) { alert('No project found'); return; }
+            await loadRuns();
+        });
+
+        async function loadRuns() {
+            try {
+                const res = await fetch(`/level/4/projects/${currentProjectId}/classifier-runs`);
+                const data = await res.json();
+                const selector = document.getElementById('runSelector');
+                if (data.success && data.runs && data.runs.length > 0) {
+                    selector.innerHTML = '<option value="">Select a run...</option>' + data.runs.map(r => 
+                        `<option value="${r.run_id}">Run ${r.run_id} - Acc: ${(r.metrics.accuracy*100).toFixed(1)}%</option>`
+                    ).join('');
+                } else {
+                    selector.innerHTML = '<option value="">No runs found. Train in Task 4.4.</option>';
+                }
+            } catch(e) {
+                console.error(e);
+            }
+        }
+
+        async function loadMisclassifications() {
+            const runId = document.getElementById('runSelector').value;
+            if (!runId) { alert('Select a run'); return; }
+            
+            try {
+                const res = await fetch(`/level/4/projects/${currentProjectId}/classifier-runs/${runId}/misclassifications`);
+                if (res.ok) {
+                    const text = await res.text();
+                    const lines = text.split('\n').filter(Boolean).slice(1);
+                    misclassifications = lines.map(l => {
+                        const parts = l.split(',');
+                        return { text: parts[0], true: parts[1], pred: parts[2] };
+                    });
+                    showErrorsSummary();
+                    analyzePatterns();
+                } else {
+                    alert('Could not load misclassifications. CSV may not exist.');
+                }
+            } catch(e) {
+                alert('Error loading: ' + e.message);
+            }
+        }
+
+        function showErrorsSummary() {
+            const total = misclassifications.length;
+            const html = `<div class="alert alert-warning"><strong>Total Misclassifications:</strong> ${total}</div>`;
+            document.getElementById('errorsSummary').innerHTML = html;
+            document.getElementById('errorsSummary').style.display = 'block';
+
+            const trueLabels = [...new Set(misclassifications.map(e => e.true))];
+            const predLabels = [...new Set(misclassifications.map(e => e.pred))];
+            const filterTrue = document.getElementById('filterTrue');
+            const filterPred = document.getElementById('filterPred');
+            filterTrue.innerHTML = '<option value="">All</option>' + trueLabels.map(l => `<option value="${l}">${l}</option>`).join('');
+            filterPred.innerHTML = '<option value="">All</option>' + predLabels.map(l => `<option value="${l}">${l}</option>`).join('');
+        }
+
+        function analyzePatterns() {
+            const confusion = {};
+            misclassifications.forEach(e => {
+                const key = `${e.true} → ${e.pred}`;
+                confusion[key] = (confusion[key] || 0) + 1;
+            });
+            const sorted = Object.entries(confusion).sort((a, b) => b[1] - a[1]);
+            let html = '<div class="alert alert-danger"><h6>Most Common Confusion Patterns:</h6><ul>';
+            sorted.slice(0, 5).forEach(([pattern, count]) => {
+                html += `<li><strong>${pattern}</strong>: ${count} errors</li>`;
+            });
+            html += '</ul></div>';
+            document.getElementById('errorPatterns').innerHTML = html;
+            document.getElementById('errorPatterns').style.display = 'block';
+
+            const strategies = '<div class="alert alert-info"><h6>Suggested Fix Strategies:</h6><ul><li><strong>More training data</strong> for confused classes</li><li><strong>Feature engineering</strong> to distinguish similar classes</li><li><strong>Text preprocessing</strong> to normalize variations</li><li><strong>Class weights</strong> to balance importance</li><li><strong>Ensemble methods</strong> combining multiple models</li></ul></div>';
+            document.getElementById('fixStrategies').innerHTML = strategies;
+        }
+
+        function filterErrors() {
+            const trueFilter = document.getElementById('filterTrue').value;
+            const predFilter = document.getElementById('filterPred').value;
+            const filtered = misclassifications.filter(e => {
+                return (!trueFilter || e.true === trueFilter) && (!predFilter || e.pred === predFilter);
+            });
+            
+            let html = '<div class="alert alert-warning"><h6>Filtered Errors (' + filtered.length + '):</h6><table class="table table-sm"><thead><tr><th>Text</th><th>True Label</th><th>Predicted Label</th></tr></thead><tbody>';
+            filtered.slice(0, 20).forEach(e => {
+                html += `<tr><td>${e.text.substring(0, 80)}...</td><td><span class="badge bg-danger">${e.true}</span></td><td><span class="badge bg-warning">${e.pred}</span></td></tr>`;
+            });
+            html += '</tbody></table></div>';
+            document.getElementById('filteredErrors').innerHTML = html;
+            document.getElementById('filteredErrors').style.display = 'block';
+        }
+    </script>
+</body>
+</html>
+

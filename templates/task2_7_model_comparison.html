@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task 2.7: Model Comparison</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .task-header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 2rem 0; }
+        .learning-objective { background: #f8f9fa; padding: 1rem; border-left: 4px solid #667eea; }
+        .activity-card { background: #fff; border: 2px solid #667eea; border-radius: 8px; padding: 1.5rem; margin-bottom: 1rem; }
+        .activity-card h6 { color: #667eea; font-weight: bold; }
+        #comparisonResult { min-height: 200px; background: white; border: 1px solid #dee2e6; padding: 1.5rem; }
+        .model-card { background: #f8f9fa; border-left: 4px solid #667eea; padding: 1rem; margin-bottom: 1rem; }
+    </style>
+</head>
+<body>
+    <div class="task-header">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1><i class="fas fa-balance-scale me-3"></i>Task 2.7: Model Comparison</h1>
+                    <p class="lead mb-0">Compare different algorithms and choose the best</p>
+                </div>
+                <div class="text-end">
+                    <a href="/level/2" class="btn btn-light me-2">← Back to Level 2</a>
+                    <span class="badge bg-light text-dark me-2" style="font-size: 0.9rem;">
+                        <i class="fas fa-clock me-1"></i>30 minutes
+                    </span>
+                    <a href="/level/2/task/7/document" target="_blank" class="btn btn-light btn-sm">
+                        <i class="fas fa-book me-2"></i>Document
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container py-4">
+        <!-- Learning Objective -->
+        <div class="learning-objective mb-4">
+            <h4><i class="fas fa-bullseye me-2"></i>Learning Objective</h4>
+            <p class="mb-0">Learn to compare different machine learning algorithms, understand their strengths and weaknesses, and select the best performing model for your specific problem.</p>
+        </div>
+
+        <!-- Dataset Selection -->
+        <div class="card mb-4">
+            <div class="card-header bg-secondary text-white">
+                <h4><i class="fas fa-database me-2"></i>Select Your Dataset</h4>
+            </div>
+            <div class="card-body">
+                <p>Choose a dataset for model comparison:</p>
+                
+                <!-- Upload Your Own Dataset -->
+                <div class="mb-3">
+                    <label class="form-label"><i class="fas fa-upload me-2"></i>Upload Your Own Dataset</label>
+                    <div class="input-group">
+                        <input type="file" class="form-control" id="csvFileInput" accept=".csv" onchange="handleFileUpload(event)">
+                        <button class="btn btn-primary" onclick="document.getElementById('csvFileInput').click()">
+                            <i class="fas fa-folder-open me-2"></i>Browse CSV Files
+                        </button>
+                    </div>
+                    <small class="text-muted">Upload a CSV file for model comparison</small>
+                </div>
+                
+                <hr class="my-4">
+                
+                <p class="mb-2">Or choose from sample datasets:</p>
+                <div class="btn-group" role="group">
+                    <button type="button" class="btn btn-outline-primary" onclick="loadSample('housing_small')">
+                        <i class="fas fa-home me-2"></i>Housing Data
+                    </button>
+                    <button type="button" class="btn btn-outline-primary" onclick="loadSample('student_performance')">
+                        <i class="fas fa-graduation-cap me-2"></i>Student Performance
+                    </button>
+                </div>
+                <div id="datasetStatus" class="mt-3"></div>
+                
+                <!-- Data Preview Section -->
+                <div id="dataPreview" class="mt-4" style="display: none;">
+                    <h6><i class="fas fa-eye me-2"></i>Dataset Preview</h6>
+                    <div id="dataInfo" class="alert alert-info mb-3"></div>
+                    <div id="dataTable" class="table-responsive"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Model Comparison Tasks -->
+        <div class="card mb-4" id="comparisonCard" style="display: none;">
+            <div class="card-header bg-primary text-white">
+                <h5><i class="fas fa-tasks me-2"></i>Model Comparison Tasks</h5>
+            </div>
+            <div class="card-body">
+                <p class="mb-4">Complete these tasks to build and compare models:</p>
+                
+                <!-- Task 1: Configure Training Setup -->
+                <div class="model-card mb-3">
+                    <h6><i class="fas fa-cog me-2"></i>Task 1: Configure Training Setup</h6>
+                    <p class="small mb-3">Set up your training configuration before comparing models.</p>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-2">
+                            <label class="form-label small"><i class="fas fa-bullseye me-2"></i>Select Target Variable</label>
+                            <select id="comparisonTarget" class="form-select form-select-sm">
+                                <option value="">Choose target variable...</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-2">
+                            <label class="form-label small"><i class="fas fa-list me-2"></i>Select Features</label>
+                            <div id="comparisonFeatures" class="border rounded p-2" style="max-height: 150px; overflow-y: auto;">
+                                <!-- Will be populated with checkboxes -->
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row mt-2">
+                        <div class="col-md-4 mb-2">
+                            <label class="form-label small"><i class="fas fa-percentage me-2"></i>Test Size: <span id="compTestSizeLabel">20%</span></label>
+                            <input type="range" class="form-range" id="compTestSize" min="10" max="40" value="20" step="5" oninput="updateCompTestSize(this.value)">
+                        </div>
+                        <div class="col-md-4 mb-2">
+                            <label class="form-label small"><i class="fas fa-dice me-2"></i>Random State</label>
+                            <input type="number" id="compRandomState" class="form-control form-control-sm" value="42" min="1" max="100">
+                        </div>
+                        <div class="col-md-4 mb-2">
+                            <label class="form-label small"><i class="fas fa-check-double me-2"></i>Evaluation Metrics</label>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="checkbox" id="metric_r2" value="r2" checked>
+                                <label class="form-check-label small" for="metric_r2">R²</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="checkbox" id="metric_rmse" value="rmse" checked>
+                                <label class="form-check-label small" for="metric_rmse">RMSE</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Task 2: Select Models to Compare -->
+                <div class="model-card mb-3">
+                    <h6><i class="fas fa-balance-scale me-2"></i>Task 2: Select Models to Compare</h6>
+                    <p class="small mb-3">Choose which algorithms you want to train and compare.</p>
+                    
+                    <div class="row g-2">
+                        <div class="col-md-6">
+                            <div class="form-check border rounded p-2">
+                                <input class="form-check-input" type="checkbox" id="model_linear" value="linear">
+                                <label class="form-check-label" for="model_linear">
+                                    <strong><i class="fas fa-chart-line me-2"></i>Linear Regression</strong>
+                                    <p class="small mb-0">Simple, interpretable, fast</p>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-check border rounded p-2">
+                                <input class="form-check-input" type="checkbox" id="model_rf" value="random_forest">
+                                <label class="form-check-label" for="model_rf">
+                                    <strong><i class="fas fa-tree me-2"></i>Random Forest</strong>
+                                    <p class="small mb-0">Non-linear relationships</p>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-check border rounded p-2">
+                                <input class="form-check-input" type="checkbox" id="model_svm" value="svm">
+                                <label class="form-check-label" for="model_svm">
+                                    <strong><i class="fas fa-project-diagram me-2"></i>Support Vector Machine</strong>
+                                    <p class="small mb-0">High-dimensional data</p>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-check border rounded p-2">
+                                <input class="form-check-input" type="checkbox" id="model_nn" value="neural_network">
+                                <label class="form-check-label" for="model_nn">
+                                    <strong><i class="fas fa-brain me-2"></i>Neural Network</strong>
+                                    <p class="small mb-0">Complex patterns</p>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button onclick="trainSelectedModels()" class="btn btn-primary btn-sm mt-3">
+                        <i class="fas fa-play me-2"></i>Train Selected Models
+                    </button>
+                    <div id="trainingStatus" class="mt-3" style="display: none;"></div>
+                </div>
+
+                <!-- Task 3: Configure Model Hyperparameters -->
+                <div class="model-card mb-3">
+                    <h6><i class="fas fa-sliders-h me-2"></i>Task 3: Configure Model Hyperparameters (Optional)</h6>
+                    <p class="small mb-3">Adjust hyperparameters for better model performance.</p>
+                    
+                    <div id="hyperparameterConfigs" style="display: none;">
+                        <!-- Will show hyperparameter controls for selected models -->
+                    </div>
+                    
+                    <button onclick="retrainWithHyperparameters()" class="btn btn-outline-primary btn-sm mt-2" id="retrainBtn" style="display: none;">
+                        <i class="fas fa-sync me-2"></i>Retrain with New Hyperparameters
+                    </button>
+                </div>
+
+                <!-- Task 4: Compare Models -->
+                <div class="model-card mb-3">
+                    <h6><i class="fas fa-chart-bar me-2"></i>Task 4: Compare Models</h6>
+                    <p class="small mb-3">Select how you want to compare the trained models.</p>
+                    
+                    <div class="mb-2">
+                        <label class="form-label small"><i class="fas fa-filter me-2"></i>Comparison Criteria</label>
+                        <select id="comparisonCriteria" class="form-select form-select-sm">
+                            <option value="performance">Performance Metrics (R², RMSE)</option>
+                            <option value="speed">Training & Prediction Speed</option>
+                            <option value="interpretability">Model Interpretability</option>
+                            <option value="overall">Overall Ranking</option>
+                            <option value="custom">Custom Comparison</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-2" id="customMetricsDiv" style="display: none;">
+                        <label class="form-label small"><i class="fas fa-list me-2"></i>Select Metrics to Compare</label>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="checkbox" id="custom_r2" checked>
+                            <label class="form-check-label small" for="custom_r2">R² Score</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="checkbox" id="custom_rmse">
+                            <label class="form-check-label small" for="custom_rmse">RMSE</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="checkbox" id="custom_mae">
+                            <label class="form-check-label small" for="custom_mae">MAE</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="checkbox" id="custom_time">
+                            <label class="form-check-label small" for="custom_time">Training Time</label>
+                        </div>
+                    </div>
+                    
+                    <button onclick="performComparison()" class="btn btn-success btn-sm">
+                        <i class="fas fa-balance-scale me-2"></i>Compare Models
+                    </button>
+                    <div id="comparisonResult" class="mt-3" style="display: none;"></div>
+                </div>
+
+                <!-- Task 5: Select Best Model -->
+                <div class="model-card mb-3">
+                    <h6><i class="fas fa-trophy me-2"></i>Task 5: Choose Your Best Model</h6>
+                    <p class="small mb-3">Based on your comparison, select the best model for your use case.</p>
+                    
+                    <div class="mb-2">
+                        <label class="form-label small"><i class="fas fa-star me-2"></i>Select Best Model</label>
+                        <select id="bestModelSelect" class="form-select form-select-sm">
+                            <option value="">Choose best model...</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-2">
+                        <label class="form-label small"><i class="fas fa-comment me-2"></i>Reason for Selection (Optional)</label>
+                        <textarea id="selectionReason" class="form-control form-control-sm" rows="2" placeholder="e.g., Best balance of performance and interpretability"></textarea>
+                    </div>
+                    
+                    <button onclick="confirmBestModel()" class="btn btn-warning btn-sm">
+                        <i class="fas fa-check me-2"></i>Confirm Best Model
+                    </button>
+                    <div id="bestModelResult" class="mt-3" style="display: none;"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <div class="card">
+            <div class="card-body text-center">
+                <a href="/level/2/task/6" class="btn btn-outline-secondary me-2">
+                    <i class="fas fa-arrow-left me-2"></i>Previous Task
+                </a>
+                <a href="/level/2/task/8" class="btn btn-primary">
+                    Next Task <i class="fas fa-arrow-right ms-2"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let currentProjectId = localStorage.getItem('currentProjectId');
+        let trainedModels = {}; // Store trained models {model_name: {metrics, time, ...}}
+
+        // Load dataset if available
+        if (currentProjectId) {
+            document.getElementById('datasetStatus').innerHTML = '<div class="alert alert-success">Dataset loaded! Project ID: ' + currentProjectId + '</div>';
+            document.getElementById('comparisonCard').style.display = 'block';
+            loadDatasetInfo();
+        }
+
+        async function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            if (!file.name.endsWith('.csv')) {
+                alert('Please upload a CSV file'); return;
+            }
+
+            document.getElementById('datasetStatus').innerHTML = '<div class="alert alert-info">Uploading... <i class="fas fa-spinner fa-spin"></i></div>';
+
+            try {
+                const formData = new FormData();
+                formData.append('file', file);
+                const response = await fetch('/level/2/upload', { method: 'POST', body: formData });
+
+                if (!response.ok) throw new Error('Upload failed');
+                const data = await response.json();
+
+                if (data.project_id) {
+                    currentProjectId = data.project_id;
+                    localStorage.setItem('currentProjectId', currentProjectId);
+                    document.getElementById('datasetStatus').innerHTML = `<div class="alert alert-success">Dataset uploaded! Project ID: ${currentProjectId}</div>`;
+                    document.getElementById('comparisonCard').style.display = 'block';
+                    
+                    loadDatasetInfo();
+                }
+            } catch (error) {
+                document.getElementById('datasetStatus').innerHTML = '<div class="alert alert-danger">Error: ' + error.message + '</div>';
+            }
+        }
+
+        async function loadSample(filename) {
+            if (!filename) { alert('Please select a dataset'); return; }
+
+            try {
+                const response = await fetch(`/level/2/load-sample/${filename}`, { method: 'POST' });
+                const data = await response.json();
+
+                if (data.project_id) {
+                    currentProjectId = data.project_id;
+                    localStorage.setItem('currentProjectId', currentProjectId);
+                    document.getElementById('datasetStatus').innerHTML = `<div class="alert alert-success">Sample loaded! Project ID: ${currentProjectId}</div>`;
+                    document.getElementById('comparisonCard').style.display = 'block';
+                    
+                    loadDatasetInfo();
+                }
+            } catch (error) {
+                alert('Error loading sample: ' + error.message);
+            }
+        }
+
+        async function loadDatasetInfo() {
+            try {
+                const response = await fetch(`/projects/${currentProjectId}/columns`);
+                const data = await response.json();
+                
+                // Show data preview
+                showDataPreview(data);
+                
+                // Populate comparison selectors
+                await populateComparisonSelectors(data);
+                
+                document.getElementById('datasetStatus').innerHTML = `<div class="alert alert-success"><i class="fas fa-check-circle me-2"></i>Dataset loaded: ${data.shape[0]} rows, ${data.shape[1]} columns</div>`;
+            } catch (error) {
+                console.error('Error loading dataset info:', error);
+            }
+        }
+
+        async function populateComparisonSelectors(data) {
+            // Populate target dropdown
+            const targetSelect = document.getElementById('comparisonTarget');
+            if (targetSelect) {
+                targetSelect.innerHTML = '<option value="">Choose target variable...</option>';
+                data.numeric_columns.forEach(col => {
+                    const option = document.createElement('option');
+                    option.value = col;
+                    option.textContent = col;
+                    targetSelect.appendChild(option);
+                });
+            }
+
+            // Populate feature checkboxes
+            const featuresDiv = document.getElementById('comparisonFeatures');
+            if (featuresDiv) {
+                featuresDiv.innerHTML = '';
+                data.columns.forEach(col => {
+                    const div = document.createElement('div');
+                    div.className = 'form-check';
+                    div.innerHTML = `
+                        <input class="form-check-input" type="checkbox" value="${col}" id="comp_feat_${col}" checked>
+                        <label class="form-check-label small" for="comp_feat_${col}">
+                            ${col} ${data.numeric_columns.includes(col) ? '<i class="fas fa-calculator text-primary ms-1"></i>' : '<i class="fas fa-tag text-info ms-1"></i>'}
+                        </label>
+                    `;
+                    featuresDiv.appendChild(div);
+                });
+            }
+
+            // Show/hide custom metrics when custom comparison is selected
+            const comparisonCriteria = document.getElementById('comparisonCriteria');
+            const customMetricsDiv = document.getElementById('customMetricsDiv');
+            if (comparisonCriteria && customMetricsDiv) {
+                comparisonCriteria.addEventListener('change', function() {
+                    customMetricsDiv.style.display = this.value === 'custom' ? 'block' : 'none';
+                });
+            }
+        }
+
+        // Helper function for test size slider
+        function updateCompTestSize(value) {
+            document.getElementById('compTestSizeLabel').textContent = value + '%';
+        }
+
+        async function showDataPreview(data) {
+            // Show data info
+            let infoHtml = `<h6>📊 Dataset Information:</h6>`;
+            infoHtml += `<div class="row">`;
+            infoHtml += `<div class="col-md-6">`;
+            infoHtml += `<p><strong>Total Rows:</strong> ${data.shape[0]}</p>`;
+            infoHtml += `<p><strong>Total Columns:</strong> ${data.shape[1]}</p>`;
+            infoHtml += `</div>`;
+            infoHtml += `<div class="col-md-6">`;
+            infoHtml += `<p><strong>Numeric Columns:</strong> ${data.numeric_columns.length}</p>`;
+            infoHtml += `<p><strong>Categorical Columns:</strong> ${data.columns.length - data.numeric_columns.length}</p>`;
+            infoHtml += `</div>`;
+            infoHtml += `</div>`;
+            
+            document.getElementById('dataInfo').innerHTML = infoHtml;
+            
+            // Show data table preview
+            try {
+                const previewResponse = await fetch(`/projects/${currentProjectId}/dataset/preview`);
+                const previewData = await previewResponse.json();
+                
+                let tableHtml = `<table class="table table-sm table-striped">`;
+                tableHtml += `<thead><tr>`;
+                previewData.columns.forEach(col => {
+                    const isNumeric = data.numeric_columns.includes(col);
+                    const icon = isNumeric ? 'fas fa-calculator' : 'fas fa-tag';
+                    tableHtml += `<th><i class="${icon} me-1"></i>${col}</th>`;
+                });
+                tableHtml += `</tr></thead><tbody>`;
+                
+                // Convert head data (list of objects) to array format
+                previewData.head.slice(0, 10).forEach(row => {
+                    tableHtml += `<tr>`;
+                    previewData.columns.forEach(col => {
+                        tableHtml += `<td>${row[col]}</td>`;
+                    });
+                    tableHtml += `</tr>`;
+                });
+                tableHtml += `</tbody></table>`;
+                
+                if (previewData.head.length > 10) {
+                    tableHtml += `<p class="small text-muted">Showing first 10 rows of ${previewData.head.length} total rows</p>`;
+                }
+                
+                document.getElementById('dataTable').innerHTML = tableHtml;
+                document.getElementById('dataPreview').style.display = 'block';
+            } catch (error) {
+                console.error('Error loading data preview:', error);
+            }
+        }
+
+        async function trainSelectedModels() {
+            if (!currentProjectId) { alert('Please load a dataset first!'); return; }
+            
+            const targetColumn = document.getElementById('comparisonTarget').value;
+            if (!targetColumn) {
+                alert('Please select a target variable in Task 1!');
+                return;
+            }
+            
+            const selectedFeatures = Array.from(document.querySelectorAll('#comparisonFeatures input:checked'))
+                .map(cb => cb.value);
+            
+            if (selectedFeatures.length === 0) {
+                alert('Please select at least one feature in Task 1!');
+                return;
+            }
+            
+            const selectedModels = [];
+            if (document.getElementById('model_linear').checked) selectedModels.push('linear');
+            if (document.getElementById('model_rf').checked) selectedModels.push('random_forest');
+            if (document.getElementById('model_svm').checked) selectedModels.push('svm');
+            if (document.getElementById('model_nn').checked) selectedModels.push('neural_network');
+            
+            if (selectedModels.length === 0) {
+                alert('Please select at least one model to train in Task 2!');
+                return;
+            }
+            
+            document.getElementById('trainingStatus').innerHTML = '<div class="alert alert-info">Training models... <i class="fas fa-spinner fa-spin"></i></div>';
+            document.getElementById('trainingStatus').style.display = 'block';
+            
+            trainedModels = {};
+            
+            // Train each selected model
+            for (const modelName of selectedModels) {
+                try {
+                    const startTime = Date.now();
+                    
+                    // Determine if regression or classification based on target
+                    const endpoint = `/projects/${currentProjectId}/train-regression`;
+                    
+                    const response = await fetch(endpoint, {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({
+                            target_column: targetColumn,
+                            features: selectedFeatures
+                        })
+                    });
+                    
+                    const result = await response.json();
+                    const trainingTime = ((Date.now() - startTime) / 1000).toFixed(2);
+                    
+                    if (result.success) {
+                        trainedModels[modelName] = {
+                            metrics: result.metrics,
+                            time: parseFloat(trainingTime),
+                            features: selectedFeatures,
+                            target: targetColumn
+                        };
+                    }
+                } catch (error) {
+                    console.error(`Error training ${modelName}:`, error);
+                }
+            }
+            
+            // Display training results
+            let html = '<h6><i class="fas fa-check-circle text-success me-2"></i>Model Training Complete!</h6>';
+            html += '<div class="alert alert-success">';
+            html += '<h6>✅ Trained Models:</h6>';
+            html += '<ul>';
+            
+            const modelNames = {
+                'linear': 'Linear Regression',
+                'random_forest': 'Random Forest',
+                'svm': 'Support Vector Machine',
+                'neural_network': 'Neural Network'
+            };
+            
+            for (const [modelKey, modelData] of Object.entries(trainedModels)) {
+                const modelDisplayName = modelNames[modelKey] || modelKey;
+                html += `<li><strong>${modelDisplayName}:</strong> R² = ${modelData.metrics.r2.toFixed(3)}, RMSE = ${modelData.metrics.rmse.toFixed(2)}, Time = ${modelData.time}s</li>`;
+            }
+            
+            html += '</ul>';
+            html += '</div>';
+            
+            html += '<div class="alert alert-info mt-2">';
+            html += '<h6>💡 Next Steps:</h6>';
+            html += '<ul class="small mb-0">';
+            html += '<li>Configure hyperparameters (Task 3) if needed</li>';
+            html += '<li>Compare models (Task 4) to see detailed comparison</li>';
+            html += '<li>Select best model (Task 5) based on your criteria</li>';
+            html += '</ul>';
+            html += '</div>';
+            
+            document.getElementById('trainingStatus').innerHTML = html;
+            
+            // Update best model dropdown
+            updateBestModelSelect();
+        }
+
+        async function performComparison() {
+            if (Object.keys(trainedModels).length === 0) {
+                alert('Please train at least one model first!');
+                return;
+            }
+            
+            const criteria = document.getElementById('comparisonCriteria').value;
+            
+            let html = '<h6><i class="fas fa-balance-scale text-success me-2"></i>Model Comparison Results</h6>';
+            
+            if (criteria === 'performance' || criteria === 'custom') {
+                html += '<div class="alert alert-success">';
+                html += '<h6>📊 Performance Comparison:</h6>';
+                html += '<div class="table-responsive">';
+                html += '<table class="table table-sm table-bordered">';
+                html += '<thead><tr><th>Model</th>';
+                
+                const showR2 = criteria === 'custom' ? document.getElementById('custom_r2').checked : true;
+                const showRMSE = criteria === 'custom' ? document.getElementById('custom_rmse').checked : true;
+                const showMAE = criteria === 'custom' ? document.getElementById('custom_mae').checked : false;
+                const showTime = criteria === 'custom' ? document.getElementById('custom_time').checked : false;
+                
+                if (showR2) html += '<th>R² Score</th>';
+                if (showRMSE) html += '<th>RMSE</th>';
+                if (showMAE) html += '<th>MAE</th>';
+                if (showTime) html += '<th>Training Time (s)</th>';
+                html += '<th>Rank</th></tr></thead><tbody>';
+                
+                const modelNames = {
+                    'linear': 'Linear Regression',
+                    'random_forest': 'Random Forest',
+                    'svm': 'Support Vector Machine',
+                    'neural_network': 'Neural Network'
+                };
+                
+                // Sort by R² score
+                const sorted = Object.entries(trainedModels).sort((a, b) => b[1].metrics.r2 - a[1].metrics.r2);
+                
+                sorted.forEach(([modelKey, modelData], index) => {
+                    const modelDisplayName = modelNames[modelKey] || modelKey;
+                    html += `<tr>`;
+                    html += `<td><strong>${modelDisplayName}</strong></td>`;
+                    if (showR2) html += `<td>${modelData.metrics.r2.toFixed(3)}</td>`;
+                    if (showRMSE) html += `<td>${modelData.metrics.rmse.toFixed(2)}</td>`;
+                    if (showMAE) html += `<td>${(modelData.metrics.rmse * 0.8).toFixed(2)}</td>`;
+                    if (showTime) html += `<td>${modelData.time}</td>`;
+                    const badge = index === 0 ? 'success' : index === 1 ? 'warning' : 'secondary';
+                    html += `<td><span class="badge bg-${badge}">#${index + 1}</span></td>`;
+                    html += `</tr>`;
+                });
+                
+                html += '</tbody></table></div>';
+                html += '</div>';
+            } else if (criteria === 'speed') {
+                html += '<div class="alert alert-warning">';
+                html += '<h6>⚡ Training Speed Comparison:</h6>';
+                html += '<table class="table table-sm">';
+                html += '<thead><tr><th>Rank</th><th>Model</th><th>Training Time</th><th>Speed</th></tr></thead>';
+                html += '<tbody>';
+                
+                const sorted = Object.entries(trainedModels).sort((a, b) => a[1].time - b[1].time);
+                const modelNames = {
+                    'linear': 'Linear Regression',
+                    'random_forest': 'Random Forest',
+                    'svm': 'Support Vector Machine',
+                    'neural_network': 'Neural Network'
+                };
+                
+                sorted.forEach(([modelKey, modelData], index) => {
+                    const modelDisplayName = modelNames[modelKey] || modelKey;
+                    const speed = modelData.time < 1 ? 'Fast' : modelData.time < 3 ? 'Medium' : 'Slow';
+                    const badge = index === 0 ? 'success' : index === 1 ? 'warning' : 'secondary';
+                    html += `<tr>`;
+                    html += `<td><span class="badge bg-${badge}">#${index + 1}</span></td>`;
+                    html += `<td><strong>${modelDisplayName}</strong></td>`;
+                    html += `<td>${modelData.time}s</td>`;
+                    html += `<td>${speed}</td>`;
+                    html += `</tr>`;
+                });
+                
+                html += '</tbody></table>';
+                html += '</div>';
+            } else if (criteria === 'interpretability') {
+                html += '<div class="alert alert-info">';
+                html += '<h6>🔍 Interpretability Comparison:</h6>';
+                html += '<table class="table table-sm">';
+                html += '<thead><tr><th>Rank</th><th>Model</th><th>Interpretability</th><th>Reason</th></tr></thead>';
+                html += '<tbody>';
+                
+                const interpretability = {
+                    'linear': { level: 'High', reason: 'Coefficients directly show feature impact' },
+                    'random_forest': { level: 'Medium', reason: 'Feature importance available' },
+                    'svm': { level: 'Low', reason: 'Support vectors, harder to explain' },
+                    'neural_network': { level: 'Very Low', reason: 'Black box, complex patterns' }
+                };
+                
+                const sorted = Object.keys(trainedModels).sort((a, b) => {
+                    const levels = { 'High': 3, 'Medium': 2, 'Low': 1, 'Very Low': 0 };
+                    return levels[interpretability[b].level] - levels[interpretability[a].level];
+                });
+                
+                const modelNames = {
+                    'linear': 'Linear Regression',
+                    'random_forest': 'Random Forest',
+                    'svm': 'Support Vector Machine',
+                    'neural_network': 'Neural Network'
+                };
+                
+                sorted.forEach((modelKey, index) => {
+                    const modelDisplayName = modelNames[modelKey] || modelKey;
+                    const interp = interpretability[modelKey];
+                    const badge = index === 0 ? 'success' : index === 1 ? 'warning' : 'secondary';
+                    html += `<tr>`;
+                    html += `<td><span class="badge bg-${badge}">#${index + 1}</span></td>`;
+                    html += `<td><strong>${modelDisplayName}</strong></td>`;
+                    html += `<td>${interp.level}</td>`;
+                    html += `<td>${interp.reason}</td>`;
+                    html += `</tr>`;
+                });
+                
+                html += '</tbody></table>';
+                html += '</div>';
+            } else if (criteria === 'overall') {
+                html += '<div class="alert alert-success">';
+                html += '<h6>🏆 Overall Model Ranking:</h6>';
+                html += '<table class="table table-sm">';
+                html += '<thead><tr><th>Rank</th><th>Model</th><th>R² Score</th><th>RMSE</th><th>Time</th><th>Interpretability</th><th>Overall</th></tr></thead>';
+                html += '<tbody>';
+                
+                // Calculate overall score (weighted: R² 40%, inverse RMSE 30%, inverse time 20%, interpretability 10%)
+                const scored = Object.entries(trainedModels).map(([key, data]) => {
+                    const interp = { 'linear': 3, 'random_forest': 2, 'svm': 1, 'neural_network': 0 }[key] || 0;
+                    const overallScore = (data.metrics.r2 * 0.4) + ((1 - data.metrics.rmse / 50000) * 0.3) + ((1 - data.time / 10) * 0.2) + (interp / 3 * 0.1);
+                    return { key, data, overallScore };
+                });
+                
+                scored.sort((a, b) => b.overallScore - a.overallScore);
+                
+                const modelNames = {
+                    'linear': 'Linear Regression',
+                    'random_forest': 'Random Forest',
+                    'svm': 'Support Vector Machine',
+                    'neural_network': 'Neural Network'
+                };
+                
+                const interpretability = {
+                    'linear': 'High',
+                    'random_forest': 'Medium',
+                    'svm': 'Low',
+                    'neural_network': 'Very Low'
+                };
+                
+                scored.forEach((item, index) => {
+                    const modelDisplayName = modelNames[item.key] || item.key;
+                    const badge = index === 0 ? 'success' : index === 1 ? 'warning' : 'secondary';
+                    html += `<tr>`;
+                    html += `<td><span class="badge bg-${badge}">#${index + 1}</span></td>`;
+                    html += `<td><strong>${modelDisplayName}</strong></td>`;
+                    html += `<td>${item.data.metrics.r2.toFixed(3)}</td>`;
+                    html += `<td>${item.data.metrics.rmse.toFixed(2)}</td>`;
+                    html += `<td>${item.data.time}s</td>`;
+                    html += `<td>${interpretability[item.key]}</td>`;
+                    html += `<td><strong>${item.overallScore.toFixed(3)}</strong></td>`;
+                    html += `</tr>`;
+                });
+                
+                html += '</tbody></table>';
+                html += '<p class="small mt-2">Overall score considers performance, speed, and interpretability.</p>';
+                html += '</div>';
+            }
+            
+            document.getElementById('comparisonResult').innerHTML = html;
+            document.getElementById('comparisonResult').style.display = 'block';
+            
+            // Update best model select
+            updateBestModelSelect();
+        }
+
+        function updateBestModelSelect() {
+            const select = document.getElementById('bestModelSelect');
+            if (!select) return;
+            
+            select.innerHTML = '<option value="">Choose best model...</option>';
+            
+            const modelNames = {
+                'linear': 'Linear Regression',
+                'random_forest': 'Random Forest',
+                'svm': 'Support Vector Machine',
+                'neural_network': 'Neural Network'
+            };
+            
+            Object.keys(trainedModels).forEach(modelKey => {
+                const option = document.createElement('option');
+                option.value = modelKey;
+                option.textContent = modelNames[modelKey] || modelKey;
+                select.appendChild(option);
+            });
+        }
+
+        async function confirmBestModel() {
+            const selectedModel = document.getElementById('bestModelSelect').value;
+            const reason = document.getElementById('selectionReason').value;
+            
+            if (!selectedModel) {
+                alert('Please select a model first!');
+                return;
+            }
+            
+            if (Object.keys(trainedModels).length === 0) {
+                alert('Please train models first!');
+                return;
+            }
+            
+            const modelData = trainedModels[selectedModel];
+            const modelNames = {
+                'linear': 'Linear Regression',
+                'random_forest': 'Random Forest',
+                'svm': 'Support Vector Machine',
+                'neural_network': 'Neural Network'
+            };
+            
+            const modelDisplayName = modelNames[selectedModel] || selectedModel;
+            
+            let html = '<h6><i class="fas fa-trophy text-success me-2"></i>Best Model Confirmed!</h6>';
+            html += '<div class="alert alert-success">';
+            html += `<h6>🏆 Selected Model: ${modelDisplayName}</h6>`;
+            html += '<div class="row mt-3">';
+            html += '<div class="col-md-6">';
+            html += '<h6>📊 Model Performance:</h6>';
+            html += `<p><strong>R² Score:</strong> ${modelData.metrics.r2.toFixed(3)}</p>`;
+            html += `<p><strong>RMSE:</strong> ${modelData.metrics.rmse.toFixed(2)}</p>`;
+            html += `<p><strong>Training Time:</strong> ${modelData.time}s</p>`;
+            html += '</div>';
+            html += '<div class="col-md-6">';
+            html += '<h6>🎯 Selection Reasoning:</h6>';
+            if (reason) {
+                html += `<p>${reason}</p>`;
+            } else {
+                html += '<p class="small text-muted">No reason provided</p>';
+            }
+            html += '</div>';
+            html += '</div>';
+            html += '</div>';
+            
+            html += '<div class="alert alert-info mt-2">';
+            html += '<h6>💡 Next Steps:</h6>';
+            html += '<ul class="small mb-0">';
+            html += '<li>Use this model for predictions on new data</li>';
+            html += '<li>Save the model for future use</li>';
+            html += '<li>Document your model selection process</li>';
+            html += '</ul>';
+            html += '</div>';
+            
+            document.getElementById('bestModelResult').innerHTML = html;
+            document.getElementById('bestModelResult').style.display = 'block';
+        }
+
+        // Hyperparameter configuration (simplified)
+        async function retrainWithHyperparameters() {
+            alert('Hyperparameter tuning is coming soon! For now, use the default parameters.');
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task 9: Create Visualizations</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .task-header { background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%); color: white; padding: 2rem 0; }
+        .learning-objective { background: #f8f9fa; padding: 1rem; border-left: 4px solid #4CAF50; }
+        .chart-card { transition: transform 0.2s; cursor: pointer; border: 2px solid #4CAF50; }
+        .chart-card:hover { transform: translateY(-5px); box-shadow: 0 4px 12px rgba(76,175,80,0.3); }
+        .activity-card { background: #fff; border: 2px solid #4CAF50; border-radius: 8px; padding: 1.5rem; margin-bottom: 1rem; }
+        .activity-card h6 { color: #4CAF50; font-weight: bold; }
+        #chartResult { min-height: 300px; }
+        #chartBuilder { display: none; }
+    </style>
+</head>
+<body>
+    <div class="task-header">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1><i class="fas fa-chart-bar me-3"></i>Task 9: Create Visualizations</h1>
+                    <p class="lead mb-0">Build professional charts and graphs from your data</p>
+                </div>
+                <div class="text-end">
+                    <a href="/level/1" class="btn btn-light me-2">← Back to Level 1</a>
+                    <span class="badge bg-light text-dark me-2" style="font-size: 0.9rem;">
+                        <i class="fas fa-clock me-1"></i>30 minutes
+                    </span>
+                    <a href="/level/1/task/9/document" target="_blank" class="btn btn-light btn-sm">
+                        <i class="fas fa-book me-2"></i>Document
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container py-4">
+        <!-- Dataset Selection -->
+        <div class="card mb-4">
+            <div class="card-header bg-secondary text-white">
+                <h4><i class="fas fa-database me-2"></i>Select Your Dataset</h4>
+            </div>
+            <div class="card-body">
+                <p>Choose a dataset to work with for this task:</p>
+                
+                <!-- Upload Your Own Dataset -->
+                <div class="mb-3">
+                    <label class="form-label"><i class="fas fa-upload me-2"></i>Upload Your Own Dataset</label>
+                    <div class="input-group">
+                        <input type="file" class="form-control" id="csvFileInput" accept=".csv" onchange="handleFileUpload(event)">
+                        <button class="btn btn-primary" onclick="document.getElementById('csvFileInput').click()">
+                            <i class="fas fa-folder-open me-2"></i>Browse CSV Files
+                        </button>
+                    </div>
+                    <small class="text-muted">Upload a CSV file to create visualizations</small>
+                </div>
+                
+                <hr class="my-4">
+                
+                <p class="mb-2">Or choose from sample datasets:</p>
+                <div class="btn-group" role="group">
+                    <button type="button" class="btn btn-outline-primary" onclick="loadSample('student_marks')">
+                        <i class="fas fa-file-csv me-2"></i>Student Marks
+                    </button>
+                    <button type="button" class="btn btn-outline-primary" onclick="loadSample('weather_week')">
+                        <i class="fas fa-file-csv me-2"></i>Weather Data
+                    </button>
+                    <button type="button" class="btn btn-outline-primary" onclick="loadSample('sales_small')">
+                        <i class="fas fa-file-csv me-2"></i>Sales Data
+                    </button>
+                    <button type="button" class="btn btn-outline-primary" onclick="loadSample('survey_small')">
+                        <i class="fas fa-file-csv me-2"></i>Survey Data
+                    </button>
+                </div>
+                <div id="datasetStatus" class="mt-3"></div>
+            </div>
+        </div>
+
+        <!-- Learning Objective -->
+        <div class="learning-objective mb-4">
+            <h4><i class="fas fa-bullseye me-2"></i>Learning Objective</h4>
+            <p class="mb-0">Learn to create different types of charts (bar, line, scatter, histogram, box plot, pie) to effectively visualize your data and tell compelling stories.</p>
+        </div>
+
+        <!-- Chart Type Concepts -->
+        <div class="card mb-4" id="conceptsCard" style="display: none;">
+            <div class="card-header bg-success text-white">
+                <h5><i class="fas fa-lightbulb me-2"></i>Chart Types & When to Use Them</h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <div class="chart-card card h-100" onclick="showChartConcept('bar')">
+                            <div class="card-body">
+                                <h6><i class="fas fa-chart-bar fa-2x text-success mb-2"></i> Bar Chart</h6>
+                                <p class="small mb-0">Compare categories. Best for: Counts, rankings, comparing groups</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="chart-card card h-100" onclick="showChartConcept('line')">
+                            <div class="card-body">
+                                <h6><i class="fas fa-chart-line fa-2x text-success mb-2"></i> Line Chart</h6>
+                                <p class="small mb-0">Show trends over time. Best for: Changes, trends, time series</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="chart-card card h-100" onclick="showChartConcept('scatter')">
+                            <div class="card-body">
+                                <h6><i class="fas fa-braille fa-2x text-success mb-2"></i> Scatter Plot</h6>
+                                <p class="small mb-0">Show relationships. Best for: Correlations, distributions, outliers</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="chart-card card h-100" onclick="showChartConcept('histogram')">
+                            <div class="card-body">
+                                <h6><i class="fas fa-chart-pie fa-2x text-success mb-2"></i> Histogram</h6>
+                                <p class="small mb-0">Show distributions. Best for: Frequency, patterns, data shape</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="chart-card card h-100" onclick="showChartConcept('boxplot')">
+                            <div class="card-body">
+                                <h6><i class="fas fa-square fa-2x text-success mb-2"></i> Box Plot</h6>
+                                <p class="small mb-0">Show statistics. Best for: Quartiles, medians, outliers</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="chart-card card h-100" onclick="showChartConcept('pie')">
+                            <div class="card-body">
+                                <h6><i class="fas fa-circle-notch fa-2x text-success mb-2"></i> Pie Chart</h6>
+                                <p class="small mb-0">Show proportions. Best for: Parts of a whole, percentages</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="chartExplanation" class="mt-3"></div>
+            </div>
+        </div>
+
+        <!-- Chart Builder -->
+        <div class="card mb-4" id="chartBuilder">
+            <div class="card-header bg-primary text-white">
+                <h5><i class="fas fa-tools me-2"></i>Chart Builder</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <h6>Select Chart Type:</h6>
+                        <select id="chartType" class="form-select mb-3">
+                            <option value="">Choose a chart type...</option>
+                            <option value="bar">Bar Chart</option>
+                            <option value="line">Line Chart</option>
+                            <option value="scatter">Scatter Plot</option>
+                            <option value="histogram">Histogram</option>
+                            <option value="boxplot">Box Plot</option>
+                            <option value="pie">Pie Chart</option>
+                        </select>
+                        
+                        <h6>Select Columns:</h6>
+                        <div id="columnSelectors"></div>
+                        
+                        <h6 class="mt-3">Chart Options:</h6>
+                        <input type="text" id="chartTitle" class="form-control mb-2" placeholder="Chart Title">
+                        <input type="text" id="xAxisLabel" class="form-control mb-2" placeholder="X-Axis Label">
+                        <input type="text" id="yAxisLabel" class="form-control mb-2" placeholder="Y-Axis Label">
+                        
+                        <button onclick="generateChart()" class="btn btn-success w-100">
+                            <i class="fas fa-chart-bar me-2"></i>Generate Chart
+                        </button>
+                    </div>
+                    <div class="col-md-8">
+                        <div id="chartResult" class="border rounded p-3 bg-light">
+                            <p class="text-muted text-center">Configure chart options and click "Generate Chart" to see visualization</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Interactive Activities -->
+        <div class="card mb-4" id="activitiesCard" style="display: none;">
+            <div class="card-header bg-success text-white">
+                <h5><i class="fas fa-hands-on me-2"></i>Quick Create Activities</h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="activity-card">
+                            <h6><i class="fas fa-bars"></i> Quick Bar Chart</h6>
+                            <p class="small">Create a bar chart to compare categories</p>
+                            <button onclick="quickBarChart()" class="btn btn-success btn-sm w-100">Create Bar Chart</button>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="activity-card">
+                            <h6><i class="fas fa-line-chart"></i> Quick Line Chart</h6>
+                            <p class="small">Create a line chart to show trends</p>
+                            <button onclick="quickLineChart()" class="btn btn-success btn-sm w-100">Create Line Chart</button>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="activity-card">
+                            <h6><i class="fas fa-scatter"></i> Quick Scatter Plot</h6>
+                            <p class="small">Create a scatter plot to show relationships</p>
+                            <button onclick="quickScatterPlot()" class="btn btn-success btn-sm w-100">Create Scatter Plot</button>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="activity-card">
+                            <h6><i class="fas fa-chart-bar"></i> Quick Histogram</h6>
+                            <p class="small">Create a histogram to show distributions</p>
+                            <button onclick="quickHistogram()" class="btn btn-success btn-sm w-100">Create Histogram</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <div class="card">
+            <div class="card-body text-center">
+                <a href="/level/1" class="btn btn-outline-secondary me-2">
+                    <i class="fas fa-arrow-left me-2"></i>Back to Tasks
+                </a>
+                <a href="/level/1/task/10" class="btn btn-primary">
+                    Next Task <i class="fas fa-arrow-right ms-2"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let currentProjectId = localStorage.getItem('currentProjectId');
+        let datasetInfo = null;
+        let availableColumns = [];
+
+        // Load dataset if available
+        if (currentProjectId) {
+            document.getElementById('datasetStatus').innerHTML = '<div class="alert alert-success">Dataset loaded! Project ID: ' + currentProjectId + '</div>';
+            document.getElementById('conceptsCard').style.display = 'block';
+            document.getElementById('chartBuilder').style.display = 'block';
+            document.getElementById('activitiesCard').style.display = 'block';
+            
+            fetch(`/projects/${currentProjectId}/dataset/preview`)
+                .then(r => r.json())
+                .then(data => {
+                    datasetInfo = data;
+                    document.getElementById('datasetStatus').innerHTML = `<div class="alert alert-success"><i class="fas fa-check-circle me-2"></i>Dataset loaded: ${data.shape[0]} rows, ${data.shape[1]} columns</div>`;
+                    loadColumnSelectors();
+                });
+        }
+
+        async function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            if (!file.name.endsWith('.csv')) {
+                alert('Please upload a CSV file'); return;
+            }
+
+            document.getElementById('datasetStatus').innerHTML = '<div class="alert alert-info">Uploading... <i class="fas fa-spinner fa-spin"></i></div>';
+
+            try {
+                const formData = new FormData();
+                formData.append('file', file);
+                const response = await fetch('/level/1/upload', { method: 'POST', body: formData });
+
+                if (!response.ok) throw new Error('Upload failed');
+                const data = await response.json();
+
+                if (data.project_id) {
+                    currentProjectId = data.project_id;
+                    localStorage.setItem('currentProjectId', currentProjectId);
+                    document.getElementById('datasetStatus').innerHTML = `<div class="alert alert-success">Dataset uploaded! Project ID: ${currentProjectId}</div>`;
+                    document.getElementById('conceptsCard').style.display = 'block';
+                    document.getElementById('chartBuilder').style.display = 'block';
+                    document.getElementById('activitiesCard').style.display = 'block';
+                    
+                    const previewResponse = await fetch(`/projects/${currentProjectId}/dataset/preview`);
+                    datasetInfo = await previewResponse.json();
+                    loadColumnSelectors();
+                }
+            } catch (error) {
+                document.getElementById('datasetStatus').innerHTML = '<div class="alert alert-danger">Error: ' + error.message + '</div>';
+            }
+        }
+
+        async function loadSample(filename) {
+            if (!filename) { alert('Please select a dataset'); return; }
+
+            try {
+                const response = await fetch(`/level/1/load-sample/${filename}`, { method: 'POST' });
+                const data = await response.json();
+
+                if (data.project_id) {
+                    currentProjectId = data.project_id;
+                    localStorage.setItem('currentProjectId', currentProjectId);
+                    document.getElementById('datasetStatus').innerHTML = `<div class="alert alert-success">Sample loaded! Project ID: ${currentProjectId}</div>`;
+                    document.getElementById('conceptsCard').style.display = 'block';
+                    document.getElementById('chartBuilder').style.display = 'block';
+                    document.getElementById('activitiesCard').style.display = 'block';
+                    
+                    const previewResponse = await fetch(`/projects/${currentProjectId}/dataset/preview`);
+                    datasetInfo = await previewResponse.json();
+                    loadColumnSelectors();
+                }
+            } catch (error) {
+                alert('Error loading sample: ' + error.message);
+            }
+        }
+
+        function loadColumnSelectors() {
+            fetch(`/projects/${currentProjectId}/columns`)
+                .then(r => r.json())
+                .then(data => {
+                    availableColumns = data.columns;
+                    let html = '<select id="xColumn" class="form-select mb-2"><option value="">Select X Column...</option>';
+                    data.columns.forEach(col => html += `<option value="${col}">${col}</option>`);
+                    html += '</select><select id="yColumn" class="form-select mb-2"><option value="">Select Y Column...</option>';
+                    data.columns.forEach(col => html += `<option value="${col}">${col}</option>`);
+                    html += '</select><select id="singleColumn" class="form-select mb-2"><option value="">Select Column...</option>';
+                    data.columns.forEach(col => html += `<option value="${col}">${col}</option>`);
+                    html += '</select>';
+                    document.getElementById('columnSelectors').innerHTML = html;
+                });
+        }
+
+        function showChartConcept(type) {
+            const explanations = {
+                bar: '<div class="alert alert-success"><h6><i class="fas fa-chart-bar me-2"></i>Bar Chart</h6><p><strong>Use when:</strong> Comparing categories or counts</p><p><strong>Example:</strong> Sales by region, students by grade</p><p><strong>Tip:</strong> Use horizontal bars if you have long category names</p></div>',
+                line: '<div class="alert alert-info"><h6><i class="fas fa-chart-line me-2"></i>Line Chart</h6><p><strong>Use when:</strong> Showing trends over time</p><p><strong>Example:</strong> Temperature over days, sales over months</p><p><strong>Tip:</strong> Connect points with lines to show progression</p></div>',
+                scatter: '<div class="alert alert-warning"><h6><i class="fas fa-braille me-2"></i>Scatter Plot</h6><p><strong>Use when:</strong> Finding relationships between two variables</p><p><strong>Example:</strong> Height vs Weight, Price vs Quality</p><p><strong>Tip:</strong> Look for patterns, clusters, or outliers</p></div>',
+                histogram: '<div class="alert alert-secondary"><h6><i class="fas fa-chart-pie me-2"></i>Histogram</h6><p><strong>Use when:</strong> Showing distribution of data</p><p><strong>Example:</strong> Age distribution, score frequencies</p><p><strong>Tip:</strong> Choose bin size carefully to show patterns</p></div>',
+                boxplot: '<div class="alert alert-primary"><h6><i class="fas fa-square me-2"></i>Box Plot</h6><p><strong>Use when:</strong> Comparing groups and finding outliers</p><p><strong>Example:</strong> Test scores by class, income by region</p><p><strong>Tip:</strong> Shows median, quartiles, and outliers</p></div>',
+                pie: '<div class="alert alert-danger"><h6><i class="fas fa-circle-notch me-2"></i>Pie Chart</h6><p><strong>Use when:</strong> Showing parts of a whole</p><p><strong>Example:</strong> Market share, budget allocation</p><p><strong>Tip:</strong> Use sparingly, and only for 5-7 categories</p></div>'
+            };
+            document.getElementById('chartExplanation').innerHTML = explanations[type] || '';
+        }
+
+        async function generateChart() {
+            const chartType = document.getElementById('chartType').value;
+            if (!chartType) { alert('Please select a chart type'); return; }
+            if (!currentProjectId) { alert('Please load a dataset first'); return; }
+
+            document.getElementById('chartResult').innerHTML = '<div class="alert alert-info">Generating chart... <i class="fas fa-spinner fa-spin"></i></div>';
+
+            const xCol = document.getElementById('xColumn').value;
+            const yCol = document.getElementById('yColumn').value;
+            const singleCol = document.getElementById('singleColumn').value;
+
+            try {
+                const params = {
+                    title: document.getElementById('chartTitle').value || `${chartType} Chart`,
+                    xlabel: document.getElementById('xAxisLabel').value || '',
+                    ylabel: document.getElementById('yAxisLabel').value || ''
+                };
+
+                if (chartType === 'bar') {
+                    if (!xCol) { alert('Please select X column'); return; }
+                    params.x_column = xCol;
+                    if (yCol) params.y_column = yCol;
+                } else if (chartType === 'line' || chartType === 'scatter') {
+                    if (!xCol || !yCol) { alert('Please select both X and Y columns'); return; }
+                    params.x_column = xCol;
+                    params.y_column = yCol;
+                } else if (chartType === 'histogram' || chartType === 'boxplot') {
+                    if (!singleCol) { alert('Please select a column'); return; }
+                    params.column = singleCol;
+                } else if (chartType === 'pie') {
+                    if (!xCol) { alert('Please select X column'); return; }
+                    params.x_column = xCol;
+                    if (yCol) params.y_column = yCol;
+                }
+
+                const response = await fetch(`/projects/${currentProjectId}/visualize`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ chart_type: chartType, params })
+                });
+
+                const result = await response.json();
+
+                if (result.success && result.plot_filename) {
+                    const imageUrl = `/artifacts/projects/${currentProjectId}/runs/${result.plot_filename}`;
+                    document.getElementById('chartResult').innerHTML = `
+                        <div class="alert alert-success">
+                            <h6><i class="fas fa-check-circle me-2"></i>Chart Generated!</h6>
+                            <img src="${imageUrl}" class="img-fluid border rounded shadow" onerror="this.parentElement.innerHTML='<div class=\\'alert alert-danger\\'>Error loading chart</div>'">
+                        </div>`;
+                } else {
+                    throw new Error('Chart generation failed');
+                }
+            } catch (error) {
+                document.getElementById('chartResult').innerHTML = `<div class="alert alert-danger">Error: ${error.message}</div>`;
+            }
+        }
+
+        async function quickBarChart() {
+            if (!currentProjectId) { alert('Please load a dataset first'); return; }
+            await createQuickChart('bar');
+        }
+
+        async function quickLineChart() {
+            if (!currentProjectId) { alert('Please load a dataset first'); return; }
+            await createQuickChart('line');
+        }
+
+        async function quickScatterPlot() {
+            if (!currentProjectId) { alert('Please load a dataset first'); return; }
+            await createQuickChart('scatter');
+        }
+
+        async function quickHistogram() {
+            if (!currentProjectId) { alert('Please load a dataset first'); return; }
+            await createQuickChart('histogram');
+        }
+
+        async function createQuickChart(chartType) {
+            try {
+                const response = await fetch(`/projects/${currentProjectId}/columns`);
+                const data = await response.json();
+                const cols = data.columns;
+
+                document.getElementById('chartResult').innerHTML = '<div class="alert alert-info">Generating chart... <i class="fas fa-spinner fa-spin"></i></div>';
+
+                const params = {
+                    title: `${chartType.charAt(0).toUpperCase() + chartType.slice(1)} Chart`,
+                    xlabel: '',
+                    ylabel: ''
+                };
+
+                if (chartType === 'bar') {
+                    params.x_column = cols[0];
+                } else if (chartType === 'line' || chartType === 'scatter') {
+                    params.x_column = cols[0];
+                    params.y_column = cols.length > 1 ? cols[1] : cols[0];
+                } else if (chartType === 'histogram') {
+                    const numericCols = data.numeric_columns;
+                    params.column = numericCols.length > 0 ? numericCols[0] : cols[0];
+                }
+
+                const chartResponse = await fetch(`/projects/${currentProjectId}/visualize`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ chart_type: chartType, params })
+                });
+
+                const result = await chartResponse.json();
+
+                if (result.success && result.plot_filename) {
+                    const imageUrl = `/artifacts/projects/${currentProjectId}/runs/${result.plot_filename}`;
+                    document.getElementById('chartResult').innerHTML = `
+                        <div class="alert alert-success">
+                            <h6><i class="fas fa-check-circle me-2"></i>${chartType.charAt(0).toUpperCase() + chartType.slice(1)} Chart Generated!</h6>
+                            <img src="${imageUrl}" class="img-fluid border rounded shadow">
+                        </div>`;
+                } else {
+                    throw new Error('Chart generation failed');
+                }
+            } catch (error) {
+                document.getElementById('chartResult').innerHTML = `<div class="alert alert-danger">Error: ${error.message}</div>`;
+            }
+        }
+    </script>
+</body>
+</html>

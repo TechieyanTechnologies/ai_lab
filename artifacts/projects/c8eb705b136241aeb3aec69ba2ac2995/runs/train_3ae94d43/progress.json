@@ -1,0 +1,1 @@
+{"status": "completed", "progress": 100, "epoch": 10, "loss": 1.65, "logs": ["Epoch 10/10: loss=1.6500"], "model_path": "artifacts/projects/c8eb705b136241aeb3aec69ba2ac2995/runs/train_3ae94d43/weights/best.pt"}

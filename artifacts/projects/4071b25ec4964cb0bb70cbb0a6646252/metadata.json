@@ -1,0 +1,62 @@
+{
+  "project_id": "4071b25ec4964cb0bb70cbb0a6646252",
+  "title": "Data Analysis Project - weather_week",
+  "level": 1,
+  "created_at": "2025-10-28T10:03:46.924908",
+  "datasets": [
+    {
+      "filename": "original.csv",
+      "path": "dataset/original.csv",
+      "uploaded_at": "2025-10-28T10:03:46.928205",
+      "source": "sample_weather_week"
+    }
+  ],
+  "cleaned_versions": [],
+  "runs": [
+    {
+      "run_id": "0b4b8413f1914cbe86467ce4174952a7",
+      "type": "correlation",
+      "artifacts": [
+        "heatmap_65798c52.png",
+        "correlation.csv"
+      ],
+      "created_at": "2025-10-28T10:03:56.518140"
+    },
+    {
+      "run_id": "9b495f7a5d1c4cb09a078da9b690afdd",
+      "type": "visual",
+      "artifacts": [
+        "plot_scatter_2f972fcf.png"
+      ],
+      "created_at": "2025-10-28T10:04:06.427784"
+    },
+    {
+      "run_id": "069d69ffff9b427e91fed10837ffe36b",
+      "type": "correlation",
+      "artifacts": [
+        "heatmap_c930e6c6.png",
+        "correlation.csv"
+      ],
+      "created_at": "2025-10-28T10:04:09.993248"
+    },
+    {
+      "run_id": "b01478ccd1a6412f9bff8458f7818302",
+      "type": "correlation",
+      "artifacts": [
+        "heatmap_63bc37ba.png",
+        "correlation.csv"
+      ],
+      "created_at": "2025-10-28T10:04:11.429032"
+    },
+    {
+      "run_id": "1b4d63994c3541a2a41dc5054a6fcf63",
+      "type": "correlation",
+      "artifacts": [
+        "heatmap_16888ddf.png",
+        "correlation.csv"
+      ],
+      "created_at": "2025-10-28T10:12:15.499771"
+    }
+  ],
+  "reports": []
+}

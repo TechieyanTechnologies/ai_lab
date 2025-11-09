@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task 4.4: Text Classification</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .task-header { background: linear-gradient(135deg, #36d1dc 0%, #5b86e5 100%); color: white; padding: 2rem 0; }
+        .learning-objective { background: #f8f9fa; padding: 1rem; border-left: 4px solid #5b86e5; }
+        .preview-table { font-size: 0.9rem; }
+        .metric-card { background: white; border: 2px solid #dee2e6; border-radius: 8px; padding: 1.25rem; text-align: center; }
+        .metric-value { font-size: 2rem; color: #5b86e5; }
+    </style>
+</head>
+<body>
+    <div class="task-header">
+        <div class="container d-flex justify-content-between align-items-center">
+            <div>
+                <h1><i class="fas fa-chart-line me-3"></i>Task 4.4: Text Classification</h1>
+                <p class="lead mb-0">Train TF-IDF + LogisticRegression on your dataset</p>
+            </div>
+            <a href="/level/4" class="btn btn-light">← Back to Level 4</a>
+        </div>
+    </div>
+
+    <div class="container py-4">
+        <div class="learning-objective mb-4">
+            <h4><i class="fas fa-bullseye me-2"></i>Learning Objective</h4>
+            <p class="mb-0">Select text and label columns, choose split, train, and evaluate with accuracy, precision, recall, F1, and confusion matrix.</p>
+        </div>
+
+        <!-- Dataset Selection & Preview -->
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5><i class="fas fa-database me-2"></i>Dataset</h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3 align-items-end">
+                    <div class="col-md-6">
+                        <label class="form-label">Upload CSV</label>
+                        <input type="file" class="form-control" id="csvFile" accept=".csv">
+                        <small class="text-muted">Use columns like text,label</small>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Or Load Sample</label><br>
+                        <button class="btn btn-outline-secondary btn-sm" onclick="loadSample('movie_reviews_small.csv')">
+                            <i class="fas fa-file-import me-2"></i>movie_reviews_small.csv
+                        </button>
+                        <button class="btn btn-outline-secondary btn-sm" onclick="loadSample('faq_pairs.csv')">
+                            <i class="fas fa-file-import me-2"></i>faq_pairs.csv (for chatbot)
+                        </button>
+                    </div>
+                </div>
+
+                <div id="preview" class="mt-3" style="display:none">
+                    <h6>Preview</h6>
+                    <div id="previewInfo" class="text-muted small mb-2"></div>
+                    <div class="table-responsive">
+                        <table class="table table-sm table-striped preview-table">
+                            <thead id="previewHead"></thead>
+                            <tbody id="previewBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Training Config -->
+        <div class="card mb-4">
+            <div class="card-header bg-info text-white">
+                <h5><i class="fas fa-cog me-2"></i>Training Configuration</h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3 align-items-end">
+                    <div class="col-md-5">
+                        <label class="form-label">Text Column</label>
+                        <select id="textColumn" class="form-select"></select>
+                    </div>
+                    <div class="col-md-5">
+                        <label class="form-label">Label Column</label>
+                        <select id="labelColumn" class="form-select"></select>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">Test Size: <span id="splitLabel">0.2</span></label>
+                        <input type="range" min="0.1" max="0.4" step="0.05" value="0.2" class="form-range" id="split" oninput="document.getElementById('splitLabel').textContent=this.value">
+                    </div>
+                </div>
+                <hr>
+                <div class="row g-3 align-items-end">
+                    <div class="col-md-3">
+                        <label class="form-label">Vectorizer</label>
+                        <select id="vectorizerType" class="form-select">
+                            <option value="tfidf" selected>TF-IDF</option>
+                            <option value="bow">Bag-of-Words</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Max Features</label>
+                        <input type="number" id="maxFeatures" class="form-control" value="10000" min="500" max="50000">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">N-grams</label>
+                        <div class="input-group">
+                            <span class="input-group-text">min</span>
+                            <input type="number" id="ngMin" class="form-control" value="1" min="1" max="3">
+                            <span class="input-group-text">max</span>
+                            <input type="number" id="ngMax" class="form-control" value="2" min="1" max="3">
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Model</label>
+                        <select id="modelType" class="form-select">
+                            <option value="logreg" selected>Logistic Regression</option>
+                            <option value="nb">Multinomial NB</option>
+                            <option value="linear_svm">Linear SVM</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="text-center mt-3">
+                    <button class="btn btn-success" onclick="trainClassifier()"><i class="fas fa-play me-2"></i>Train</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results -->
+        <div class="card mb-4" id="resultsCard" style="display:none">
+            <div class="card-header bg-success text-white">
+                <h5><i class="fas fa-check-circle me-2"></i>Results</h5>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-3"><div class="metric-card"><div class="metric-value" id="acc">-</div><div>Accuracy</div></div></div>
+                    <div class="col-md-3"><div class="metric-card"><div class="metric-value" id="prec">-</div><div>Precision</div></div></div>
+                    <div class="col-md-3"><div class="metric-card"><div class="metric-value" id="rec">-</div><div>Recall</div></div></div>
+                    <div class="col-md-3"><div class="metric-card"><div class="metric-value" id="f1">-</div><div>F1</div></div></div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>Confusion Matrix</h6>
+                        <img id="cmImg" src="" alt="Confusion Matrix" class="img-fluid border" onerror="this.style.display='none'">
+                        <div class="mt-2" id="misLink"></div>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Try Inference</h6>
+                        <textarea id="inferText" class="form-control" rows="4" placeholder="Enter text..."></textarea>
+                        <button class="btn btn-outline-primary mt-2" onclick="runInference()"><i class="fas fa-magic me-2"></i>Predict</button>
+                        <div class="mt-2" id="inferResult"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <div class="card">
+            <div class="card-body text-center">
+                <a href="/level/4" class="btn btn-outline-secondary">Back to Level 4</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentProjectId = null;
+        let lastRunId = null;
+
+        window.addEventListener('DOMContentLoaded', async () => {
+            currentProjectId = localStorage.getItem('level3_project_id') || localStorage.getItem('level4_project_id');
+            if (!currentProjectId) {
+                alert('No project found. Please create a project in earlier levels.');
+                return;
+            }
+            await populateColumns();
+            await loadPreview();
+        });
+
+        async function populateColumns() {
+            try {
+                const res = await fetch(`/projects/${currentProjectId}/columns`);
+                const data = await res.json();
+                const all = data.columns || [];
+                fillSelect('textColumn', all);
+                fillSelect('labelColumn', all);
+            } catch(e) {}
+        }
+
+        function fillSelect(id, options) {
+            const sel = document.getElementById(id);
+            sel.innerHTML = '';
+            options.forEach(c => {
+                const opt = document.createElement('option');
+                opt.value = c; opt.textContent = c; sel.appendChild(opt);
+            })
+        }
+
+        async function loadPreview() {
+            try {
+                const res = await fetch(`/projects/${currentProjectId}/dataset/preview`);
+                const data = await res.json();
+                if (data.head && data.head.length > 0) {
+                    document.getElementById('preview').style.display = 'block';
+                    const cols = Object.keys(data.head[0]);
+                    const thead = document.getElementById('previewHead');
+                    const tbody = document.getElementById('previewBody');
+                    thead.innerHTML = '<tr>' + cols.map(c => `<th>${c}</th>`).join('') + '</tr>';
+                    tbody.innerHTML = '';
+                    data.head.slice(0,10).forEach(row => {
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = cols.map(c => `<td>${row[c]}</td>`).join('');
+                        tbody.appendChild(tr);
+                    });
+                    document.getElementById('previewInfo').textContent = `Rows: ${data.shape?.[0] || ''}, Cols: ${data.shape?.[1] || ''}`;
+                }
+            } catch(e) {}
+        }
+
+        async function loadSample(filename) {
+            document.getElementById('preview').style.display = 'none';
+            try {
+                const res = await fetch(`/level/4/load-sample/${encodeURIComponent(filename)}`, { 
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ project_id: currentProjectId })
+                });
+                await res.json();
+                await populateColumns();
+                await loadPreview();
+            } catch(e) { alert('Failed to load sample'); }
+        }
+
+        async function trainClassifier() {
+            const textCol = document.getElementById('textColumn').value;
+            const labelCol = document.getElementById('labelColumn').value;
+            const split = parseFloat(document.getElementById('split').value);
+            const vectorizerType=document.getElementById('vectorizerType').value;
+            const maxFeatures=parseInt(document.getElementById('maxFeatures').value||'10000');
+            const ngMin=parseInt(document.getElementById('ngMin').value||'1');
+            const ngMax=parseInt(document.getElementById('ngMax').value||'2');
+            const modelType=document.getElementById('modelType').value;
+            try {
+                const res = await fetch(`/level/4/projects/${currentProjectId}/train-text-classifier`, {
+                    method: 'POST', headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ text_column: textCol, label_column: labelCol, test_size: split, vectorizer_type: vectorizerType, max_features: maxFeatures, ngram_min: ngMin, ngram_max: ngMax, model_type: modelType })
+                });
+                const data = await res.json();
+                if (!data.success) throw new Error(data.error || 'Train failed');
+                lastRunId = data.run_id;
+                showResults(data);
+            } catch(e) { alert(e.message); }
+        }
+
+        function showResults(data) {
+            const m = data.metrics || {};
+            document.getElementById('acc').textContent = m.accuracy ? (m.accuracy*100).toFixed(1)+'%' : '-';
+            document.getElementById('prec').textContent = m.precision ? (m.precision*100).toFixed(1)+'%' : '-';
+            document.getElementById('rec').textContent = m.recall ? (m.recall*100).toFixed(1)+'%' : '-';
+            document.getElementById('f1').textContent = m.f1 ? (m.f1*100).toFixed(1)+'%' : '-';
+            if (data.artifacts && data.artifacts.confusion_matrix) {
+                document.getElementById('cmImg').src = data.artifacts.confusion_matrix;
+                document.getElementById('cmImg').style.display = '';
+            }
+            if (data.run_id) {
+                const mis=`/artifacts/projects/${currentProjectId}/nlp/classifier_${data.run_id}/misclassifications.csv`;
+                document.getElementById('misLink').innerHTML = `<a class='btn btn-sm btn-outline-secondary' target='_blank' href='${mis}'><i class="fas fa-file-csv me-1"></i>Download misclassifications.csv</a>`;
+            }
+            document.getElementById('resultsCard').style.display = 'block';
+        }
+
+        async function runInference() {
+            const txt = document.getElementById('inferText').value;
+            try {
+                const res = await fetch(`/level/4/projects/${currentProjectId}/classifier-infer`, {
+                    method: 'POST', headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ text: txt, run_id: lastRunId })
+                });
+                const data = await res.json();
+                if (!data.success) throw new Error(data.error || 'Infer failed');
+                const top = (data.top||[]).map(t => `${t.label} (${(t.prob*100).toFixed(1)}%)`).join(', ');
+                document.getElementById('inferResult').innerHTML = `<div class="alert alert-info"><strong>Prediction:</strong> ${data.prediction}<br><small>Top: ${top}</small></div>`;
+            } catch(e) { alert(e.message); }
+        }
+    </script>
+</body>
+</html>
+
+

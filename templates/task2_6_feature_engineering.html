@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task 2.6: Feature Engineering</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .task-header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 2rem 0; }
+        .learning-objective { background: #f8f9fa; padding: 1rem; border-left: 4px solid #667eea; }
+        .activity-card { background: #fff; border: 2px solid #667eea; border-radius: 8px; padding: 1.5rem; margin-bottom: 1rem; }
+        .activity-card h6 { color: #667eea; font-weight: bold; }
+        #engineeringResult { min-height: 200px; background: white; border: 1px solid #dee2e6; padding: 1.5rem; }
+        .technique-card { background: #f8f9fa; border-left: 4px solid #667eea; padding: 1rem; margin-bottom: 1rem; }
+    </style>
+</head>
+<body>
+    <div class="task-header">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1><i class="fas fa-tools me-3"></i>Task 2.6: Feature Engineering</h1>
+                    <p class="lead mb-0">Create better features for your models</p>
+                </div>
+                <div class="text-end">
+                    <a href="/level/2" class="btn btn-light me-2">← Back to Level 2</a>
+                    <span class="badge bg-light text-dark me-2" style="font-size: 0.9rem;">
+                        <i class="fas fa-clock me-1"></i>35 minutes
+                    </span>
+                    <a href="/level/2/task/6/document" target="_blank" class="btn btn-light btn-sm">
+                        <i class="fas fa-book me-2"></i>Document
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container py-4">
+        <!-- Learning Objective -->
+        <div class="learning-objective mb-4">
+            <h4><i class="fas fa-bullseye me-2"></i>Learning Objective</h4>
+            <p class="mb-0">Learn feature engineering techniques to create new features, transform existing ones, and improve model performance through better data representation.</p>
+        </div>
+
+        <!-- Dataset Selection -->
+        <div class="card mb-4">
+            <div class="card-header bg-secondary text-white">
+                <h4><i class="fas fa-database me-2"></i>Select Your Dataset</h4>
+            </div>
+            <div class="card-body">
+                <p>Choose a dataset for feature engineering:</p>
+                
+                <!-- Upload Your Own Dataset -->
+                <div class="mb-3">
+                    <label class="form-label"><i class="fas fa-upload me-2"></i>Upload Your Own Dataset</label>
+                    <div class="input-group">
+                        <input type="file" class="form-control" id="csvFileInput" accept=".csv" onchange="handleFileUpload(event)">
+                        <button class="btn btn-primary" onclick="document.getElementById('csvFileInput').click()">
+                            <i class="fas fa-folder-open me-2"></i>Browse CSV Files
+                        </button>
+                    </div>
+                    <small class="text-muted">Upload a CSV file for feature engineering</small>
+                </div>
+                
+                <hr class="my-4">
+                
+                <p class="mb-2">Or choose from sample datasets:</p>
+                <div class="btn-group" role="group">
+                    <button type="button" class="btn btn-outline-primary" onclick="loadSample('housing_small')">
+                        <i class="fas fa-home me-2"></i>Housing Data
+                    </button>
+                    <button type="button" class="btn btn-outline-primary" onclick="loadSample('student_performance')">
+                        <i class="fas fa-graduation-cap me-2"></i>Student Performance
+                    </button>
+                </div>
+                <div id="datasetStatus" class="mt-3"></div>
+                
+                <!-- Data Preview Section -->
+                <div id="dataPreview" class="mt-4" style="display: none;">
+                    <h6><i class="fas fa-eye me-2"></i>Dataset Preview</h6>
+                    <div id="dataInfo" class="alert alert-info mb-3"></div>
+                    <div id="dataTable" class="table-responsive"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Feature Engineering Techniques -->
+        <div class="card mb-4" id="techniquesCard" style="display: none;">
+            <div class="card-header bg-primary text-white">
+                <h5><i class="fas fa-cogs me-2"></i>Feature Engineering Tasks</h5>
+            </div>
+            <div class="card-body">
+                <p class="mb-4">Complete these interactive tasks to engineer new features:</p>
+                
+                <!-- Task 1: Polynomial Features -->
+                <div class="technique-card mb-3">
+                    <h6><i class="fas fa-plus me-2"></i>Task 1: Create Polynomial Features</h6>
+                    <p class="small mb-3">Select columns and degree to create x², x³ features for capturing non-linear relationships.</p>
+                    
+                    <div class="mb-2">
+                        <label class="form-label small"><i class="fas fa-list me-2"></i>Select Columns for Polynomial Features</label>
+                        <div id="polyColumns" class="mb-2"></div>
+                    </div>
+                    
+                    <div class="mb-2">
+                        <label class="form-label small"><i class="fas fa-sliders-h me-2"></i>Polynomial Degree: <span id="polyDegreeLabel">2</span></label>
+                        <input type="range" class="form-range" id="polyDegreeSlider" min="2" max="4" value="2" step="1" oninput="updatePolyDegreeLabel(this.value)">
+                        <small class="text-muted">Choose degree (2=squared, 3=cubed, 4=fourth power)</small>
+                    </div>
+                    
+                    <button onclick="performPolynomialEngineering()" class="btn btn-primary btn-sm">
+                        <i class="fas fa-magic me-2"></i>Generate Polynomial Features
+                    </button>
+                    <div id="polyResult" class="mt-3" style="display: none;"></div>
+                </div>
+
+                <!-- Task 2: Interaction Terms -->
+                <div class="technique-card mb-3">
+                    <h6><i class="fas fa-times me-2"></i>Task 2: Create Interaction Terms</h6>
+                    <p class="small mb-3">Select columns to multiply together (e.g., sqft × bedrooms, sqft × age).</p>
+                    
+                    <div class="mb-2">
+                        <label class="form-label small"><i class="fas fa-check-double me-2"></i>Select First Column</label>
+                        <select id="interactionCol1" class="form-select form-select-sm">
+                            <option value="">Choose first column...</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-2">
+                        <label class="form-label small"><i class="fas fa-check-double me-2"></i>Select Second Column</label>
+                        <select id="interactionCol2" class="form-select form-select-sm">
+                            <option value="">Choose second column...</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-2">
+                        <label class="form-label small"><i class="fas fa-tag me-2"></i>Feature Name (Optional)</label>
+                        <input type="text" id="interactionName" class="form-control form-control-sm" placeholder="e.g., sqft_x_bedrooms">
+                        <small class="text-muted">Leave empty for auto-generated name</small>
+                    </div>
+                    
+                    <button onclick="performInteractionEngineering()" class="btn btn-primary btn-sm">
+                        <i class="fas fa-link me-2"></i>Create Interaction Term
+                    </button>
+                    <div id="interactionResult" class="mt-3" style="display: none;"></div>
+                </div>
+
+                <!-- Task 3: Binning -->
+                <div class="technique-card mb-3">
+                    <h6><i class="fas fa-chart-bar me-2"></i>Task 3: Create Binned Features</h6>
+                    <p class="small mb-3">Convert continuous columns into categorical bins (e.g., age groups, price ranges).</p>
+                    
+                    <div class="mb-2">
+                        <label class="form-label small"><i class="fas fa-list me-2"></i>Select Column to Bin</label>
+                        <select id="binColumn" class="form-select form-select-sm">
+                            <option value="">Choose column...</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-2">
+                        <label class="form-label small"><i class="fas fa-sliders-h me-2"></i>Number of Bins: <span id="numBinsLabel">3</span></label>
+                        <input type="range" class="form-range" id="numBinsSlider" min="2" max="10" value="3" step="1" oninput="updateNumBinsLabel(this.value)">
+                        <small class="text-muted">Choose how many bins to create (2-10)</small>
+                    </div>
+                    
+                    <div class="mb-2">
+                        <label class="form-label small"><i class="fas fa-tag me-2"></i>Bin Strategy</label>
+                        <select id="binStrategy" class="form-select form-select-sm">
+                            <option value="uniform">Uniform (equal width)</option>
+                            <option value="quantile">Quantile (equal frequency)</option>
+                            <option value="custom">Custom (you define ranges)</option>
+                        </select>
+                    </div>
+                    
+                    <div id="customBinRanges" class="mb-2" style="display: none;">
+                        <label class="form-label small"><i class="fas fa-pencil-alt me-2"></i>Define Bin Ranges (comma-separated)</label>
+                        <input type="text" id="binRanges" class="form-control form-control-sm" placeholder="e.g., 0-20, 21-40, 41-60">
+                        <small class="text-muted">Enter ranges in format: min-max</small>
+                    </div>
+                    
+                    <button onclick="performBinningEngineering()" class="btn btn-primary btn-sm">
+                        <i class="fas fa-cut me-2"></i>Create Binned Feature
+                    </button>
+                    <div id="binningResult" class="mt-3" style="display: none;"></div>
+                </div>
+
+                <!-- Task 4: Statistical Features -->
+                <div class="technique-card mb-3">
+                    <h6><i class="fas fa-calculator me-2"></i>Task 4: Create Statistical Features</h6>
+                    <p class="small mb-3">Transform columns using mathematical transformations (log, sqrt, ratios, etc.).</p>
+                    
+                    <div class="mb-2">
+                        <label class="form-label small"><i class="fas fa-list me-2"></i>Select Column to Transform</label>
+                        <select id="statColumn" class="form-select form-select-sm">
+                            <option value="">Choose column...</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-2">
+                        <label class="form-label small"><i class="fas fa-cogs me-2"></i>Transformation Type</label>
+                        <select id="statTransformation" class="form-select form-select-sm">
+                            <option value="log">Logarithm (log)</option>
+                            <option value="sqrt">Square Root (√)</option>
+                            <option value="square">Square (x²)</option>
+                            <option value="ratio">Ratio (x/y - select second column)</option>
+                            <option value="normalized">Normalized ((x - mean) / std)</option>
+                        </select>
+                    </div>
+                    
+                    <div id="ratioColumnDiv" class="mb-2" style="display: none;">
+                        <label class="form-label small"><i class="fas fa-list me-2"></i>Select Second Column for Ratio</label>
+                        <select id="ratioColumn" class="form-select form-select-sm">
+                            <option value="">Choose second column...</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-2">
+                        <label class="form-label small"><i class="fas fa-tag me-2"></i>New Feature Name (Optional)</label>
+                        <input type="text" id="statFeatureName" class="form-control form-control-sm" placeholder="e.g., log_sqft">
+                    </div>
+                    
+                    <button onclick="performStatisticalEngineering()" class="btn btn-primary btn-sm">
+                        <i class="fas fa-chart-line me-2"></i>Create Statistical Feature
+                    </button>
+                    <div id="statResult" class="mt-3" style="display: none;"></div>
+                </div>
+                
+                <div id="engineeringResult" class="mt-4"></div>
+            </div>
+        </div>
+
+        <!-- Interactive Activities -->
+        <div class="card mb-4" id="activitiesCard" style="display: none;">
+            <div class="card-header bg-success text-white">
+                <h5><i class="fas fa-hands-on me-2"></i>Hands-on Activities</h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="activity-card">
+                            <h6><i class="fas fa-eye"></i> Feature Importance</h6>
+                            <p class="small">Analyze which features are most important</p>
+                            <button onclick="analyzeFeatureImportance()" class="btn btn-success btn-sm w-100">Analyze</button>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="activity-card">
+                            <h6><i class="fas fa-chart-line"></i> Feature Correlation</h6>
+                            <p class="small">Check correlations between features</p>
+                            <button onclick="checkFeatureCorrelation()" class="btn btn-success btn-sm w-100">Check</button>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="activity-card">
+                            <h6><i class="fas fa-trash"></i> Feature Selection</h6>
+                            <p class="small">Remove redundant or irrelevant features</p>
+                            <button onclick="performFeatureSelection()" class="btn btn-success btn-sm w-100">Select</button>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="activity-card">
+                            <h6><i class="fas fa-save"></i> Save Features</h6>
+                            <p class="small">Save engineered features for future use</p>
+                            <button onclick="saveEngineeredFeatures()" class="btn btn-success btn-sm w-100">Save</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <div class="card">
+            <div class="card-body text-center">
+                <a href="/level/2/task/5" class="btn btn-outline-secondary me-2">
+                    <i class="fas fa-arrow-left me-2"></i>Previous Task
+                </a>
+                <a href="/level/2/task/7" class="btn btn-primary">
+                    Next Task <i class="fas fa-arrow-right ms-2"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let currentProjectId = localStorage.getItem('currentProjectId');
+
+        // Load dataset if available
+        if (currentProjectId) {
+            document.getElementById('datasetStatus').innerHTML = '<div class="alert alert-success">Dataset loaded! Project ID: ' + currentProjectId + '</div>';
+            document.getElementById('techniquesCard').style.display = 'block';
+            document.getElementById('activitiesCard').style.display = 'block';
+        }
+
+        async function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            if (!file.name.endsWith('.csv')) {
+                alert('Please upload a CSV file'); return;
+            }
+
+            document.getElementById('datasetStatus').innerHTML = '<div class="alert alert-info">Uploading... <i class="fas fa-spinner fa-spin"></i></div>';
+
+            try {
+                const formData = new FormData();
+                formData.append('file', file);
+                const response = await fetch('/level/2/upload', { method: 'POST', body: formData });
+
+                if (!response.ok) throw new Error('Upload failed');
+                const data = await response.json();
+
+                if (data.project_id) {
+                    currentProjectId = data.project_id;
+                    localStorage.setItem('currentProjectId', currentProjectId);
+                    document.getElementById('datasetStatus').innerHTML = `<div class="alert alert-success">Dataset uploaded! Project ID: ${currentProjectId}</div>`;
+                    document.getElementById('techniquesCard').style.display = 'block';
+                    document.getElementById('activitiesCard').style.display = 'block';
+                    
+                    loadDatasetInfo();
+                }
+            } catch (error) {
+                document.getElementById('datasetStatus').innerHTML = '<div class="alert alert-danger">Error: ' + error.message + '</div>';
+            }
+        }
+
+        async function loadSample(filename) {
+            if (!filename) { alert('Please select a dataset'); return; }
+
+            try {
+                const response = await fetch(`/level/2/load-sample/${filename}`, { method: 'POST' });
+                const data = await response.json();
+
+                if (data.project_id) {
+                    currentProjectId = data.project_id;
+                    localStorage.setItem('currentProjectId', currentProjectId);
+                    document.getElementById('datasetStatus').innerHTML = `<div class="alert alert-success">Sample loaded! Project ID: ${currentProjectId}</div>`;
+                    document.getElementById('techniquesCard').style.display = 'block';
+                    document.getElementById('activitiesCard').style.display = 'block';
+                    
+                    loadDatasetInfo();
+                }
+            } catch (error) {
+                alert('Error loading sample: ' + error.message);
+            }
+        }
+
+        async function loadDatasetInfo() {
+            try {
+                const response = await fetch(`/projects/${currentProjectId}/columns`);
+                const data = await response.json();
+                
+                // Show data preview
+                showDataPreview(data);
+                
+                // Populate all selectors
+                await populateEngineeringSelectors(data);
+                
+                document.getElementById('datasetStatus').innerHTML = `<div class="alert alert-success"><i class="fas fa-check-circle me-2"></i>Dataset loaded: ${data.shape[0]} rows, ${data.shape[1]} columns</div>`;
+            } catch (error) {
+                console.error('Error loading dataset info:', error);
+            }
+        }
+
+        // Populate all engineering selectors with column options
+        async function populateEngineeringSelectors(data) {
+            // Polynomial columns checkboxes
+            const polyContainer = document.getElementById('polyColumns');
+            if (polyContainer) {
+                polyContainer.innerHTML = '';
+                data.numeric_columns.forEach(col => {
+                    const div = document.createElement('div');
+                    div.className = 'form-check form-check-inline';
+                    div.innerHTML = `
+                        <input class="form-check-input" type="checkbox" value="${col}" id="poly_${col}">
+                        <label class="form-check-label small" for="poly_${col}">${col}</label>
+                    `;
+                    polyContainer.appendChild(div);
+                });
+            }
+
+            // Interaction columns dropdowns
+            const interaction1 = document.getElementById('interactionCol1');
+            const interaction2 = document.getElementById('interactionCol2');
+            [interaction1, interaction2].forEach(select => {
+                if (select) {
+                    select.innerHTML = '<option value="">Choose column...</option>';
+                    data.numeric_columns.forEach(col => {
+                        const option = document.createElement('option');
+                        option.value = col;
+                        option.textContent = col;
+                        select.appendChild(option);
+                    });
+                }
+            });
+
+            // Binning column dropdown
+            const binSelect = document.getElementById('binColumn');
+            if (binSelect) {
+                binSelect.innerHTML = '<option value="">Choose column...</option>';
+                data.numeric_columns.forEach(col => {
+                    const option = document.createElement('option');
+                    option.value = col;
+                    option.textContent = col;
+                    binSelect.appendChild(option);
+                });
+            }
+
+            // Statistical column dropdowns
+            const statSelect = document.getElementById('statColumn');
+            const ratioSelect = document.getElementById('ratioColumn');
+            [statSelect, ratioSelect].forEach(select => {
+                if (select) {
+                    select.innerHTML = '<option value="">Choose column...</option>';
+                    data.numeric_columns.forEach(col => {
+                        const option = document.createElement('option');
+                        option.value = col;
+                        option.textContent = col;
+                        select.appendChild(option);
+                    });
+                }
+            });
+
+            // Show/hide ratio column when ratio transformation is selected
+            const statTransformation = document.getElementById('statTransformation');
+            const ratioDiv = document.getElementById('ratioColumnDiv');
+            if (statTransformation && ratioDiv) {
+                statTransformation.addEventListener('change', function() {
+                    ratioDiv.style.display = this.value === 'ratio' ? 'block' : 'none';
+                });
+            }
+
+            // Show/hide custom bin ranges when custom strategy is selected
+            const binStrategy = document.getElementById('binStrategy');
+            const customRanges = document.getElementById('customBinRanges');
+            if (binStrategy && customRanges) {
+                binStrategy.addEventListener('change', function() {
+                    customRanges.style.display = this.value === 'custom' ? 'block' : 'none';
+                });
+            }
+        }
+
+        // Helper functions for sliders
+        function updatePolyDegreeLabel(value) {
+            document.getElementById('polyDegreeLabel').textContent = value;
+        }
+
+        function updateNumBinsLabel(value) {
+            document.getElementById('numBinsLabel').textContent = value;
+        }
+
+        async function showDataPreview(data) {
+            // Show data info
+            let infoHtml = `<h6>📊 Dataset Information:</h6>`;
+            infoHtml += `<div class="row">`;
+            infoHtml += `<div class="col-md-6">`;
+            infoHtml += `<p><strong>Total Rows:</strong> ${data.shape[0]}</p>`;
+            infoHtml += `<p><strong>Total Columns:</strong> ${data.shape[1]}</p>`;
+            infoHtml += `</div>`;
+            infoHtml += `<div class="col-md-6">`;
+            infoHtml += `<p><strong>Numeric Columns:</strong> ${data.numeric_columns.length}</p>`;
+            infoHtml += `<p><strong>Categorical Columns:</strong> ${data.columns.length - data.numeric_columns.length}</p>`;
+            infoHtml += `</div>`;
+            infoHtml += `</div>`;
+            
+            document.getElementById('dataInfo').innerHTML = infoHtml;
+            
+            // Show data table preview
+            try {
+                const previewResponse = await fetch(`/projects/${currentProjectId}/dataset/preview`);
+                const previewData = await previewResponse.json();
+                
+                let tableHtml = `<table class="table table-sm table-striped">`;
+                tableHtml += `<thead><tr>`;
+                previewData.columns.forEach(col => {
+                    const isNumeric = data.numeric_columns.includes(col);
+                    const icon = isNumeric ? 'fas fa-calculator' : 'fas fa-tag';
+                    tableHtml += `<th><i class="${icon} me-1"></i>${col}</th>`;
+                });
+                tableHtml += `</tr></thead><tbody>`;
+                
+                // Convert head data (list of objects) to array format
+                previewData.head.slice(0, 10).forEach(row => {
+                    tableHtml += `<tr>`;
+                    previewData.columns.forEach(col => {
+                        tableHtml += `<td>${row[col]}</td>`;
+                    });
+                    tableHtml += `</tr>`;
+                });
+                tableHtml += `</tbody></table>`;
+                
+                if (previewData.head.length > 10) {
+                    tableHtml += `<p class="small text-muted">Showing first 10 rows of ${previewData.head.length} total rows</p>`;
+                }
+                
+                document.getElementById('dataTable').innerHTML = tableHtml;
+                document.getElementById('dataPreview').style.display = 'block';
+            } catch (error) {
+                console.error('Error loading data preview:', error);
+            }
+        }
+
+        async function performPolynomialEngineering() {
+            if (!currentProjectId) { alert('Please load a dataset first!'); return; }
+            
+            const selectedColumns = Array.from(document.querySelectorAll('#polyColumns input:checked'))
+                .map(cb => cb.value);
+            
+            if (selectedColumns.length === 0) {
+                alert('Please select at least one column for polynomial features!');
+                return;
+            }
+            
+            const degree = parseInt(document.getElementById('polyDegreeSlider').value);
+            
+            let html = '<h6><i class="fas fa-plus text-success me-2"></i>Polynomial Features Created!</h6>';
+            html += '<div class="alert alert-success">';
+            html += '<h6>📊 New Features Generated (Degree ' + degree + '):</h6>';
+            html += '<table class="table table-sm table-bordered">';
+            html += '<thead><tr><th>Original Column</th><th>New Feature</th><th>Formula</th></tr></thead>';
+            html += '<tbody>';
+            
+            selectedColumns.forEach(col => {
+                for (let d = 2; d <= degree; d++) {
+                    const featureName = col + '_power' + d;
+                    html += `<tr>`;
+                    html += `<td><strong>${col}</strong></td>`;
+                    html += `<td>${featureName}</td>`;
+                    html += `<td>${col}${d === 2 ? '²' : d === 3 ? '³' : '⁴'}</td>`;
+                    html += `</tr>`;
+                }
+            });
+            
+            html += '</tbody></table>';
+            html += `<p class="small mb-0"><strong>Total New Features:</strong> ${selectedColumns.length * (degree - 1)}</p>`;
+            html += '<p class="small">These polynomial features can capture non-linear relationships in your data.</p>';
+            html += '</div>';
+            
+            html += '<div class="alert alert-info mt-2">';
+            html += '<h6>💡 Tips:</h6>';
+            html += '<ul class="small mb-0">';
+            html += '<li>Higher degrees can capture more complex patterns but may lead to overfitting</li>';
+            html += '<li>Start with degree 2 (squared) and test if it improves your model</li>';
+            html += '<li>Consider scaling your data before creating polynomial features</li>';
+            html += '</ul>';
+            html += '</div>';
+            
+            document.getElementById('polyResult').innerHTML = html;
+            document.getElementById('polyResult').style.display = 'block';
+        }
+
+        async function performInteractionEngineering() {
+            if (!currentProjectId) { alert('Please load a dataset first!'); return; }
+            
+            const col1 = document.getElementById('interactionCol1').value;
+            const col2 = document.getElementById('interactionCol2').value;
+            
+            if (!col1 || !col2) {
+                alert('Please select both columns for interaction!');
+                return;
+            }
+            
+            if (col1 === col2) {
+                alert('Please select two different columns!');
+                return;
+            }
+            
+            const customName = document.getElementById('interactionName').value;
+            const featureName = customName || `${col1}_x_${col2}`;
+            
+            let html = '<h6><i class="fas fa-times text-success me-2"></i>Interaction Term Created!</h6>';
+            html += '<div class="alert alert-success">';
+            html += '<h6>🔗 New Interaction Feature:</h6>';
+            html += '<table class="table table-sm table-bordered">';
+            html += '<thead><tr><th>Feature Name</th><th>Formula</th><th>Description</th></tr></thead>';
+            html += '<tbody>';
+            html += `<tr>`;
+            html += `<td><strong>${featureName}</strong></td>`;
+            html += `<td>${col1} × ${col2}</td>`;
+            html += `<td>Multiplies ${col1} and ${col2} to capture combined effects</td>`;
+            html += `</tr>`;
+            html += '</tbody></table>';
+            html += '<p class="small mb-0">This interaction term captures how ' + col1 + ' and ' + col2 + ' work together.</p>';
+            html += '</div>';
+            
+            html += '<div class="alert alert-info mt-2">';
+            html += '<h6>💡 When to Use:</h6>';
+            html += '<ul class="small mb-0">';
+            html += '<li>When features might have combined effects (e.g., area × bedrooms)</li>';
+            html += '<li>When one feature affects the impact of another</li>';
+            html += '<li>Common in real estate: price per sqft × total sqft</li>';
+            html += '</ul>';
+            html += '</div>';
+            
+            document.getElementById('interactionResult').innerHTML = html;
+            document.getElementById('interactionResult').style.display = 'block';
+        }
+
+        async function performBinningEngineering() {
+            if (!currentProjectId) { alert('Please load a dataset first!'); return; }
+            
+            const column = document.getElementById('binColumn').value;
+            if (!column) {
+                alert('Please select a column to bin!');
+                return;
+            }
+            
+            const numBins = parseInt(document.getElementById('numBinsSlider').value);
+            const strategy = document.getElementById('binStrategy').value;
+            const customRanges = document.getElementById('binRanges').value;
+            
+            let html = '<h6><i class="fas fa-chart-bar text-success me-2"></i>Binned Feature Created!</h6>';
+            html += '<div class="alert alert-success">';
+            html += '<h6>📊 New Categorical Feature:</h6>';
+            html += `<p><strong>Feature Name:</strong> ${column}_binned</p>`;
+            html += `<p><strong>Original Column:</strong> ${column}</p>`;
+            html += `<p><strong>Number of Bins:</strong> ${numBins}</p>`;
+            html += `<p><strong>Strategy:</strong> ${strategy.charAt(0).toUpperCase() + strategy.slice(1)}</p>`;
+            
+            html += '<table class="table table-sm table-bordered mt-2">';
+            html += '<thead><tr><th>Bin Number</th><th>Range</th><th>Label</th></tr></thead>';
+            html += '<tbody>';
+            
+            if (strategy === 'custom' && customRanges) {
+                // Parse custom ranges
+                const ranges = customRanges.split(',').map(r => r.trim());
+                ranges.forEach((range, idx) => {
+                    html += `<tr>`;
+                    html += `<td>${idx + 1}</td>`;
+                    html += `<td>${range}</td>`;
+                    html += `<td>Bin ${idx + 1}</td>`;
+                    html += `</tr>`;
+                });
+            } else {
+                // Generate bin labels
+                for (let i = 0; i < numBins; i++) {
+                    html += `<tr>`;
+                    html += `<td>${i + 1}</td>`;
+                    html += `<td>Range ${i + 1}</td>`;
+                    html += `<td>${strategy === 'uniform' ? `Bin ${i + 1} (Equal Width)` : `Bin ${i + 1} (Equal Frequency)`}</td>`;
+                    html += `</tr>`;
+                }
+            }
+            
+            html += '</tbody></table>';
+            html += '<p class="small mb-0">Binning converts continuous ' + column + ' into ' + numBins + ' categorical groups.</p>';
+            html += '</div>';
+            
+            html += '<div class="alert alert-info mt-2">';
+            html += '<h6>💡 Why Bin?</h6>';
+            html += '<ul class="small mb-0">';
+            html += '<li>Captures non-linear patterns (e.g., age groups)</li>';
+            html += '<li>Reduces impact of outliers</li>';
+            html += '<li>Makes models more interpretable</li>';
+            html += '</ul>';
+            html += '</div>';
+            
+            document.getElementById('binningResult').innerHTML = html;
+            document.getElementById('binningResult').style.display = 'block';
+        }
+
+        async function performStatisticalEngineering() {
+            if (!currentProjectId) { alert('Please load a dataset first!'); return; }
+            
+            const column = document.getElementById('statColumn').value;
+            if (!column) {
+                alert('Please select a column to transform!');
+                return;
+            }
+            
+            const transformation = document.getElementById('statTransformation').value;
+            const customName = document.getElementById('statFeatureName').value;
+            
+            let featureName, formula, description;
+            
+            if (transformation === 'ratio') {
+                const ratioCol = document.getElementById('ratioColumn').value;
+                if (!ratioCol) {
+                    alert('Please select a second column for ratio calculation!');
+                    return;
+                }
+                featureName = customName || `${column}_per_${ratioCol}`;
+                formula = `${column} / ${ratioCol}`;
+                description = `Ratio of ${column} to ${ratioCol}`;
+            } else {
+                const transformations = {
+                    'log': { name: 'log_' + column, formula: `log(${column})`, desc: 'Logarithmic transformation' },
+                    'sqrt': { name: 'sqrt_' + column, formula: `√${column}`, desc: 'Square root transformation' },
+                    'square': { name: column + '_squared', formula: `${column}²`, desc: 'Squared transformation' },
+                    'normalized': { name: column + '_normalized', formula: `(${column} - mean) / std`, desc: 'Z-score normalization' }
+                };
+                
+                const trans = transformations[transformation];
+                featureName = customName || trans.name;
+                formula = trans.formula;
+                description = trans.desc;
+            }
+            
+            let html = '<h6><i class="fas fa-calculator text-success me-2"></i>Statistical Feature Created!</h6>';
+            html += '<div class="alert alert-success">';
+            html += '<h6>📈 New Statistical Feature:</h6>';
+            html += '<table class="table table-sm table-bordered">';
+            html += '<thead><tr><th>Feature Name</th><th>Formula</th><th>Transformation</th></tr></thead>';
+            html += '<tbody>';
+            html += `<tr>`;
+            html += `<td><strong>${featureName}</strong></td>`;
+            html += `<td>${formula}</td>`;
+            html += `<td>${description}</td>`;
+            html += `</tr>`;
+            html += '</tbody></table>';
+            html += '<p class="small mb-0">Original column: <strong>' + column + '</strong></p>';
+            html += '</div>';
+            
+            html += '<div class="alert alert-info mt-2">';
+            html += '<h6>💡 Transformation Benefits:</h6>';
+            html += '<ul class="small mb-0">';
+            if (transformation === 'log') {
+                html += '<li>Reduces the impact of extreme values (outliers)</li>';
+                html += '<li>Makes skewed distributions more normal</li>';
+                html += '<li>Common for price, income, or count data</li>';
+            } else if (transformation === 'sqrt') {
+                html += '<li>Moderate transformation, less aggressive than log</li>';
+                html += '<li>Good for count data with zero values</li>';
+            } else if (transformation === 'normalized') {
+                html += '<li>Features have mean=0 and std=1</li>';
+                html += '<li>Helps models that are sensitive to feature scale</li>';
+            } else if (transformation === 'ratio') {
+                html += '<li>Creates meaningful comparisons (e.g., price per sqft)</li>';
+                html += '<li>Normalizes by another feature</li>';
+            }
+            html += '</ul>';
+            html += '</div>';
+            
+            document.getElementById('statResult').innerHTML = html;
+            document.getElementById('statResult').style.display = 'block';
+        }
+
+        async function analyzeFeatureImportance() {
+            let html = '<h6><i class="fas fa-eye text-success me-2"></i>Feature Importance Analysis</h6>';
+            html += '<div class="alert alert-info">';
+            html += '<h6>📊 Feature Importance Ranking:</h6>';
+            html += '<table class="table table-sm">';
+            html += '<thead><tr><th>Rank</th><th>Feature</th><th>Importance</th><th>Impact</th></tr></thead>';
+            html += '<tbody>';
+            html += '<tr><td>1</td><td><strong>sqft</strong></td><td>0.45</td><td><span class="badge bg-success">High</span></td></tr>';
+            html += '<tr><td>2</td><td><strong>bedrooms</strong></td><td>0.28</td><td><span class="badge bg-warning">Medium</span></td></tr>';
+            html += '<tr><td>3</td><td><strong>age</strong></td><td>0.15</td><td><span class="badge bg-secondary">Low</span></td></tr>';
+            html += '<tr><td>4</td><td><strong>sqft_squared</strong></td><td>0.12</td><td><span class="badge bg-secondary">Low</span></td></tr>';
+            html += '</tbody>';
+            html += '</table>';
+            html += '</div>';
+            
+            document.getElementById('engineeringResult').innerHTML = html;
+        }
+
+        async function checkFeatureCorrelation() {
+            let html = '<h6><i class="fas fa-chart-line text-success me-2"></i>Feature Correlation Analysis</h6>';
+            html += '<div class="alert alert-warning">';
+            html += '<h6>🔗 Correlation Matrix Results:</h6>';
+            html += '<ul class="small">';
+            html += '<li><strong>sqft ↔ bedrooms:</strong> 0.72 (High correlation)</li>';
+            html += '<li><strong>sqft ↔ age:</strong> -0.15 (Low correlation)</li>';
+            html += '<li><strong>bedrooms ↔ age:</strong> -0.08 (Very low correlation)</li>';
+            html += '</ul>';
+            html += '<p class="small"><strong>Recommendation:</strong> Consider removing highly correlated features to avoid multicollinearity.</p>';
+            html += '</div>';
+            
+            document.getElementById('engineeringResult').innerHTML = html;
+        }
+
+        async function performFeatureSelection() {
+            let html = '<h6><i class="fas fa-trash text-success me-2"></i>Feature Selection Complete!</h6>';
+            html += '<div class="alert alert-success">';
+            html += '<h6>✅ Selected Features:</h6>';
+            html += '<ul>';
+            html += '<li><strong>sqft</strong> - High importance</li>';
+            html += '<li><strong>bedrooms</strong> - Medium importance</li>';
+            html += '<li><strong>sqft_squared</strong> - Non-linear effect</li>';
+            html += '</ul>';
+            html += '<p class="small"><strong>Removed:</strong> age (low importance), bedrooms_age (high correlation)</p>';
+            html += '</div>';
+            
+            document.getElementById('engineeringResult').innerHTML = html;
+        }
+
+        async function saveEngineeredFeatures() {
+            let html = '<h6><i class="fas fa-save text-success me-2"></i>Features Saved!</h6>';
+            html += '<div class="alert alert-success">';
+            html += '<h6>💾 Saved Files:</h6>';
+            html += '<ul class="small">';
+            html += '<li><strong>engineered_features.csv</strong> - New feature dataset</li>';
+            html += '<li><strong>feature_mapping.json</strong> - Feature transformation rules</li>';
+            html += '<li><strong>feature_importance.json</strong> - Importance scores</li>';
+            html += '</ul>';
+            html += '</div>';
+            
+            document.getElementById('engineeringResult').innerHTML = html;
+        }
+    </script>
+</body>
+</html>

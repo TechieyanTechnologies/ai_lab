@@ -1,0 +1,17 @@
+{
+  "project_id": "98ce5d58248c4aa693d0c824b461048a",
+  "title": "Data Analysis Project - sales_small",
+  "level": 1,
+  "created_at": "2025-10-27T16:24:42.703204",
+  "datasets": [
+    {
+      "filename": "original.csv",
+      "path": "dataset/original.csv",
+      "uploaded_at": "2025-10-27T16:24:42.705934",
+      "source": "sample_sales_small"
+    }
+  ],
+  "cleaned_versions": [],
+  "runs": [],
+  "reports": []
+}

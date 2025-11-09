@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ level_info.title }} - AI Lab</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .level-header {
+            background: linear-gradient(135deg, var(--bs-{{ level_info.color }}) 0%, #6c757d 100%);
+            color: white;
+            padding: 3rem 0;
+        }
+        .action-card {
+            transition: transform 0.3s ease;
+            cursor: pointer;
+        }
+        .action-card:hover {
+            transform: translateY(-5px);
+        }
+        .help-panel {
+            background: #f8f9fa;
+            border-left: 4px solid var(--bs-{{ level_info.color }});
+        }
+    </style>
+</head>
+<body>
+    <!-- Level Header -->
+    <div class="level-header">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h1 class="display-4 mb-3">
+                        <i class="{{ level_info.icon }} me-3"></i>
+                        {{ level_info.title }}
+                    </h1>
+                    <p class="lead mb-4">{{ level_info.description }}</p>
+                    <a href="/" class="btn btn-outline-light">
+                        <i class="fas fa-arrow-left me-2"></i>Back to Levels
+                    </a>
+                </div>
+                <div class="col-md-4 text-center">
+                    <div class="bg-white bg-opacity-25 rounded p-4">
+                        <h3 class="mb-0">Level {{ level_id }}</h3>
+                        <p class="mb-0">AI Learning Path</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container py-5">
+        <div class="row">
+            <!-- Main Actions -->
+            <div class="col-md-8">
+                <h3 class="mb-4">What would you like to do?</h3>
+                
+                <div class="row g-4">
+                    <!-- Create New Project -->
+                    <div class="col-md-6">
+                        <div class="card action-card h-100" onclick="showCreateProject()">
+                            <div class="card-body text-center">
+                                <i class="fas fa-plus-circle fa-3x text-{{ level_info.color }} mb-3"></i>
+                                <h5 class="card-title">Create New Project</h5>
+                                <p class="card-text">Start a fresh project and upload your own data</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Open Sample Project -->
+                    <div class="col-md-6">
+                        <div class="card action-card h-100" onclick="showSampleProject()">
+                            <div class="card-body text-center">
+                                <i class="fas fa-download fa-3x text-{{ level_info.color }} mb-3"></i>
+                                <h5 class="card-title">Use Sample Data</h5>
+                                <p class="card-text">Start with our pre-loaded sample datasets</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Upload Dataset -->
+                    <div class="col-md-6">
+                        <div class="card action-card h-100" onclick="showUploadDataset()">
+                            <div class="card-body text-center">
+                                <i class="fas fa-upload fa-3x text-{{ level_info.color }} mb-3"></i>
+                                <h5 class="card-title">Upload Dataset</h5>
+                                <p class="card-text">Upload your own data files to work with</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Help & Tutorial -->
+                    <div class="col-md-6">
+                        <div class="card action-card h-100" onclick="showHelp()">
+                            <div class="card-body text-center">
+                                <i class="fas fa-question-circle fa-3x text-{{ level_info.color }} mb-3"></i>
+                                <h5 class="card-title">Help & Tutorial</h5>
+                                <p class="card-text">Learn how to use this level effectively</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Create Project Modal -->
+                <div class="modal fade" id="createProjectModal" tabindex="-1">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Create New Project</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                <form id="createProjectForm">
+                                    <div class="mb-3">
+                                        <label for="projectTitle" class="form-label">Project Title</label>
+                                        <input type="text" class="form-control" id="projectTitle" required
+                                               placeholder="e.g., My Data Analysis Project">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Level</label>
+                                        <input type="text" class="form-control" value="Level {{ level_id }} - {{ level_info.title }}" readonly>
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                <button type="button" class="btn btn-{{ level_info.color }}" onclick="createProject()">Create Project</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sample Project Modal -->
+                <div class="modal fade" id="sampleProjectModal" tabindex="-1">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Use Sample Data</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                <p>This will create a project with sample data for Level {{ level_id }}.</p>
+                                <div class="alert alert-info">
+                                    <i class="fas fa-info-circle me-2"></i>
+                                    Sample data will be automatically loaded into your project.
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                <button type="button" class="btn btn-{{ level_info.color }}" onclick="createSampleProject()">Create with Sample Data</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Upload Dataset Modal -->
+                <div class="modal fade" id="uploadDatasetModal" tabindex="-1">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Upload Dataset</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                <p>First create a project, then upload your dataset.</p>
+                                <div class="alert alert-warning">
+                                    <i class="fas fa-exclamation-triangle me-2"></i>
+                                    You need to create a project first before uploading data.
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                <button type="button" class="btn btn-{{ level_info.color }}" onclick="showCreateProject()">Create Project First</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Help Modal -->
+                <div class="modal fade" id="helpModal" tabindex="-1">
+                    <div class="modal-dialog modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Help & Tutorial - Level {{ level_id }}</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                {% if level_id == 1 %}
+                                <h6>Data Handling & Visualization</h6>
+                                <ol>
+                                    <li>Upload a CSV file with your data</li>
+                                    <li>Preview the data and check column types</li>
+                                    <li>Use cleaning tools to handle missing values</li>
+                                    <li>Create visualizations (bar charts, histograms, etc.)</li>
+                                    <li>Generate a report with your findings</li>
+                                </ol>
+                                <p><strong>Sample Data:</strong> Student marks, weather data, survey responses</p>
+                                {% elif level_id == 2 %}
+                                <h6>Machine Learning</h6>
+                                <ol>
+                                    <li>Upload a CSV with features and target column</li>
+                                    <li>Choose between regression or classification</li>
+                                    <li>Select which features to use</li>
+                                    <li>Train your model and view results</li>
+                                    <li>Download the trained model for later use</li>
+                                </ol>
+                                <p><strong>Sample Data:</strong> Housing prices, student performance</p>
+                                {% elif level_id == 3 %}
+                                <h6>Image Classification</h6>
+                                <ol>
+                                    <li>Upload images organized by class (folder structure)</li>
+                                    <li>Preview your image dataset</li>
+                                    <li>Train a classifier using transfer learning</li>
+                                    <li>Test your model on new images</li>
+                                    <li>Download the trained model</li>
+                                </ol>
+                                <p><strong>Sample Data:</strong> Fruits dataset (apples, bananas, oranges)</p>
+                                {% elif level_id == 4 %}
+                                <h6>NLP & Chatbot</h6>
+                                <ol>
+                                    <li>Upload text data (CSV with text and labels)</li>
+                                    <li>Choose between text classification or chatbot</li>
+                                    <li>Preprocess and vectorize your text</li>
+                                    <li>Train your model or build chatbot index</li>
+                                    <li>Test with new text or questions</li>
+                                </ol>
+                                <p><strong>Sample Data:</strong> Movie reviews, FAQ pairs</p>
+                                {% endif %}
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Help Panel -->
+            <div class="col-md-4">
+                <div class="help-panel p-4 rounded">
+                    <h5><i class="fas fa-lightbulb me-2"></i>Quick Start Guide</h5>
+                    <ol class="small">
+                        <li><strong>Create Project:</strong> Start with a new project or use sample data</li>
+                        <li><strong>Upload Data:</strong> Add your dataset (CSV for most levels, images for Level 3)</li>
+                        <li><strong>Configure:</strong> Set up your analysis parameters</li>
+                        <li><strong>Run:</strong> Execute your analysis and wait for results</li>
+                        <li><strong>Explore:</strong> View results, download artifacts, generate reports</li>
+                    </ol>
+                    
+                    <h6 class="mt-4">Data Requirements</h6>
+                    <ul class="small">
+                        {% if level_id == 1 %}
+                        <li>CSV files with tabular data</li>
+                        <li>At least 2 columns</li>
+                        <li>Mix of numeric and text data works best</li>
+                        {% elif level_id == 2 %}
+                        <li>CSV with features and target column</li>
+                        <li>Target must be numeric (regression) or categorical (classification)</li>
+                        <li>At least 50 rows recommended</li>
+                        {% elif level_id == 3 %}
+                        <li>Images in folders by class</li>
+                        <li>At least 10 images per class</li>
+                        <li>Common formats: JPG, PNG, GIF</li>
+                        {% elif level_id == 4 %}
+                        <li>CSV with text column</li>
+                        <li>Optional label column for classification</li>
+                        <li>At least 100 text samples recommended</li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function showCreateProject() {
+            new bootstrap.Modal(document.getElementById('createProjectModal')).show();
+        }
+
+        function showSampleProject() {
+            new bootstrap.Modal(document.getElementById('sampleProjectModal')).show();
+        }
+
+        function showUploadDataset() {
+            new bootstrap.Modal(document.getElementById('uploadDatasetModal')).show();
+        }
+
+        function showHelp() {
+            new bootstrap.Modal(document.getElementById('helpModal')).show();
+        }
+
+        function createProject() {
+            const title = document.getElementById('projectTitle').value;
+            if (!title) {
+                alert('Please enter a project title');
+                return;
+            }
+
+            fetch('/projects/create', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    level: {{ level_id }},
+                    title: title
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.project_id) {
+                    window.location.href = `/projects/${data.project_id}`;
+                } else {
+                    alert('Error creating project: ' + (data.error || 'Unknown error'));
+                }
+            })
+            .catch(error => {
+                alert('Error creating project: ' + error);
+            });
+        }
+
+        function createSampleProject() {
+            const title = `Sample Project - Level {{ level_id }}`;
+            
+            fetch('/projects/create', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    level: {{ level_id }},
+                    title: title
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.project_id) {
+                    // TODO: Load sample data
+                    window.location.href = `/projects/${data.project_id}`;
+                } else {
+                    alert('Error creating project: ' + (data.error || 'Unknown error'));
+                }
+            })
+            .catch(error => {
+                alert('Error creating project: ' + error);
+            });
+        }
+    </script>
+</body>
+</html>

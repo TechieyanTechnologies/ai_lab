@@ -1,0 +1,21 @@
+{
+  "project_id": "23be72ee627340078e2ece22b457a9f7",
+  "level": 3,
+  "title": "prjct",
+  "classes": [
+    "car",
+    "dog"
+  ],
+  "created_at": "2025-10-29T16:42:57.902076",
+  "image_count": 6,
+  "annotated_count": 6,
+  "model_trained": false,
+  "runs": [],
+  "stored_models": [
+    {
+      "name": "model_702dc41f.pt",
+      "stored_at": "2025-10-29T17:25:43.643418",
+      "version": "1.0"
+    }
+  ]
+}

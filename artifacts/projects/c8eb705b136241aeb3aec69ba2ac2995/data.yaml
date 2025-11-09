@@ -1,0 +1,7 @@
+train: /Users/hari/search/artifacts/projects/c8eb705b136241aeb3aec69ba2ac2995/yolo/train/images
+val: /Users/hari/search/artifacts/projects/c8eb705b136241aeb3aec69ba2ac2995/yolo/val/images
+nc: 2
+names:
+- dog
+- cat
+test: /Users/hari/search/artifacts/projects/c8eb705b136241aeb3aec69ba2ac2995/yolo/test/images

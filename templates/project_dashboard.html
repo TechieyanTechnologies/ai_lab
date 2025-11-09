@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ metadata.title }} - Level 1</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .task-card { cursor: pointer; transition: all 0.3s; }
+        .task-card:hover { transform: translateY(-5px); box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        .preview-table { max-height: 400px; overflow-y: auto; }
+    </style>
+</head>
+<body class="bg-light">
+    <nav class="navbar navbar-dark bg-primary">
+        <div class="container-fluid">
+            <span class="navbar-brand"><i class="fas fa-chart-bar me-2"></i>Level 1 - Data Visualization</span>
+            <div>
+                <a href="/level/1" class="btn btn-outline-light btn-sm me-2">Back to Level 1</a>
+                <a href="/" class="btn btn-outline-light btn-sm">Home</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container py-4">
+        <h2 class="mb-4">{{ metadata.title }}</h2>
+
+        <!-- Task 1: Upload CSV -->
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="fas fa-upload me-2"></i>Task 1: Upload CSV Dataset</h5>
+            </div>
+            <div class="card-body">
+                <p>Upload your CSV file to get started with data analysis.</p>
+                <form id="uploadForm" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <input type="file" class="form-control" id="csvFile" accept=".csv" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-upload me-2"></i>Upload CSV
+                    </button>
+                </form>
+                {% if metadata.datasets %}
+                <div class="mt-3">
+                    <p class="text-success"><i class="fas fa-check-circle me-2"></i>Dataset uploaded: {{ metadata.datasets[0].filename }}</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Task 2: Preview Data -->
+        {% if metadata.datasets %}
+        <div class="card mb-4">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0"><i class="fas fa-eye me-2"></i>Task 2: Preview Dataset</h5>
+            </div>
+            <div class="card-body">
+                <button class="btn btn-success" onclick="previewData()">
+                    <i class="fas fa-table me-2"></i>Preview Data (First 20 Rows)
+                </button>
+                <div id="previewContainer" class="mt-3"></div>
+            </div>
+        </div>
+
+        <!-- Task 3-6: Data Cleaning -->
+        <div class="card mb-4">
+            <div class="card-header bg-warning text-white">
+                <h5 class="mb-0"><i class="fas fa-broom me-2"></i>Task 3-6: Data Cleaning</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Select Column</label>
+                        <select class="form-select" id="cleanColumn">
+                            <option value="">Select column...</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Action</label>
+                        <select class="form-select" id="cleanAction">
+                            <option value="fill_mean">Fill with Mean</option>
+                            <option value="fill_median">Fill with Median</option>
+                            <option value="fill_mode">Fill with Mode</option>
+                            <option value="drop_rows">Drop Rows</option>
+                            <option value="convert_numeric">Convert to Numeric</option>
+                            <option value="convert_datetime">Convert to DateTime</option>
+                        </select>
+                    </div>
+                </div>
+                <button class="btn btn-warning" onclick="cleanData()">
+                    <i class="fas fa-magic me-2"></i>Apply Cleaning
+                </button>
+                <div id="cleanResult" class="mt-3"></div>
+            </div>
+        </div>
+
+        <!-- Task 7: Outlier Detection -->
+        <div class="card mb-4">
+            <div class="card-header bg-danger text-white">
+                <h5 class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i>Task 7: Detect Outliers</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label class="form-label">Select Numeric Column</label>
+                    <select class="form-select" id="outlierColumn">
+                        <option value="">Select column...</option>
+                    </select>
+                </div>
+                <button class="btn btn-danger" onclick="detectOutliers()">
+                    <i class="fas fa-search me-2"></i>Detect Outliers
+                </button>
+                <div id="outlierResult" class="mt-3"></div>
+            </div>
+        </div>
+
+        <!-- Task 8: Correlation -->
+        <div class="card mb-4">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0"><i class="fas fa-chart-line me-2"></i>Task 8: Correlation Matrix</h5>
+            </div>
+            <div class="card-body">
+                <button class="btn btn-info" onclick="createCorrelation()">
+                    <i class="fas fa-chart-area me-2"></i>Create Correlation Heatmap
+                </button>
+                <div id="corrResult" class="mt-3"></div>
+            </div>
+        </div>
+
+        <!-- Task 9: Visualizations -->
+        <div class="card mb-4">
+            <div class="card-header bg-dark text-white">
+                <h5 class="mb-0"><i class="fas fa-chart-pie me-2"></i>Task 9: Create Visualizations</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">Chart Type</label>
+                        <select class="form-select" id="chartType">
+                            <option value="bar">Bar Chart</option>
+                            <option value="line">Line Chart</option>
+                            <option value="scatter">Scatter Plot</option>
+                            <option value="histogram">Histogram</option>
+                            <option value="boxplot">Box Plot</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">X Column</label>
+                        <select class="form-select" id="xColumn">
+                            <option value="">Select column...</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">Y Column (optional)</label>
+                        <select class="form-select" id="yColumn">
+                            <option value="">Select column...</option>
+                        </select>
+                    </div>
+                </div>
+                <button class="btn btn-dark" onclick="createChart()">
+                    <i class="fas fa-chart-bar me-2"></i>Generate Chart
+                </button>
+                <div id="chartResult" class="mt-3"></div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const projectId = '{{ project_id }}';
+        let columns = [];
+
+        // Load columns when page loads
+        async function loadColumns() {
+            try {
+                const response = await fetch(`/projects/${projectId}/columns`);
+                const data = await response.json();
+                columns = data.columns;
+
+                // Populate all dropdowns
+                populateDropdown('cleanColumn', columns);
+                populateDropdown('outlierColumn', data.numeric_columns);
+                populateDropdown('xColumn', columns);
+                populateDropdown('yColumn', columns);
+            } catch (error) {
+                console.error('Error loading columns:', error);
+            }
+        }
+
+        function populateDropdown(selectId, cols) {
+            const select = document.getElementById(selectId);
+            if (!select) return;
+            select.innerHTML = '<option value="">Select column...</option>';
+            cols.forEach(col => {
+                const option = document.createElement('option');
+                option.value = col;
+                option.textContent = col;
+                select.appendChild(option);
+            });
+        }
+
+        // Load columns when page loads
+        {% if metadata.datasets %}
+        loadColumns();
+        {% endif %}
+
+        // Upload form
+        document.getElementById('uploadForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const file = document.getElementById('csvFile').files[0];
+            const formData = new FormData();
+            formData.append('file', file);
+
+            try {
+                const response = await fetch(`/projects/${projectId}/upload`, {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await response.json();
+                if (data.success) {
+                    alert('File uploaded successfully!');
+                    location.reload();
+                } else {
+                    alert('Upload failed: ' + data.error);
+                }
+            } catch (error) {
+                alert('Error: ' + error);
+            }
+        });
+
+        async function previewData() {
+            try {
+                const response = await fetch(`/projects/${projectId}/dataset/preview`);
+                const data = await response.json();
+                
+                let html = '<table class="table table-striped">';
+                html += '<thead><tr>';
+                data.columns.forEach(col => {
+                    html += `<th>${col} (${data.dtypes[col]})</th>`;
+                });
+                html += '</tr></thead><tbody>';
+                
+                data.head.forEach(row => {
+                    html += '<tr>';
+                    data.columns.forEach(col => {
+                        html += `<td>${row[col]}</td>`;
+                    });
+                    html += '</tr>';
+                });
+                html += '</tbody></table>';
+                
+                document.getElementById('previewContainer').innerHTML = html;
+            } catch (error) {
+                alert('Error loading preview: ' + error);
+            }
+        }
+
+        async function cleanData() {
+            const column = document.getElementById('cleanColumn').value;
+            const action = document.getElementById('cleanAction').value;
+            
+            // Map to API format
+            const apiActions = {
+                'fill_mean': 'fill_missing',
+                'fill_median': 'fill_missing',
+                'fill_mode': 'fill_missing'
+            };
+            
+            const response = await fetch(`/projects/${projectId}/clean`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    action: apiActions[action] || action,
+                    column: column,
+                    params: {method: action.replace('fill_', '')}
+                })
+            });
+            
+            const data = await response.json();
+            if (data.success) {
+                document.getElementById('cleanResult').innerHTML = 
+                    '<div class="alert alert-success">' + data.messages.join(', ') + '</div>';
+                location.reload();
+            }
+        }
+
+        async function detectOutliers() {
+            const column = document.getElementById('outlierColumn').value;
+            const response = await fetch(`/projects/${projectId}/outliers`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({column: column, method: 'iqr'})
+            });
+            const data = await response.json();
+            document.getElementById('outlierResult').innerHTML = 
+                `<div class="alert alert-info">Found ${data.count} outliers. <img src="${data.plot_url}" class="img-fluid mt-2"></div>`;
+        }
+
+        async function createCorrelation() {
+            const response = await fetch(`/projects/${projectId}/correlation`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({columns: null})
+            });
+            const data = await response.json();
+            if (data.success) {
+                document.getElementById('corrResult').innerHTML = 
+                    `<div class="alert alert-success"><img src="/artifacts/projects/${projectId}/${data.plot_filename}" class="img-fluid"></div>`;
+            }
+        }
+
+        async function createChart() {
+            const chartType = document.getElementById('chartType').value;
+            const xColumn = document.getElementById('xColumn').value;
+            const yColumn = document.getElementById('yColumn').value;
+            
+            const response = await fetch(`/projects/${projectId}/visualize`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    chart_type: chartType,
+                    params: {
+                        column: xColumn,
+                        x_column: xColumn,
+                        y_column: yColumn
+                    }
+                })
+            });
+            const data = await response.json();
+            if (data.success) {
+                document.getElementById('chartResult').innerHTML = 
+                    `<div class="alert alert-success"><img src="/artifacts/projects/${projectId}/${data.plot_filename}" class="img-fluid"></div>`;
+            }
+        }
+    </script>
+</body>
+</html>

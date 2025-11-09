@@ -1,0 +1,26 @@
+{
+  "project_id": "cd0e8a7a49e048fe807c82b38caa8db6",
+  "title": "Data Analysis Project - student_marks",
+  "level": 1,
+  "created_at": "2025-10-27T10:10:32.279994",
+  "datasets": [
+    {
+      "filename": "original.csv",
+      "path": "dataset/original.csv",
+      "uploaded_at": "2025-10-27T10:10:32.282126",
+      "source": "sample_student_marks"
+    }
+  ],
+  "cleaned_versions": [],
+  "runs": [
+    {
+      "run_id": "bf1373368f6e4a5dbb3c9c55dbb7f558",
+      "type": "summary",
+      "artifacts": [
+        "summary.json"
+      ],
+      "created_at": "2025-10-27T10:11:11.532440"
+    }
+  ],
+  "reports": []
+}

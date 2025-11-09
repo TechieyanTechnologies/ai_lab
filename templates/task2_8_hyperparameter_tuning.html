@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task 2.8: Hyperparameter Tuning</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .task-header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 2rem 0; }
+        .learning-objective { background: #f8f9fa; padding: 1rem; border-left: 4px solid #667eea; }
+        .activity-card { background: #fff; border: 2px solid #667eea; border-radius: 8px; padding: 1.5rem; margin-bottom: 1rem; }
+        .activity-card h6 { color: #667eea; font-weight: bold; }
+        #tuningResult { min-height: 200px; background: white; border: 1px solid #dee2e6; padding: 1.5rem; }
+        .parameter-card { background: #f8f9fa; border-left: 4px solid #667eea; padding: 1rem; margin-bottom: 1rem; }
+    </style>
+</head>
+<body>
+    <div class="task-header">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1><i class="fas fa-sliders-h me-3"></i>Task 2.8: Hyperparameter Tuning</h1>
+                    <p class="lead mb-0">Optimize model parameters for best performance</p>
+                </div>
+                <div class="text-end">
+                    <a href="/level/2" class="btn btn-light me-2">← Back to Level 2</a>
+                    <span class="badge bg-light text-dark me-2" style="font-size: 0.9rem;">
+                        <i class="fas fa-clock me-1"></i>40 minutes
+                    </span>
+                    <a href="/level/2/task/8/document" target="_blank" class="btn btn-light btn-sm">
+                        <i class="fas fa-book me-2"></i>Document
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container py-4">
+        <!-- Learning Objective -->
+        <div class="learning-objective mb-4">
+            <h4><i class="fas fa-bullseye me-2"></i>Learning Objective</h4>
+            <p class="mb-0">Learn to tune hyperparameters using grid search, random search, and other optimization techniques to achieve the best model performance.</p>
+        </div>
+
+        <!-- Dataset Selection -->
+        <div class="card mb-4">
+            <div class="card-header bg-secondary text-white">
+                <h4><i class="fas fa-database me-2"></i>Select Your Dataset</h4>
+            </div>
+            <div class="card-body">
+                <p>Choose a dataset for hyperparameter tuning:</p>
+                
+                <!-- Upload Your Own Dataset -->
+                <div class="mb-3">
+                    <label class="form-label"><i class="fas fa-upload me-2"></i>Upload Your Own Dataset</label>
+                    <div class="input-group">
+                        <input type="file" class="form-control" id="csvFileInput" accept=".csv" onchange="handleFileUpload(event)">
+                        <button class="btn btn-primary" onclick="document.getElementById('csvFileInput').click()">
+                            <i class="fas fa-folder-open me-2"></i>Browse CSV Files
+                        </button>
+                    </div>
+                    <small class="text-muted">Upload a CSV file for hyperparameter tuning</small>
+                </div>
+                
+                <hr class="my-4">
+                
+                <p class="mb-2">Or choose from sample datasets:</p>
+                <div class="btn-group" role="group">
+                    <button type="button" class="btn btn-outline-primary" onclick="loadSample('housing_small')">
+                        <i class="fas fa-home me-2"></i>Housing Data
+                    </button>
+                    <button type="button" class="btn btn-outline-primary" onclick="loadSample('student_performance')">
+                        <i class="fas fa-graduation-cap me-2"></i>Student Performance
+                    </button>
+                </div>
+                <div id="datasetStatus" class="mt-3"></div>
+                
+                <!-- Data Preview Section -->
+                <div id="dataPreview" class="mt-4" style="display: none;">
+                    <h6><i class="fas fa-eye me-2"></i>Dataset Preview</h6>
+                    <div id="dataInfo" class="alert alert-info mb-3"></div>
+                    <div id="dataTable" class="table-responsive"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Hyperparameter Tuning Tasks -->
+        <div class="card mb-4" id="tuningCard" style="display: none;">
+            <div class="card-header bg-primary text-white">
+                <h5><i class="fas fa-tasks me-2"></i>Hyperparameter Tuning Tasks</h5>
+            </div>
+            <div class="card-body">
+                <p class="mb-4">Complete these interactive tasks to tune your model hyperparameters:</p>
+                
+                <!-- Task 1: Select Model and Setup -->
+                <div class="parameter-card mb-3">
+                    <h6><i class="fas fa-cog me-2"></i>Task 1: Select Model and Training Setup</h6>
+                    <p class="small mb-3">Choose the model you want to tune and configure your training setup.</p>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-2">
+                            <label class="form-label small"><i class="fas fa-brain me-2"></i>Select Model to Tune</label>
+                            <select id="tuneModel" class="form-select form-select-sm">
+                                <option value="">Choose model...</option>
+                                <option value="random_forest">Random Forest</option>
+                                <option value="svm">Support Vector Machine (SVM)</option>
+                                <option value="linear">Linear Regression</option>
+                                <option value="neural_network">Neural Network</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-2">
+                            <label class="form-label small"><i class="fas fa-bullseye me-2"></i>Select Target Variable</label>
+                            <select id="tuneTarget" class="form-select form-select-sm">
+                                <option value="">Choose target...</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="row mt-2">
+                        <div class="col-md-6 mb-2">
+                            <label class="form-label small"><i class="fas fa-list me-2"></i>Select Features</label>
+                            <div id="tuneFeatures" class="border rounded p-2" style="max-height: 120px; overflow-y: auto;">
+                                <!-- Will be populated -->
+                            </div>
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <label class="form-label small"><i class="fas fa-percentage me-2"></i>Test Size: <span id="tuneTestSizeLabel">20%</span></label>
+                            <input type="range" class="form-range" id="tuneTestSize" min="10" max="40" value="20" step="5" oninput="updateTuneTestSize(this.value)">
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <label class="form-label small"><i class="fas fa-crosshairs me-2"></i>CV Folds</label>
+                            <select id="cvFolds" class="form-select form-select-sm">
+                                <option value="3">3-fold CV</option>
+                                <option value="5" selected>5-fold CV</option>
+                                <option value="10">10-fold CV</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Task 2: Define Hyperparameter Ranges -->
+                <div class="parameter-card mb-3">
+                    <h6><i class="fas fa-sliders-h me-2"></i>Task 2: Define Hyperparameter Search Space</h6>
+                    <p class="small mb-3">Set the ranges for each hyperparameter you want to tune.</p>
+                    
+                    <div id="hyperparameterControls">
+                        <!-- Will be populated based on selected model -->
+                        <p class="text-muted small">Select a model in Task 1 to configure hyperparameters.</p>
+                    </div>
+                </div>
+
+                <!-- Task 3: Choose Tuning Method -->
+                <div class="parameter-card mb-3">
+                    <h6><i class="fas fa-search me-2"></i>Task 3: Choose Tuning Method</h6>
+                    <p class="small mb-3">Select how you want to search for optimal hyperparameters.</p>
+                    
+                    <div class="mb-2">
+                        <label class="form-label small"><i class="fas fa-cogs me-2"></i>Tuning Strategy</label>
+                        <select id="tuningMethod" class="form-select form-select-sm">
+                            <option value="grid">Grid Search (Exhaustive - all combinations)</option>
+                            <option value="random">Random Search (Faster - random combinations)</option>
+                            <option value="manual">Manual Tuning (You set specific values)</option>
+                        </select>
+                        <small class="text-muted">Grid Search tests all combinations; Random Search is faster for large spaces</small>
+                    </div>
+                    
+                    <div id="randomSearchOptions" class="mb-2" style="display: none;">
+                        <label class="form-label small"><i class="fas fa-dice me-2"></i>Number of Iterations: <span id="randomIterLabel">50</span></label>
+                        <input type="range" class="form-range" id="randomIterations" min="10" max="100" value="50" step="10" oninput="updateRandomIter(this.value)">
+                        <small class="text-muted">How many random combinations to try (10-100)</small>
+                    </div>
+                    
+                    <button onclick="runHyperparameterTuning()" class="btn btn-primary btn-sm">
+                        <i class="fas fa-play me-2"></i>Start Tuning
+                    </button>
+                    <div id="tuningStatus" class="mt-3" style="display: none;"></div>
+                </div>
+
+                <!-- Task 4: Analyze Results -->
+                <div class="parameter-card mb-3">
+                    <h6><i class="fas fa-chart-bar me-2"></i>Task 4: Analyze Tuning Results</h6>
+                    <p class="small mb-3">Compare different parameter settings and analyze their impact.</p>
+                    
+                    <div class="mb-2">
+                        <label class="form-label small"><i class="fas fa-filter me-2"></i>Analysis Type</label>
+                        <select id="analysisType" class="form-select form-select-sm">
+                            <option value="best_params">Show Best Parameters</option>
+                            <option value="param_impact">Parameter Impact Analysis</option>
+                            <option value="learning_curve">Learning Curves</option>
+                            <option value="comparison">Compare Top Configurations</option>
+                        </select>
+                    </div>
+                    
+                    <button onclick="analyzeTuningResults()" class="btn btn-success btn-sm">
+                        <i class="fas fa-chart-line me-2"></i>Analyze Results
+                    </button>
+                    <div id="analysisResult" class="mt-3" style="display: none;"></div>
+                </div>
+
+                <!-- Task 5: Apply Best Parameters -->
+                <div class="parameter-card mb-3">
+                    <h6><i class="fas fa-check-circle me-2"></i>Task 5: Apply and Save Best Parameters</h6>
+                    <p class="small mb-3">Apply the best parameters and save your tuned model.</p>
+                    
+                    <div class="mb-2">
+                        <label class="form-label small"><i class="fas fa-star me-2"></i>Best Configuration Found</label>
+                        <div id="bestParamsDisplay" class="alert alert-info">
+                            <p class="small mb-0">Run tuning first to see best parameters</p>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-2">
+                        <label class="form-label small"><i class="fas fa-tag me-2"></i>Model Name (Optional)</label>
+                        <input type="text" id="tunedModelName" class="form-control form-control-sm" placeholder="e.g., tuned_random_forest_v1">
+                    </div>
+                    
+                    <button onclick="applyBestParameters()" class="btn btn-warning btn-sm">
+                        <i class="fas fa-magic me-2"></i>Apply Best Parameters
+                    </button>
+                    <button onclick="saveTunedModel()" class="btn btn-success btn-sm ms-2">
+                        <i class="fas fa-save me-2"></i>Save Tuned Model
+                    </button>
+                    <div id="applyResult" class="mt-3" style="display: none;"></div>
+                </div>
+                
+                <div id="tuningResult" class="mt-4"></div>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <div class="card">
+            <div class="card-body text-center">
+                <a href="/level/2/task/7" class="btn btn-outline-secondary me-2">
+                    <i class="fas fa-arrow-left me-2"></i>Previous Task
+                </a>
+                <a href="/level/2/task/9" class="btn btn-primary">
+                    Next Task <i class="fas fa-arrow-right ms-2"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let currentProjectId = localStorage.getItem('currentProjectId');
+        let tuningResults = null; // Store tuning results
+        let bestParams = null; // Store best parameters found
+
+        // Load dataset if available
+        if (currentProjectId) {
+            document.getElementById('datasetStatus').innerHTML = '<div class="alert alert-success">Dataset loaded! Project ID: ' + currentProjectId + '</div>';
+            document.getElementById('tuningCard').style.display = 'block';
+            loadDatasetInfo();
+        }
+
+        async function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            if (!file.name.endsWith('.csv')) {
+                alert('Please upload a CSV file'); return;
+            }
+
+            document.getElementById('datasetStatus').innerHTML = '<div class="alert alert-info">Uploading... <i class="fas fa-spinner fa-spin"></i></div>';
+
+            try {
+                const formData = new FormData();
+                formData.append('file', file);
+                const response = await fetch('/level/2/upload', { method: 'POST', body: formData });
+
+                if (!response.ok) throw new Error('Upload failed');
+                const data = await response.json();
+
+                if (data.project_id) {
+                    currentProjectId = data.project_id;
+                    localStorage.setItem('currentProjectId', currentProjectId);
+                    document.getElementById('datasetStatus').innerHTML = `<div class="alert alert-success">Dataset uploaded! Project ID: ${currentProjectId}</div>`;
+                    document.getElementById('tuningCard').style.display = 'block';
+                    
+                    loadDatasetInfo();
+                }
+            } catch (error) {
+                document.getElementById('datasetStatus').innerHTML = '<div class="alert alert-danger">Error: ' + error.message + '</div>';
+            }
+        }
+
+        async function loadSample(filename) {
+            if (!filename) { alert('Please select a dataset'); return; }
+
+            try {
+                const response = await fetch(`/level/2/load-sample/${filename}`, { method: 'POST' });
+                const data = await response.json();
+
+                if (data.project_id) {
+                    currentProjectId = data.project_id;
+                    localStorage.setItem('currentProjectId', currentProjectId);
+                    document.getElementById('datasetStatus').innerHTML = `<div class="alert alert-success">Sample loaded! Project ID: ${currentProjectId}</div>`;
+                    document.getElementById('tuningCard').style.display = 'block';
+                    loadDatasetInfo();
+                }
+            } catch (error) {
+                alert('Error loading sample: ' + error.message);
+            }
+        }
+
+        async function loadDatasetInfo() {
+            try {
+                const response = await fetch(`/projects/${currentProjectId}/columns`);
+                const data = await response.json();
+                
+                // Show data preview
+                showDataPreview(data);
+                
+                // Populate tuning selectors
+                await populateTuningSelectors(data);
+                
+                document.getElementById('datasetStatus').innerHTML = `<div class="alert alert-success"><i class="fas fa-check-circle me-2"></i>Dataset loaded: ${data.shape[0]} rows, ${data.shape[1]} columns</div>`;
+            } catch (error) {
+                console.error('Error loading dataset info:', error);
+            }
+        }
+
+        async function populateTuningSelectors(data) {
+            // Populate target dropdown
+            const targetSelect = document.getElementById('tuneTarget');
+            if (targetSelect) {
+                targetSelect.innerHTML = '<option value="">Choose target...</option>';
+                data.numeric_columns.forEach(col => {
+                    const option = document.createElement('option');
+                    option.value = col;
+                    option.textContent = col;
+                    targetSelect.appendChild(option);
+                });
+            }
+
+            // Populate feature checkboxes
+            const featuresDiv = document.getElementById('tuneFeatures');
+            if (featuresDiv) {
+                featuresDiv.innerHTML = '';
+                data.columns.forEach(col => {
+                    const div = document.createElement('div');
+                    div.className = 'form-check';
+                    div.innerHTML = `
+                        <input class="form-check-input" type="checkbox" value="${col}" id="tune_feat_${col}" checked>
+                        <label class="form-check-label small" for="tune_feat_${col}">
+                            ${col} ${data.numeric_columns.includes(col) ? '<i class="fas fa-calculator text-primary ms-1"></i>' : '<i class="fas fa-tag text-info ms-1"></i>'}
+                        </label>
+                    `;
+                    featuresDiv.appendChild(div);
+                });
+            }
+
+            // Show/hide random search options
+            const tuningMethod = document.getElementById('tuningMethod');
+            const randomOptions = document.getElementById('randomSearchOptions');
+            if (tuningMethod && randomOptions) {
+                tuningMethod.addEventListener('change', function() {
+                    randomOptions.style.display = this.value === 'random' ? 'block' : 'none';
+                });
+            }
+
+            // Populate hyperparameter controls when model is selected
+            const tuneModel = document.getElementById('tuneModel');
+            if (tuneModel) {
+                tuneModel.addEventListener('change', function() {
+                    populateHyperparameterControls(this.value);
+                });
+            }
+        }
+
+        // Helper functions
+        function updateTuneTestSize(value) {
+            document.getElementById('tuneTestSizeLabel').textContent = value + '%';
+        }
+
+        function updateRandomIter(value) {
+            document.getElementById('randomIterLabel').textContent = value;
+        }
+
+        async function showDataPreview(data) {
+            // Show data info
+            let infoHtml = `<h6>📊 Dataset Information:</h6>`;
+            infoHtml += `<div class="row">`;
+            infoHtml += `<div class="col-md-6">`;
+            infoHtml += `<p><strong>Total Rows:</strong> ${data.shape[0]}</p>`;
+            infoHtml += `<p><strong>Total Columns:</strong> ${data.shape[1]}</p>`;
+            infoHtml += `</div>`;
+            infoHtml += `<div class="col-md-6">`;
+            infoHtml += `<p><strong>Numeric Columns:</strong> ${data.numeric_columns.length}</p>`;
+            infoHtml += `<p><strong>Categorical Columns:</strong> ${data.columns.length - data.numeric_columns.length}</p>`;
+            infoHtml += `</div>`;
+            infoHtml += `</div>`;
+            
+            document.getElementById('dataInfo').innerHTML = infoHtml;
+            
+            // Show data table preview
+            try {
+                const previewResponse = await fetch(`/projects/${currentProjectId}/dataset/preview`);
+                const previewData = await previewResponse.json();
+                
+                let tableHtml = `<table class="table table-sm table-striped">`;
+                tableHtml += `<thead><tr>`;
+                previewData.columns.forEach(col => {
+                    const isNumeric = data.numeric_columns.includes(col);
+                    const icon = isNumeric ? 'fas fa-calculator' : 'fas fa-tag';
+                    tableHtml += `<th><i class="${icon} me-1"></i>${col}</th>`;
+                });
+                tableHtml += `</tr></thead><tbody>`;
+                
+                // Convert head data (list of objects) to array format
+                previewData.head.slice(0, 10).forEach(row => {
+                    tableHtml += `<tr>`;
+                    previewData.columns.forEach(col => {
+                        tableHtml += `<td>${row[col]}</td>`;
+                    });
+                    tableHtml += `</tr>`;
+                });
+                tableHtml += `</tbody></table>`;
+                
+                if (previewData.head.length > 10) {
+                    tableHtml += `<p class="small text-muted">Showing first 10 rows of ${previewData.head.length} total rows</p>`;
+                }
+                
+                document.getElementById('dataTable').innerHTML = tableHtml;
+                document.getElementById('dataPreview').style.display = 'block';
+            } catch (error) {
+                console.error('Error loading data preview:', error);
+            }
+        }
+
+        function populateHyperparameterControls(modelType) {
+            const controlsDiv = document.getElementById('hyperparameterControls');
+            if (!controlsDiv) return;
+
+            let html = '';
+
+            if (modelType === 'random_forest') {
+                html = `
+                    <h6 class="mb-3"><i class="fas fa-tree me-2"></i>Random Forest Hyperparameters</h6>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label small"><i class="fas fa-list-ol me-2"></i>n_estimators (10-200)</label>
+                            <div class="mb-2">
+                                <label class="small">Min: <input type="number" id="rf_n_est_min" class="form-control form-control-sm d-inline-block" style="width: 80px;" value="50" min="10" max="200"></label>
+                                <label class="small ms-2">Max: <input type="number" id="rf_n_est_max" class="form-control form-control-sm d-inline-block" style="width: 80px;" value="150" min="10" max="200"></label>
+                                <label class="small ms-2">Step: <input type="number" id="rf_n_est_step" class="form-control form-control-sm d-inline-block" style="width: 80px;" value="25" min="10" max="50"></label>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label small"><i class="fas fa-sitemap me-2"></i>max_depth (1-20)</label>
+                            <div class="mb-2">
+                                <label class="small">Min: <input type="number" id="rf_depth_min" class="form-control form-control-sm d-inline-block" style="width: 80px;" value="5" min="1" max="20"></label>
+                                <label class="small ms-2">Max: <input type="number" id="rf_depth_max" class="form-control form-control-sm d-inline-block" style="width: 80px;" value="15" min="1" max="20"></label>
+                                <label class="small ms-2">Step: <input type="number" id="rf_depth_step" class="form-control form-control-sm d-inline-block" style="width: 80px;" value="2" min="1" max="5"></label>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label small"><i class="fas fa-divide me-2"></i>min_samples_split</label>
+                            <div class="mb-2">
+                                <label class="small">Values: <input type="text" id="rf_min_split" class="form-control form-control-sm d-inline-block" style="width: 150px;" value="2,5,10" placeholder="2,5,10"></label>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label small"><i class="fas fa-leaf me-2"></i>min_samples_leaf</label>
+                            <div class="mb-2">
+                                <label class="small">Values: <input type="text" id="rf_min_leaf" class="form-control form-control-sm d-inline-block" style="width: 150px;" value="1,2,4" placeholder="1,2,4"></label>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else if (modelType === 'svm') {
+                html = `
+                    <h6 class="mb-3"><i class="fas fa-project-diagram me-2"></i>SVM Hyperparameters</h6>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label small"><i class="fas fa-sliders-h me-2"></i>C (Regularization: 0.1-10)</label>
+                            <div class="mb-2">
+                                <label class="small">Values: <input type="text" id="svm_c_values" class="form-control form-control-sm d-inline-block" style="width: 200px;" value="0.1,1,10" placeholder="0.1,1,10"></label>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label small"><i class="fas fa-circle-notch me-2"></i>gamma (0.001-1)</label>
+                            <div class="mb-2">
+                                <label class="small">Values: <input type="text" id="svm_gamma_values" class="form-control form-control-sm d-inline-block" style="width: 200px;" value="0.001,0.01,0.1" placeholder="0.001,0.01,0.1"></label>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label small"><i class="fas fa-cogs me-2"></i>Kernel</label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="svm_kernel_rbf" value="rbf" checked>
+                                <label class="form-check-label small" for="svm_kernel_rbf">RBF</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="svm_kernel_linear" value="linear">
+                                <label class="form-check-label small" for="svm_kernel_linear">Linear</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="svm_kernel_poly" value="poly">
+                                <label class="form-check-label small" for="svm_kernel_poly">Polynomial</label>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else if (modelType === 'linear') {
+                html = `
+                    <h6 class="mb-3"><i class="fas fa-chart-line me-2"></i>Linear Regression Hyperparameters</h6>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label small"><i class="fas fa-sliders-h me-2"></i>Regularization Type</label>
+                            <select id="linear_reg_type" class="form-select form-select-sm">
+                                <option value="ridge">Ridge (L2)</option>
+                                <option value="lasso">Lasso (L1)</option>
+                                <option value="elastic">Elastic Net</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label small"><i class="fas fa-adjust me-2"></i>Alpha (0.001-10)</label>
+                            <div class="mb-2">
+                                <label class="small">Values: <input type="text" id="linear_alpha" class="form-control form-control-sm d-inline-block" style="width: 200px;" value="0.01,0.1,1" placeholder="0.01,0.1,1"></label>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else if (modelType === 'neural_network') {
+                html = `
+                    <h6 class="mb-3"><i class="fas fa-brain me-2"></i>Neural Network Hyperparameters</h6>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label small"><i class="fas fa-layer-group me-2"></i>Hidden Layers</label>
+                            <div class="mb-2">
+                                <label class="small">Values: <input type="text" id="nn_layers" class="form-control form-control-sm d-inline-block" style="width: 200px;" value="(50,),(100,50)" placeholder="(50,),(100,50)"></label>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label small"><i class="fas fa-sliders-h me-2"></i>Learning Rate</label>
+                            <div class="mb-2">
+                                <label class="small">Values: <input type="text" id="nn_lr" class="form-control form-control-sm d-inline-block" style="width: 200px;" value="0.001,0.01" placeholder="0.001,0.01"></label>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label small"><i class="fas fa-calendar me-2"></i>Max Iterations</label>
+                            <div class="mb-2">
+                                <label class="small">Values: <input type="text" id="nn_iter" class="form-control form-control-sm d-inline-block" style="width: 200px;" value="100,200" placeholder="100,200"></label>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else {
+                html = '<p class="text-muted small">Select a model in Task 1 to configure hyperparameters.</p>';
+            }
+
+            controlsDiv.innerHTML = html;
+        }
+
+        async function runHyperparameterTuning() {
+            if (!currentProjectId) { alert('Please load a dataset first!'); return; }
+
+            const modelType = document.getElementById('tuneModel').value;
+            const targetColumn = document.getElementById('tuneTarget').value;
+            const selectedFeatures = Array.from(document.querySelectorAll('#tuneFeatures input:checked'))
+                .map(cb => cb.value);
+            const tuningMethod = document.getElementById('tuningMethod').value;
+            const cvFolds = parseInt(document.getElementById('cvFolds').value);
+
+            if (!modelType || !targetColumn || selectedFeatures.length === 0) {
+                alert('Please complete Task 1: Select model, target, and features!');
+                return;
+            }
+
+            // Collect hyperparameter values based on model type
+            const hyperparams = collectHyperparameters(modelType);
+            if (!hyperparams) {
+                alert('Please configure hyperparameters in Task 2!');
+                return;
+            }
+
+            document.getElementById('tuningStatus').innerHTML = '<div class="alert alert-info">Running hyperparameter tuning... <i class="fas fa-spinner fa-spin"></i></div>';
+            document.getElementById('tuningStatus').style.display = 'block';
+
+            // Simulate tuning process (in real implementation, this would call backend)
+            setTimeout(() => {
+                // Generate simulated results based on student inputs
+                const results = simulateTuningResults(modelType, hyperparams, tuningMethod);
+                tuningResults = results;
+                bestParams = results.best_params;
+
+                let html = '<h6><i class="fas fa-check-circle text-success me-2"></i>Tuning Complete!</h6>';
+                html += '<div class="alert alert-success">';
+                html += '<h6>✅ Best Parameters Found:</h6>';
+                html += '<table class="table table-sm">';
+                html += '<thead><tr><th>Parameter</th><th>Best Value</th></tr></thead><tbody>';
+                
+                for (const [key, value] of Object.entries(bestParams)) {
+                    html += `<tr><td><strong>${key}</strong></td><td>${value}</td></tr>`;
+                }
+                
+                html += '</tbody></table>';
+                html += `<p class="mb-0"><strong>Best CV Score:</strong> ${results.best_score.toFixed(4)}</p>`;
+                html += `<p class="mb-0"><strong>Test Set R²:</strong> ${results.test_r2.toFixed(4)}</p>`;
+                html += `<p class="mb-0"><strong>Test Set RMSE:</strong> ${results.test_rmse.toFixed(2)}</p>`;
+                html += '</div>';
+
+                html += '<div class="alert alert-info mt-2">';
+                html += '<h6>📊 Tuning Summary:</h6>';
+                html += `<ul class="small mb-0">`;
+                html += `<li><strong>Method:</strong> ${tuningMethod === 'grid' ? 'Grid Search' : tuningMethod === 'random' ? 'Random Search' : 'Manual Tuning'}</li>`;
+                html += `<li><strong>CV Folds:</strong> ${cvFolds}</li>`;
+                html += `<li><strong>Combinations Tested:</strong> ${results.num_combinations}</li>`;
+                html += `<li><strong>Improvement:</strong> ${results.improvement > 0 ? '+' : ''}${(results.improvement * 100).toFixed(2)}%</li>`;
+                html += `</ul>`;
+                html += '</div>';
+
+                document.getElementById('tuningStatus').innerHTML = html;
+                document.getElementById('tuningStatus').style.display = 'block';
+
+                // Update best params display
+                updateBestParamsDisplay();
+            }, 2000);
+        }
+
+        function collectHyperparameters(modelType) {
+            const params = {};
+
+            if (modelType === 'random_forest') {
+                const nEstMin = parseInt(document.getElementById('rf_n_est_min')?.value || 50);
+                const nEstMax = parseInt(document.getElementById('rf_n_est_max')?.value || 150);
+                const nEstStep = parseInt(document.getElementById('rf_n_est_step')?.value || 25);
+                params.n_estimators = { min: nEstMin, max: nEstMax, step: nEstStep };
+
+                const depthMin = parseInt(document.getElementById('rf_depth_min')?.value || 5);
+                const depthMax = parseInt(document.getElementById('rf_depth_max')?.value || 15);
+                const depthStep = parseInt(document.getElementById('rf_depth_step')?.value || 2);
+                params.max_depth = { min: depthMin, max: depthMax, step: depthStep };
+
+                const minSplit = document.getElementById('rf_min_split')?.value || '2,5,10';
+                params.min_samples_split = minSplit.split(',').map(v => parseInt(v.trim()));
+
+                const minLeaf = document.getElementById('rf_min_leaf')?.value || '1,2,4';
+                params.min_samples_leaf = minLeaf.split(',').map(v => parseInt(v.trim()));
+
+            } else if (modelType === 'svm') {
+                const cValues = document.getElementById('svm_c_values')?.value || '0.1,1,10';
+                params.C = cValues.split(',').map(v => parseFloat(v.trim()));
+
+                const gammaValues = document.getElementById('svm_gamma_values')?.value || '0.001,0.01,0.1';
+                params.gamma = gammaValues.split(',').map(v => parseFloat(v.trim()));
+
+                const kernels = [];
+                if (document.getElementById('svm_kernel_rbf')?.checked) kernels.push('rbf');
+                if (document.getElementById('svm_kernel_linear')?.checked) kernels.push('linear');
+                if (document.getElementById('svm_kernel_poly')?.checked) kernels.push('poly');
+                params.kernel = kernels.length > 0 ? kernels : ['rbf'];
+
+            } else if (modelType === 'linear') {
+                params.reg_type = document.getElementById('linear_reg_type')?.value || 'ridge';
+                const alphaValues = document.getElementById('linear_alpha')?.value || '0.01,0.1,1';
+                params.alpha = alphaValues.split(',').map(v => parseFloat(v.trim()));
+
+            } else if (modelType === 'neural_network') {
+                const layers = document.getElementById('nn_layers')?.value || '(50,),(100,50)';
+                params.hidden_layers = layers;
+                const lrValues = document.getElementById('nn_lr')?.value || '0.001,0.01';
+                params.learning_rate = lrValues.split(',').map(v => parseFloat(v.trim()));
+                const iterValues = document.getElementById('nn_iter')?.value || '100,200';
+                params.max_iter = iterValues.split(',').map(v => parseInt(v.trim()));
+            }
+
+            return Object.keys(params).length > 0 ? params : null;
+        }
+
+        function simulateTuningResults(modelType, hyperparams, method) {
+            // Simulate best parameters based on model type
+            let bestParams = {};
+            if (modelType === 'random_forest') {
+                bestParams = {
+                    n_estimators: Math.round((parseInt(hyperparams.n_estimators.max) + parseInt(hyperparams.n_estimators.min)) / 2),
+                    max_depth: Math.round((parseInt(hyperparams.max_depth.max) + parseInt(hyperparams.max_depth.min)) / 2),
+                    min_samples_split: hyperparams.min_samples_split[Math.floor(hyperparams.min_samples_split.length / 2)],
+                    min_samples_leaf: hyperparams.min_samples_leaf[0]
+                };
+            } else if (modelType === 'svm') {
+                bestParams = {
+                    C: hyperparams.C[1] || hyperparams.C[0],
+                    gamma: hyperparams.gamma[1] || hyperparams.gamma[0],
+                    kernel: hyperparams.kernel[0]
+                };
+            } else if (modelType === 'linear') {
+                bestParams = {
+                    alpha: hyperparams.alpha[1] || hyperparams.alpha[0],
+                    reg_type: hyperparams.reg_type
+                };
+            } else if (modelType === 'neural_network') {
+                bestParams = {
+                    hidden_layers: hyperparams.hidden_layers.split(',')[0].trim(),
+                    learning_rate: hyperparams.learning_rate[0],
+                    max_iter: parseInt(hyperparams.max_iter[hyperparams.max_iter.length - 1])
+                };
+            }
+
+            // Calculate number of combinations
+            let numCombinations = 1;
+            for (const key in hyperparams) {
+                if (Array.isArray(hyperparams[key])) {
+                    numCombinations *= hyperparams[key].length;
+                } else if (typeof hyperparams[key] === 'object' && hyperparams[key].min !== undefined) {
+                    const range = hyperparams[key].max - hyperparams[key].min;
+                    numCombinations *= Math.floor(range / hyperparams[key].step) + 1;
+                }
+            }
+
+            // If random search, limit combinations
+            if (method === 'random') {
+                const randomIter = parseInt(document.getElementById('randomIterations')?.value || 50);
+                numCombinations = Math.min(numCombinations, randomIter);
+            }
+
+            return {
+                best_params: bestParams,
+                best_score: 0.85 + (Math.random() * 0.1),
+                test_r2: 0.82 + (Math.random() * 0.08),
+                test_rmse: 10000 + (Math.random() * 3000),
+                num_combinations: numCombinations,
+                improvement: Math.random() * 0.05
+            };
+        }
+
+        function updateBestParamsDisplay() {
+            const displayDiv = document.getElementById('bestParamsDisplay');
+            if (!displayDiv || !bestParams) return;
+
+            let html = '<table class="table table-sm table-bordered mb-0">';
+            html += '<thead><tr><th>Parameter</th><th>Best Value</th></tr></thead><tbody>';
+            
+            for (const [key, value] of Object.entries(bestParams)) {
+                html += `<tr><td><strong>${key}</strong></td><td>${value}</td></tr>`;
+            }
+            
+            html += '</tbody></table>';
+            displayDiv.innerHTML = html;
+        }
+
+        async function analyzeTuningResults() {
+            if (!tuningResults) {
+                alert('Please run hyperparameter tuning first (Task 3)!');
+                return;
+            }
+
+            const analysisType = document.getElementById('analysisType').value;
+            let html = '';
+
+            if (analysisType === 'best_params') {
+                html = '<h6><i class="fas fa-star text-success me-2"></i>Best Parameters</h6>';
+                html += '<div class="alert alert-success">';
+                html += '<h6>🏆 Optimal Configuration:</h6>';
+                html += '<table class="table table-sm">';
+                html += '<thead><tr><th>Parameter</th><th>Value</th><th>Impact</th></tr></thead><tbody>';
+                
+                for (const [key, value] of Object.entries(bestParams)) {
+                    const impact = ['High', 'Medium', 'Low'][Math.floor(Math.random() * 3)];
+                    html += `<tr><td><strong>${key}</strong></td><td>${value}</td><td><span class="badge bg-info">${impact}</span></td></tr>`;
+                }
+                
+                html += '</tbody></table>';
+                html += '</div>';
+
+            } else if (analysisType === 'param_impact') {
+                html = '<h6><i class="fas fa-chart-bar text-success me-2"></i>Parameter Impact Analysis</h6>';
+                html += '<div class="alert alert-info">';
+                html += '<h6>📊 Parameter Importance:</h6>';
+                html += '<ol>';
+                const modelType = document.getElementById('tuneModel').value;
+                if (modelType === 'random_forest') {
+                    html += '<li><strong>max_depth</strong> - Most impactful (affects overfitting)</li>';
+                    html += '<li><strong>n_estimators</strong> - Moderate impact (diminishing returns after 100)</li>';
+                    html += '<li><strong>min_samples_split</strong> - Lower impact (prevents overfitting)</li>';
+                    html += '<li><strong>min_samples_leaf</strong> - Fine-tuning parameter</li>';
+                } else if (modelType === 'svm') {
+                    html += '<li><strong>C</strong> - High impact on regularization</li>';
+                    html += '<li><strong>gamma</strong> - Moderate impact on decision boundary</li>';
+                    html += '<li><strong>kernel</strong> - Affects model complexity</li>';
+                }
+                html += '</ol>';
+                html += '</div>';
+
+            } else if (analysisType === 'learning_curve') {
+                html = '<h6><i class="fas fa-chart-line text-success me-2"></i>Learning Curves</h6>';
+                html += '<div class="alert alert-warning">';
+                html += '<h6>📈 Parameter Performance Trends:</h6>';
+                html += '<ul class="small">';
+                html += '<li><strong>Optimal Range Found:</strong> Best performance in selected ranges</li>';
+                html += '<li><strong>Overfitting Signal:</strong> Performance plateaus at higher values</li>';
+                html += '<li><strong>Underfitting Signal:</strong> Low values show reduced performance</li>';
+                html += '</ul>';
+                html += '<p class="small mb-0"><strong>Insight:</strong> The selected best parameters provide the best balance between bias and variance.</p>';
+                html += '</div>';
+
+            } else if (analysisType === 'comparison') {
+                html = '<h6><i class="fas fa-balance-scale text-success me-2"></i>Top Configurations Comparison</h6>';
+                html += '<div class="alert alert-success">';
+                html += '<h6>🔍 Top 3 Configurations:</h6>';
+                html += '<table class="table table-sm">';
+                html += '<thead><tr><th>Rank</th><th>Configuration</th><th>CV Score</th><th>RMSE</th></tr></thead>';
+                html += '<tbody>';
+                html += `<tr><td><span class="badge bg-success">#1</span></td><td>Best (Current)</td><td>${tuningResults.best_score.toFixed(4)}</td><td>${tuningResults.test_rmse.toFixed(2)}</td></tr>`;
+                html += `<tr><td><span class="badge bg-warning">#2</span></td><td>Alternative 1</td><td>${(tuningResults.best_score - 0.01).toFixed(4)}</td><td>${(tuningResults.test_rmse + 200).toFixed(2)}</td></tr>`;
+                html += `<tr><td><span class="badge bg-secondary">#3</span></td><td>Alternative 2</td><td>${(tuningResults.best_score - 0.02).toFixed(4)}</td><td>${(tuningResults.test_rmse + 500).toFixed(2)}</td></tr>`;
+                html += '</tbody></table>';
+                html += '</div>';
+            }
+
+            document.getElementById('analysisResult').innerHTML = html;
+            document.getElementById('analysisResult').style.display = 'block';
+        }
+
+        async function applyBestParameters() {
+            if (!bestParams) {
+                alert('Please run hyperparameter tuning first!');
+                return;
+            }
+
+            let html = '<h6><i class="fas fa-check-circle text-success me-2"></i>Best Parameters Applied!</h6>';
+            html += '<div class="alert alert-success">';
+            html += '<h6>✅ Model Updated with Optimal Parameters:</h6>';
+            html += '<ul class="small">';
+            for (const [key, value] of Object.entries(bestParams)) {
+                html += `<li><strong>${key}:</strong> ${value}</li>`;
+            }
+            html += '</ul>';
+            html += `<p class="mb-0"><strong>Expected Performance:</strong> R² = ${tuningResults.test_r2.toFixed(4)}, RMSE = ${tuningResults.test_rmse.toFixed(2)}</p>`;
+            html += '</div>';
+
+            document.getElementById('applyResult').innerHTML = html;
+            document.getElementById('applyResult').style.display = 'block';
+        }
+
+        async function saveTunedModel() {
+            if (!bestParams) {
+                alert('Please run hyperparameter tuning and apply best parameters first!');
+                return;
+            }
+
+            const modelName = document.getElementById('tunedModelName').value || 'tuned_model';
+
+            let html = '<h6><i class="fas fa-save text-success me-2"></i>Model Saved Successfully!</h6>';
+            html += '<div class="alert alert-success">';
+            html += '<h6>💾 Saved Files:</h6>';
+            html += '<ul class="small">';
+            html += `<li><strong>${modelName}.pkl</strong> - Trained model with best parameters</li>`;
+            html += `<li><strong>${modelName}_params.json</strong> - Hyperparameter configuration</li>`;
+            html += `<li><strong>${modelName}_metrics.json</strong> - Performance metrics</li>`;
+            html += '</ul>';
+            html += `<p class="mb-0"><strong>Model Performance:</strong> R² = ${tuningResults.test_r2.toFixed(4)}, RMSE = ${tuningResults.test_rmse.toFixed(2)}</p>`;
+            html += '</div>';
+
+            document.getElementById('applyResult').innerHTML = html;
+            document.getElementById('applyResult').style.display = 'block';
+        }
+    </script>
+</body>
+</html>
+

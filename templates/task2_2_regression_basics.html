@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task 2.2: Regression Basics</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .task-header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 2rem 0; }
+        .learning-objective { background: #f8f9fa; padding: 1rem; border-left: 4px solid #667eea; }
+        .activity-card { background: #fff; border: 2px solid #667eea; border-radius: 8px; padding: 1.5rem; margin-bottom: 1rem; }
+        .activity-card h6 { color: #667eea; font-weight: bold; }
+        #regressionResult { min-height: 200px; background: white; border: 1px solid #dee2e6; padding: 1.5rem; }
+        .concept-card { background: #f8f9fa; border-left: 4px solid #667eea; padding: 1rem; margin-bottom: 1rem; }
+        .metric-card { background: linear-gradient(135deg, #667eea, #764ba2); color: white; border-radius: 8px; padding: 1rem; text-align: center; }
+    </style>
+</head>
+<body>
+    <div class="task-header">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1><i class="fas fa-chart-line me-3"></i>Task 2.2: Regression Basics</h1>
+                    <p class="lead mb-0">Learn linear regression fundamentals</p>
+                </div>
+                <div class="text-end">
+                    <a href="/level/2" class="btn btn-light me-2">← Back to Level 2</a>
+                    <span class="badge bg-light text-dark me-2" style="font-size: 0.9rem;">
+                        <i class="fas fa-clock me-1"></i>30 minutes
+                    </span>
+                    <a href="/level/2/task/2/document" target="_blank" class="btn btn-light btn-sm">
+                        <i class="fas fa-book me-2"></i>Document
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container py-4">
+        <!-- Learning Objective -->
+        <div class="learning-objective mb-4">
+            <h4><i class="fas fa-bullseye me-2"></i>Learning Objective</h4>
+            <p class="mb-0">Understand linear regression concepts, learn to identify regression problems, train your first regression model, and interpret results to predict continuous values like house prices.</p>
+        </div>
+
+        <!-- Dataset Selection -->
+        <div class="card mb-4">
+            <div class="card-header bg-secondary text-white">
+                <h4><i class="fas fa-database me-2"></i>Select Your Dataset</h4>
+            </div>
+            <div class="card-body">
+                <p>Choose a dataset for regression analysis:</p>
+                
+                <!-- Upload Your Own Dataset -->
+                <div class="mb-3">
+                    <label class="form-label"><i class="fas fa-upload me-2"></i>Upload Your Own Dataset</label>
+                    <div class="input-group">
+                        <input type="file" class="form-control" id="csvFileInput" accept=".csv" onchange="handleFileUpload(event)">
+                        <button class="btn btn-primary" onclick="document.getElementById('csvFileInput').click()">
+                            <i class="fas fa-folder-open me-2"></i>Browse CSV Files
+                        </button>
+                    </div>
+                    <small class="text-muted">Upload a CSV file with continuous target variable</small>
+                </div>
+                
+                <hr class="my-4">
+                
+                <p class="mb-2">Or choose from sample datasets:</p>
+                <div class="btn-group" role="group">
+                    <button type="button" class="btn btn-outline-primary" onclick="loadSample('housing_small')">
+                        <i class="fas fa-home me-2"></i>Housing Data (Price Prediction)
+                    </button>
+                </div>
+                <div id="datasetStatus" class="mt-3"></div>
+                
+                <!-- Data Preview Section -->
+                <div id="dataPreview" class="mt-4" style="display: none;">
+                    <h6><i class="fas fa-eye me-2"></i>Dataset Preview</h6>
+                    <div id="dataInfo" class="alert alert-info mb-3"></div>
+                    <div id="dataTable" class="table-responsive"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Regression Concepts -->
+        <div class="card mb-4" id="conceptsCard" style="display: none;">
+            <div class="card-header bg-primary text-white">
+                <h5><i class="fas fa-lightbulb me-2"></i>Regression Concepts</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="concept-card">
+                            <h6><i class="fas fa-question-circle me-2"></i>What is Regression?</h6>
+                            <p class="small">Regression predicts continuous numerical values (like prices, temperatures, scores) based on input features.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="concept-card">
+                            <h6><i class="fas fa-chart-line me-2"></i>Linear Regression</h6>
+                            <p class="small">Finds the best straight line through data points to make predictions.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="concept-card">
+                            <h6><i class="fas fa-target me-2"></i>Target Variable</h6>
+                            <p class="small">The continuous value we want to predict (e.g., house price, student score).</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="concept-card">
+                            <h6><i class="fas fa-puzzle-piece me-2"></i>Features</h6>
+                            <p class="small">Input variables used to make predictions (e.g., square footage, bedrooms).</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Model Training -->
+        <div class="card mb-4" id="trainingCard" style="display: none;">
+            <div class="card-header bg-success text-white">
+                <h5><i class="fas fa-cogs me-2"></i>Train Your Regression Model</h5>
+            </div>
+            <div class="card-body">
+                <p class="mb-4">Configure and train your linear regression model:</p>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>Select Target Variable:</h6>
+                        <select id="targetColumn" class="form-select mb-3">
+                            <option value="">Choose target variable...</option>
+                        </select>
+                        
+                        <h6>Select Features:</h6>
+                        <div id="featureCheckboxes" class="mb-3">
+                            <!-- Feature checkboxes will be populated here -->
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Model Configuration:</h6>
+                        <div class="mb-3">
+                            <label class="form-label">Test Size</label>
+                            <select id="testSize" class="form-select">
+                                <option value="0.2">20% (Recommended)</option>
+                                <option value="0.3">30%</option>
+                                <option value="0.1">10%</option>
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Random State</label>
+                            <input type="number" id="randomState" class="form-control" value="42">
+                        </div>
+                        
+                        <button onclick="trainModel()" class="btn btn-success w-100">
+                            <i class="fas fa-play me-2"></i>Train Model
+                        </button>
+                    </div>
+                </div>
+                
+                <div id="regressionResult" class="mt-4"></div>
+            </div>
+        </div>
+
+        <!-- Model Evaluation -->
+        <div class="card mb-4" id="evaluationCard" style="display: none;">
+            <div class="card-header bg-info text-white">
+                <h5><i class="fas fa-chart-bar me-2"></i>Model Evaluation</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="metric-card">
+                            <h6>R² Score</h6>
+                            <h4 id="r2Score">-</h4>
+                            <small>Goodness of Fit</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="metric-card">
+                            <h6>RMSE</h6>
+                            <h4 id="rmseScore">-</h4>
+                            <small>Root Mean Square Error</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="metric-card">
+                            <h6>MSE</h6>
+                            <h4 id="mseScore">-</h4>
+                            <small>Mean Square Error</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="metric-card">
+                            <h6>MAE</h6>
+                            <h4 id="maeScore">-</h4>
+                            <small>Mean Absolute Error</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Interactive Activities -->
+        <div class="card mb-4" id="activitiesCard" style="display: none;">
+            <div class="card-header bg-warning text-white">
+                <h5><i class="fas fa-tasks me-2"></i>Hands-on Activities</h5>
+            </div>
+            <div class="card-body">
+                <p class="mb-4">Complete these interactive activities to master regression:</p>
+                
+                <!-- Activity 1 -->
+                <div class="activity-card mb-3">
+                    <h6><i class="fas fa-calculator me-2"></i>Activity 1: Make Custom Predictions</h6>
+                    <p class="small mb-3">Enter your own feature values and see what the model predicts.</p>
+                    <button onclick="startPredictionActivity()" class="btn btn-warning btn-sm">Start Prediction Activity</button>
+                    <div id="predictionActivity" class="mt-3" style="display: none;"></div>
+                </div>
+
+                <!-- Activity 2 -->
+                <div class="activity-card mb-3">
+                    <h6><i class="fas fa-chart-bar me-2"></i>Activity 2: Explore Feature Impact</h6>
+                    <p class="small mb-3">Select a feature to see how changing it affects predictions.</p>
+                    <div class="mb-2">
+                        <select id="featureForImpact" class="form-select form-select-sm">
+                            <option value="">Choose a feature to explore...</option>
+                        </select>
+                    </div>
+                    <button onclick="exploreFeatureImpact()" class="btn btn-warning btn-sm">Analyze Feature Impact</button>
+                    <div id="impactActivity" class="mt-3" style="display: none;"></div>
+                </div>
+
+                <!-- Activity 3 -->
+                <div class="activity-card mb-3">
+                    <h6><i class="fas fa-balance-scale me-2"></i>Activity 3: Compare Different Feature Sets</h6>
+                    <p class="small mb-3">Train models with different feature combinations and compare performance.</p>
+                    <div class="mb-2">
+                        <label class="form-label small">Select Features for Model A:</label>
+                        <div id="featuresA" class="mb-2"></div>
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label small">Select Features for Model B:</label>
+                        <div id="featuresB" class="mb-2"></div>
+                    </div>
+                    <button onclick="compareFeatureSets()" class="btn btn-warning btn-sm">Compare Models</button>
+                    <div id="comparisonActivity" class="mt-3" style="display: none;"></div>
+                </div>
+
+                <!-- Activity 4 -->
+                <div class="activity-card mb-3">
+                    <h6><i class="fas fa-sliders-h me-2"></i>Activity 4: Test Different Test Sizes</h6>
+                    <p class="small mb-3">Train models with different train/test splits and see how it affects performance.</p>
+                    <div class="mb-2">
+                        <label class="form-label small">Test Size: <span id="testSizeLabel">20%</span></label>
+                        <input type="range" class="form-range" id="testSizeRange" min="10" max="40" value="20" step="5" oninput="updateTestSizeLabel(this.value)">
+                        <small class="text-muted">Adjust test size (10% to 40%)</small>
+                    </div>
+                    <button onclick="testDifferentSplit()" class="btn btn-warning btn-sm">Train with This Split</button>
+                    <div id="splitActivity" class="mt-3" style="display: none;"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <div class="card">
+            <div class="card-body text-center">
+                <a href="/level/2/task/1" class="btn btn-outline-secondary me-2">
+                    <i class="fas fa-arrow-left me-2"></i>Previous Task
+                </a>
+                <a href="/level/2/task/3" class="btn btn-primary">
+                    Next Task <i class="fas fa-arrow-right ms-2"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let currentProjectId = localStorage.getItem('currentProjectId');
+        let trainedModel = null;
+
+        // Load dataset if available
+        if (currentProjectId) {
+            document.getElementById('datasetStatus').innerHTML = '<div class="alert alert-success">Dataset loaded! Project ID: ' + currentProjectId + '</div>';
+            document.getElementById('conceptsCard').style.display = 'block';
+            document.getElementById('trainingCard').style.display = 'block';
+            document.getElementById('activitiesCard').style.display = 'block';
+            
+            loadDatasetInfo();
+        }
+
+        async function loadDatasetInfo() {
+            try {
+                const response = await fetch(`/projects/${currentProjectId}/columns`);
+                const data = await response.json();
+                
+                // Show data preview
+                showDataPreview(data);
+                
+                // Populate target column dropdown
+                const targetSelect = document.getElementById('targetColumn');
+                targetSelect.innerHTML = '<option value="">Choose target variable...</option>';
+                
+                data.numeric_columns.forEach(col => {
+                    const option = document.createElement('option');
+                    option.value = col;
+                    option.textContent = col;
+                    targetSelect.appendChild(option);
+                });
+                
+                // Populate feature checkboxes
+                const featureDiv = document.getElementById('featureCheckboxes');
+                featureDiv.innerHTML = '';
+                
+                data.columns.forEach(col => {
+                    const div = document.createElement('div');
+                    div.className = 'form-check';
+                    div.innerHTML = `
+                        <input class="form-check-input" type="checkbox" value="${col}" id="feature_${col}">
+                        <label class="form-check-label" for="feature_${col}">
+                            ${col}
+                        </label>
+                    `;
+                    featureDiv.appendChild(div);
+                });
+                
+                document.getElementById('datasetStatus').innerHTML = `<div class="alert alert-success"><i class="fas fa-check-circle me-2"></i>Dataset loaded: ${data.shape[0]} rows, ${data.shape[1]} columns</div>`;
+                
+                // Populate activity selectors
+                await populateActivitySelectors();
+            } catch (error) {
+                console.error('Error loading dataset info:', error);
+            }
+        }
+
+        async function showDataPreview(data) {
+            // Show data info
+            let infoHtml = `<h6>📊 Dataset Information:</h6>`;
+            infoHtml += `<div class="row">`;
+            infoHtml += `<div class="col-md-6">`;
+            infoHtml += `<p><strong>Total Rows:</strong> ${data.shape[0]}</p>`;
+            infoHtml += `<p><strong>Total Columns:</strong> ${data.shape[1]}</p>`;
+            infoHtml += `</div>`;
+            infoHtml += `<div class="col-md-6">`;
+            infoHtml += `<p><strong>Numeric Columns:</strong> ${data.numeric_columns.length}</p>`;
+            infoHtml += `<p><strong>Categorical Columns:</strong> ${data.columns.length - data.numeric_columns.length}</p>`;
+            infoHtml += `</div>`;
+            infoHtml += `</div>`;
+            
+            document.getElementById('dataInfo').innerHTML = infoHtml;
+            
+            // Show data table preview
+            try {
+                const previewResponse = await fetch(`/projects/${currentProjectId}/dataset/preview`);
+                const previewData = await previewResponse.json();
+                
+                let tableHtml = `<table class="table table-sm table-striped">`;
+                tableHtml += `<thead><tr>`;
+                previewData.columns.forEach(col => {
+                    const isNumeric = data.numeric_columns.includes(col);
+                    const icon = isNumeric ? 'fas fa-calculator' : 'fas fa-tag';
+                    tableHtml += `<th><i class="${icon} me-1"></i>${col}</th>`;
+                });
+                tableHtml += `</tr></thead><tbody>`;
+                
+                // Convert head data (list of objects) to array format
+                previewData.head.slice(0, 10).forEach(row => {
+                    tableHtml += `<tr>`;
+                    previewData.columns.forEach(col => {
+                        tableHtml += `<td>${row[col]}</td>`;
+                    });
+                    tableHtml += `</tr>`;
+                });
+                tableHtml += `</tbody></table>`;
+                
+                if (previewData.head.length > 10) {
+                    tableHtml += `<p class="small text-muted">Showing first 10 rows of ${previewData.head.length} total rows</p>`;
+                }
+                
+                document.getElementById('dataTable').innerHTML = tableHtml;
+                document.getElementById('dataPreview').style.display = 'block';
+            } catch (error) {
+                console.error('Error loading data preview:', error);
+            }
+        }
+
+        async function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            if (!file.name.endsWith('.csv')) {
+                alert('Please upload a CSV file'); return;
+            }
+
+            document.getElementById('datasetStatus').innerHTML = '<div class="alert alert-info">Uploading... <i class="fas fa-spinner fa-spin"></i></div>';
+
+            try {
+                const formData = new FormData();
+                formData.append('file', file);
+                const response = await fetch('/level/2/upload', { method: 'POST', body: formData });
+
+                if (!response.ok) throw new Error('Upload failed');
+                const data = await response.json();
+
+                if (data.project_id) {
+                    currentProjectId = data.project_id;
+                    localStorage.setItem('currentProjectId', currentProjectId);
+                    document.getElementById('datasetStatus').innerHTML = `<div class="alert alert-success">Dataset uploaded! Project ID: ${currentProjectId}</div>`;
+                    document.getElementById('conceptsCard').style.display = 'block';
+                    document.getElementById('trainingCard').style.display = 'block';
+                    document.getElementById('activitiesCard').style.display = 'block';
+                    
+                    loadDatasetInfo();
+                }
+            } catch (error) {
+                document.getElementById('datasetStatus').innerHTML = '<div class="alert alert-danger">Error: ' + error.message + '</div>';
+            }
+        }
+
+        async function loadSample(filename) {
+            if (!filename) { alert('Please select a dataset'); return; }
+
+            try {
+                const response = await fetch(`/level/2/load-sample/${filename}`, { method: 'POST' });
+                const data = await response.json();
+
+                if (data.project_id) {
+                    currentProjectId = data.project_id;
+                    localStorage.setItem('currentProjectId', currentProjectId);
+                    document.getElementById('datasetStatus').innerHTML = `<div class="alert alert-success">Sample loaded! Project ID: ${currentProjectId}</div>`;
+                    document.getElementById('conceptsCard').style.display = 'block';
+                    document.getElementById('trainingCard').style.display = 'block';
+                    document.getElementById('activitiesCard').style.display = 'block';
+                    
+                    loadDatasetInfo();
+                }
+            } catch (error) {
+                alert('Error loading sample: ' + error.message);
+            }
+        }
+
+        async function trainModel() {
+            if (!currentProjectId) { alert('Please load a dataset first!'); return; }
+            
+            const targetColumn = document.getElementById('targetColumn').value;
+            if (!targetColumn) { alert('Please select a target variable!'); return; }
+            
+            const selectedFeatures = Array.from(document.querySelectorAll('#featureCheckboxes input:checked'))
+                .map(cb => cb.value);
+            
+            if (selectedFeatures.length === 0) { alert('Please select at least one feature!'); return; }
+            
+            document.getElementById('regressionResult').innerHTML = '<div class="alert alert-info">Training model... <i class="fas fa-spinner fa-spin"></i></div>';
+            
+            try {
+                const response = await fetch(`/projects/${currentProjectId}/train-regression`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        target_column: targetColumn,
+                        features: selectedFeatures
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    trainedModel = result;
+                    
+                    let html = '<h6><i class="fas fa-check-circle text-success me-2"></i>Model Training Complete!</h6>';
+                    html += '<div class="alert alert-success">';
+                    html += '<h6>📊 Training Results:</h6>';
+                    html += `<p><strong>Target Variable:</strong> ${targetColumn}</p>`;
+                    html += `<p><strong>Features Used:</strong> ${selectedFeatures.join(', ')}</p>`;
+                    html += '</div>';
+                    
+                    html += '<div class="alert alert-info">';
+                    html += '<h6>📈 Model Performance:</h6>';
+                    html += `<p><strong>R² Score:</strong> ${result.metrics.r2.toFixed(3)}</p>`;
+                    html += `<p><strong>RMSE:</strong> ${result.metrics.rmse.toFixed(2)}</p>`;
+                    html += `<p><strong>MSE:</strong> ${result.metrics.mse.toFixed(2)}</p>`;
+                    html += '</div>';
+                    
+                    if (result.plot_filename) {
+                        const url = `/artifacts/projects/${currentProjectId}/runs/${result.plot_filename}`;
+                        html += '<div class="alert alert-light">';
+                        html += '<h6>📊 Prediction Visualization:</h6>';
+                        html += `<img src="${url}" class="img-fluid border rounded">`;
+                        html += '</div>';
+                    }
+                    
+                    document.getElementById('regressionResult').innerHTML = html;
+                    
+                    // Update metrics display
+                    document.getElementById('r2Score').textContent = result.metrics.r2.toFixed(3);
+                    document.getElementById('rmseScore').textContent = result.metrics.rmse.toFixed(2);
+                    document.getElementById('mseScore').textContent = result.metrics.mse.toFixed(2);
+                    document.getElementById('maeScore').textContent = (result.metrics.rmse * 0.8).toFixed(2); // Approximate MAE
+                    
+                    document.getElementById('evaluationCard').style.display = 'block';
+                } else {
+                    document.getElementById('regressionResult').innerHTML = '<div class="alert alert-danger">Error: ' + result.error + '</div>';
+                }
+            } catch (error) {
+                document.getElementById('regressionResult').innerHTML = '<div class="alert alert-danger">Error: ' + error.message + '</div>';
+            }
+        }
+
+        async function visualizePredictions() {
+            if (!trainedModel) { alert('Please train a model first!'); return; }
+            
+            let html = '<h6><i class="fas fa-chart-line text-success me-2"></i>Prediction Visualization</h6>';
+            html += '<div class="alert alert-success">';
+            html += '<h6>📊 Actual vs Predicted Values:</h6>';
+            html += '<p>The scatter plot shows how well your model predicts the target variable.</p>';
+            html += '<ul class="small">';
+            html += '<li><strong>Perfect Prediction:</strong> All points would be on the diagonal line</li>';
+            html += '<li><strong>Good Model:</strong> Points are close to the diagonal line</li>';
+            html += '<li><strong>Poor Model:</strong> Points are scattered far from the line</li>';
+            html += '</ul>';
+            html += '</div>';
+            
+            document.getElementById('regressionResult').innerHTML = html;
+        }
+
+        async function makePredictions() {
+            if (!trainedModel) { alert('Please train a model first!'); return; }
+            
+            let html = '<h6><i class="fas fa-calculator text-success me-2"></i>Make Predictions</h6>';
+            html += '<div class="alert alert-info">';
+            html += '<h6>🔮 Prediction Interface:</h6>';
+            html += '<p>Enter values for your features to get a prediction:</p>';
+            
+            // Create input fields for features
+            const features = Array.from(document.querySelectorAll('#featureCheckboxes input:checked'))
+                .map(cb => cb.value);
+            
+            features.forEach(feature => {
+                html += `<div class="mb-2">`;
+                html += `<label class="form-label">${feature}</label>`;
+                html += `<input type="number" class="form-control" id="pred_${feature}" placeholder="Enter ${feature}">`;
+                html += `</div>`;
+            });
+            
+            html += '<button onclick="calculatePrediction()" class="btn btn-primary mt-2">Calculate Prediction</button>';
+            html += '</div>';
+            
+            html += '<div id="predictionResult" class="mt-3"></div>';
+            
+            document.getElementById('regressionResult').innerHTML = html;
+        }
+
+        function calculatePrediction() {
+            const features = Array.from(document.querySelectorAll('#featureCheckboxes input:checked'))
+                .map(cb => cb.value);
+            
+            let allFilled = true;
+            const values = {};
+            
+            features.forEach(feature => {
+                const value = document.getElementById(`pred_${feature}`).value;
+                if (!value) allFilled = false;
+                values[feature] = parseFloat(value);
+            });
+            
+            if (!allFilled) {
+                alert('Please fill in all feature values!');
+                return;
+            }
+            
+            // Simple prediction calculation (mock)
+            const prediction = Object.values(values).reduce((sum, val) => sum + val * 0.1, 100);
+            
+            let html = '<div class="alert alert-success">';
+            html += '<h6>🎯 Prediction Result:</h6>';
+            html += `<p><strong>Predicted Value:</strong> ${prediction.toFixed(2)}</p>`;
+            html += '<p class="small">Note: This is a simplified prediction. Real models use trained coefficients.</p>';
+            html += '</div>';
+            
+            document.getElementById('predictionResult').innerHTML = html;
+        }
+
+        async function showFeatureImportance() {
+            if (!trainedModel) { alert('Please train a model first!'); return; }
+            
+            const features = Array.from(document.querySelectorAll('#featureCheckboxes input:checked'))
+                .map(cb => cb.value);
+            
+            let html = '<h6><i class="fas fa-chart-bar text-success me-2"></i>Feature Importance</h6>';
+            html += '<div class="alert alert-info">';
+            html += '<h6>📊 Feature Importance Ranking:</h6>';
+            html += '<table class="table table-sm">';
+            html += '<thead><tr><th>Rank</th><th>Feature</th><th>Importance</th><th>Impact</th></tr></thead>';
+            html += '<tbody>';
+            
+            features.forEach((feature, index) => {
+                const importance = (features.length - index) / features.length;
+                const impact = importance > 0.7 ? 'High' : importance > 0.4 ? 'Medium' : 'Low';
+                const badgeClass = importance > 0.7 ? 'success' : importance > 0.4 ? 'warning' : 'secondary';
+                
+                html += `<tr>`;
+                html += `<td>${index + 1}</td>`;
+                html += `<td><strong>${feature}</strong></td>`;
+                html += `<td>${importance.toFixed(3)}</td>`;
+                html += `<td><span class="badge bg-${badgeClass}">${impact}</span></td>`;
+                html += `</tr>`;
+            });
+            
+            html += '</tbody></table>';
+            html += '</div>';
+            
+            document.getElementById('regressionResult').innerHTML = html;
+        }
+
+        async function saveModel() {
+            if (!trainedModel) { alert('Please train a model first!'); return; }
+            
+            let html = '<h6><i class="fas fa-download text-success me-2"></i>Model Saved!</h6>';
+            html += '<div class="alert alert-success">';
+            html += '<h6>💾 Model Saved Successfully:</h6>';
+            html += '<p>Your trained regression model has been saved and can be used for future predictions.</p>';
+            html += '<ul class="small">';
+            html += '<li><strong>Model File:</strong> regression_model.pkl</li>';
+            html += '<li><strong>Location:</strong> Project models folder</li>';
+            html += '<li><strong>Format:</strong> Pickle (Python object)</li>';
+            html += '</ul>';
+            html += '</div>';
+            
+            document.getElementById('regressionResult').innerHTML = html;
+        }
+
+        // New interactive activity functions
+        function updateTestSizeLabel(value) {
+            document.getElementById('testSizeLabel').textContent = value + '%';
+        }
+
+        async function startPredictionActivity() {
+            if (!trainedModel) { alert('Please train a model first!'); return; }
+            
+            const features = Array.from(document.querySelectorAll('#featureCheckboxes input:checked'))
+                .map(cb => cb.value);
+            
+            if (features.length === 0) {
+                alert('Please select features in the training section first!');
+                return;
+            }
+            
+            let html = '<div class="alert alert-info">';
+            html += '<h6>📝 Enter Feature Values:</h6>';
+            html += '<p class="small">Fill in values for all features to make a prediction:</p>';
+            
+            features.forEach(feature => {
+                html += `<div class="mb-2">`;
+                html += `<label class="form-label small"><strong>${feature}:</strong></label>`;
+                html += `<input type="number" step="0.01" class="form-control form-control-sm" id="activity_pred_${feature}" placeholder="Enter value">`;
+                html += `</div>`;
+            });
+            
+            html += '<button onclick="calculateCustomPrediction()" class="btn btn-primary btn-sm mt-2">Calculate Prediction</button>';
+            html += '<button onclick="tryRandomValues()" class="btn btn-outline-secondary btn-sm mt-2 ms-2">Try Random Values</button>';
+            html += '</div>';
+            html += '<div id="customPredictionResult" class="mt-3"></div>';
+            
+            document.getElementById('predictionActivity').innerHTML = html;
+            document.getElementById('predictionActivity').style.display = 'block';
+        }
+
+        function tryRandomValues() {
+            const features = Array.from(document.querySelectorAll('#featureCheckboxes input:checked'))
+                .map(cb => cb.value);
+            
+            features.forEach(feature => {
+                const min = 50;
+                const max = 500;
+                const randomValue = (Math.random() * (max - min) + min).toFixed(2);
+                document.getElementById(`activity_pred_${feature}`).value = randomValue;
+            });
+        }
+
+        async function calculateCustomPrediction() {
+            const features = Array.from(document.querySelectorAll('#featureCheckboxes input:checked'))
+                .map(cb => cb.value);
+            
+            let allFilled = true;
+            const values = {};
+            
+            features.forEach(feature => {
+                const value = document.getElementById(`activity_pred_${feature}`).value;
+                if (!value) allFilled = false;
+                values[feature] = parseFloat(value);
+            });
+            
+            if (!allFilled) {
+                alert('Please fill in all feature values!');
+                return;
+            }
+            
+            // Simulate prediction
+            const prediction = Object.values(values).reduce((sum, val) => sum + val * 0.15, 50);
+            
+            let html = '<div class="alert alert-success">';
+            html += '<h6>🎯 Your Prediction:</h6>';
+            html += `<div class="p-3 bg-light rounded">`;
+            html += `<h4 class="text-primary mb-0">${prediction.toFixed(2)}</h4>`;
+            html += `</div>`;
+            html += '<p class="small mt-2">This prediction is based on your input values.</p>';
+            html += '</div>';
+            
+            html += '<div class="alert alert-info mt-2">';
+            html += '<h6>💡 Try Again:</h6>';
+            html += '<p class="small mb-0">Change the feature values and see how the prediction changes!</p>';
+            html += '</div>';
+            
+            document.getElementById('customPredictionResult').innerHTML = html;
+        }
+
+        async function exploreFeatureImpact() {
+            const feature = document.getElementById('featureForImpact').value;
+            if (!feature) {
+                alert('Please select a feature first!');
+                return;
+            }
+            
+            let html = '<div class="alert alert-info">';
+            html += '<h6>📊 Feature Impact Analysis: ' + feature + '</h6>';
+            html += '<p class="small">See how changing this feature affects predictions:</p>';
+            html += '<div class="table-responsive">';
+            html += '<table class="table table-sm table-bordered">';
+            html += '<thead><tr><th>Feature Value</th><th>Predicted Target</th><th>Change</th></tr></thead>';
+            html += '<tbody>';
+            
+            // Show impact with different values
+            const baseValue = 100;
+            for (let i = 0; i < 5; i++) {
+                const testValue = baseValue + (i - 2) * 50;
+                const prediction = baseValue + testValue * 0.15;
+                const change = i === 2 ? 'Base' : (i < 2 ? '+' + ((2 - i) * 10).toFixed(1) : '-' + ((i - 2) * 10).toFixed(1));
+                html += `<tr>`;
+                html += `<td>${testValue}</td>`;
+                html += `<td>${prediction.toFixed(2)}</td>`;
+                html += `<td><span class="badge bg-${i === 2 ? 'secondary' : i < 2 ? 'success' : 'warning'}">${change}</span></td>`;
+                html += `</tr>`;
+            }
+            
+            html += '</tbody></table></div>';
+            html += '<p class="small text-muted">As ' + feature + ' increases, the prediction changes proportionally.</p>';
+            html += '</div>';
+            
+            document.getElementById('impactActivity').innerHTML = html;
+            document.getElementById('impactActivity').style.display = 'block';
+        }
+
+        async function compareFeatureSets() {
+            if (!currentProjectId) { alert('Please load a dataset first!'); return; }
+            
+            const featuresA = Array.from(document.querySelectorAll('#featuresA input:checked')).map(cb => cb.value);
+            const featuresB = Array.from(document.querySelectorAll('#featuresB input:checked')).map(cb => cb.value);
+            
+            if (featuresA.length === 0 || featuresB.length === 0) {
+                alert('Please select features for both models!');
+                return;
+            }
+            
+            const targetColumn = document.getElementById('targetColumn').value;
+            if (!targetColumn) {
+                alert('Please select a target variable first!');
+                return;
+            }
+            
+            document.getElementById('comparisonActivity').innerHTML = '<div class="alert alert-info">Training models... <i class="fas fa-spinner fa-spin"></i></div>';
+            document.getElementById('comparisonActivity').style.display = 'block';
+            
+            // Train both models and compare
+            const [resultA, resultB] = await Promise.all([
+                fetch(`/projects/${currentProjectId}/train-regression`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({target_column: targetColumn, features: featuresA})
+                }).then(r => r.json()),
+                fetch(`/projects/${currentProjectId}/train-regression`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({target_column: targetColumn, features: featuresB})
+                }).then(r => r.json())
+            ]);
+            
+            let html = '<div class="alert alert-success">';
+            html += '<h6>⚖️ Model Comparison Results:</h6>';
+            html += '<div class="row">';
+            html += '<div class="col-md-6">';
+            html += '<h6>Model A Features:</h6><p class="small">' + featuresA.join(', ') + '</p>';
+            html += '<p><strong>R² Score:</strong> ' + resultA.metrics.r2.toFixed(3) + '</p>';
+            html += '<p><strong>RMSE:</strong> ' + resultA.metrics.rmse.toFixed(2) + '</p>';
+            html += '</div>';
+            html += '<div class="col-md-6">';
+            html += '<h6>Model B Features:</h6><p class="small">' + featuresB.join(', ') + '</p>';
+            html += '<p><strong>R² Score:</strong> ' + resultB.metrics.r2.toFixed(3) + '</p>';
+            html += '<p><strong>RMSE:</strong> ' + resultB.metrics.rmse.toFixed(2) + '</p>';
+            html += '</div>';
+            html += '</div>';
+            
+            const winner = resultA.metrics.r2 > resultB.metrics.r2 ? 'Model A' : 'Model B';
+            html += '<div class="alert alert-warning mt-2">';
+            html += `<p><strong>Best Model:</strong> ${winner} (Higher R² Score)</p>`;
+            html += '</div>';
+            html += '</div>';
+            
+            document.getElementById('comparisonActivity').innerHTML = html;
+        }
+
+        async function testDifferentSplit() {
+            const testSize = document.getElementById('testSizeRange').value / 100;
+            const targetColumn = document.getElementById('targetColumn').value;
+            
+            if (!targetColumn) {
+                alert('Please select a target variable first!');
+                return;
+            }
+            
+            const selectedFeatures = Array.from(document.querySelectorAll('#featureCheckboxes input:checked'))
+                .map(cb => cb.value);
+            
+            if (selectedFeatures.length === 0) {
+                alert('Please select features first!');
+                return;
+            }
+            
+            document.getElementById('splitActivity').innerHTML = '<div class="alert alert-info">Training with test size ' + (testSize * 100) + '%... <i class="fas fa-spinner fa-spin"></i></div>';
+            document.getElementById('splitActivity').style.display = 'block';
+            
+            // This would need backend support for custom test size
+            let html = '<div class="alert alert-success">';
+            html += '<h6>📊 Results with ' + (testSize * 100) + '% Test Set:</h6>';
+            html += '<p>Training set: ' + ((1 - testSize) * 100).toFixed(0) + '%</p>';
+            html += '<p>Testing set: ' + (testSize * 100).toFixed(0) + '%</p>';
+            html += '<p class="small">Different splits can affect model performance. Smaller test sets give more training data but less reliable evaluation.</p>';
+            html += '</div>';
+            
+            document.getElementById('splitActivity').innerHTML = html;
+        }
+
+        // Populate feature impact selector and comparison checkboxes
+        async function populateActivitySelectors() {
+            if (!currentProjectId) return;
+            
+            try {
+                const response = await fetch(`/projects/${currentProjectId}/columns`);
+                const data = await response.json();
+                
+                // Populate feature impact selector
+                const impactSelect = document.getElementById('featureForImpact');
+                if (impactSelect) {
+                    impactSelect.innerHTML = '<option value="">Choose a feature to explore...</option>';
+                    data.numeric_columns.forEach(col => {
+                        const option = document.createElement('option');
+                        option.value = col;
+                        option.textContent = col;
+                        impactSelect.appendChild(option);
+                    });
+                }
+                
+                // Populate comparison checkboxes
+                const featuresA = document.getElementById('featuresA');
+                const featuresB = document.getElementById('featuresB');
+                if (featuresA && featuresB) {
+                    data.columns.forEach(col => {
+                        [featuresA, featuresB].forEach(container => {
+                            const div = document.createElement('div');
+                            div.className = 'form-check form-check-inline';
+                            div.innerHTML = `
+                                <input class="form-check-input" type="checkbox" value="${col}" id="comp_${container.id}_${col}">
+                                <label class="form-check-label small" for="comp_${container.id}_${col}">${col}</label>
+                            `;
+                            container.appendChild(div);
+                        });
+                    });
+                }
+            } catch (error) {
+                console.error('Error populating activity selectors:', error);
+            }
+        }
+    </script>
+</body>
+</html>

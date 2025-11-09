@@ -1,0 +1,17 @@
+{
+  "project_id": "4bbac85a8f784398a38c9808708dcc2f",
+  "title": "Data Analysis Project - weather_week",
+  "level": 1,
+  "created_at": "2025-10-27T10:43:55.773159",
+  "datasets": [
+    {
+      "filename": "original.csv",
+      "path": "dataset/original.csv",
+      "uploaded_at": "2025-10-27T10:43:55.775619",
+      "source": "sample_weather_week"
+    }
+  ],
+  "cleaned_versions": [],
+  "runs": [],
+  "reports": []
+}

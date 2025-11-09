@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task 3: Handle Missing Values</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .task-header { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; padding: 2rem 0; }
+        .learning-objective { background: #f8f9fa; padding: 1rem; border-left: 4px solid #f5576c; }
+        .strategy-card { transition: transform 0.2s; cursor: pointer; }
+        .strategy-card:hover { transform: translateY(-5px); }
+        .activity-card { border: 2px solid #f5576c; }
+        .stats-card { background: #f8f9fa; padding: 1rem; border-radius: 8px; margin: 0.5rem 0; }
+    </style>
+</head>
+<body>
+    <div class="task-header">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1><i class="fas fa-broom me-3"></i>Task 3: Handle Missing Values</h1>
+                    <p class="lead mb-0">Learn to identify, understand, and fix missing data</p>
+                </div>
+                <div class="text-end">
+                    <a href="/level/1" class="btn btn-light me-2">← Back to Level 1</a>
+                    <span class="badge bg-light text-dark me-2" style="font-size: 0.9rem;">
+                        <i class="fas fa-clock me-1"></i>25 minutes
+                    </span>
+                    <a href="/level/1/task/3/document" target="_blank" class="btn btn-light btn-sm">
+                        <i class="fas fa-book me-2"></i>Document
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container py-4">
+        <!-- Dataset Selection -->
+        <div class="card mb-4">
+            <div class="card-header bg-secondary text-white">
+                <h4><i class="fas fa-database me-2"></i>Select Your Dataset</h4>
+            </div>
+            <div class="card-body">
+                <p>Choose a dataset to work with for this task:</p>
+                
+                <!-- Upload Your Own Dataset -->
+                <div class="mb-3">
+                    <label class="form-label"><i class="fas fa-upload me-2"></i>Upload Your Own Dataset</label>
+                    <div class="input-group">
+                        <input type="file" class="form-control" id="csvFileInput" accept=".csv" onchange="handleFileUpload(event)">
+                        <button class="btn btn-primary" onclick="document.getElementById('csvFileInput').click()">
+                            <i class="fas fa-folder-open me-2"></i>Browse CSV Files
+                        </button>
+                    </div>
+                    <small class="text-muted">Upload a CSV file to practice with your own data</small>
+                </div>
+                
+                <hr class="my-4">
+                
+                <p class="mb-2">Or choose from sample datasets:</p>
+                <div class="btn-group" role="group">
+                    <button type="button" class="btn btn-outline-primary" onclick="loadSample('student_marks')">
+                        <i class="fas fa-file-csv me-2"></i>Student Marks
+                    </button>
+                    <button type="button" class="btn btn-outline-primary" onclick="loadSample('weather_week')">
+                        <i class="fas fa-file-csv me-2"></i>Weather Data
+                    </button>
+                    <button type="button" class="btn btn-outline-primary" onclick="loadSample('sales_small')">
+                        <i class="fas fa-file-csv me-2"></i>Sales Data
+                    </button>
+                    <button type="button" class="btn btn-outline-primary" onclick="loadSample('survey_small')">
+                        <i class="fas fa-file-csv me-2"></i>Survey Data
+                    </button>
+                </div>
+                <div id="datasetStatus" class="mt-3"></div>
+            </div>
+        </div>
+
+        <!-- Learning Objective -->
+        <div class="learning-objective mb-4">
+            <h4><i class="fas fa-bullseye me-2"></i>Learning Objective</h4>
+            <p class="mb-0">You'll learn to <strong>identify missing values</strong> in your data and choose the <strong>best strategy</strong> to handle them — filling with mean, median, mode, or dropping rows — depending on your data type and goals.</p>
+        </div>
+
+        <!-- Missing Value Strategies Overview -->
+        <div class="card mb-4" id="strategiesCard" style="display: none;">
+            <div class="card-header bg-info text-white">
+                <h4><i class="fas fa-graduation-cap me-2"></i>Understanding Missing Value Strategies</h4>
+            </div>
+            <div class="card-body">
+                <p>Click on each strategy to learn when and how to use it:</p>
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <div class="card strategy-card h-100" onclick="showStrategy('mean')">
+                            <div class="card-body text-center">
+                                <i class="fas fa-calculator fa-3x text-primary mb-3"></i>
+                                <h6>Fill with Mean</h6>
+                                <p class="small">For numeric data, use the average</p>
+                                <button class="btn btn-sm btn-primary">Learn More</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card strategy-card h-100" onclick="showStrategy('median')">
+                            <div class="card-body text-center">
+                                <i class="fas fa-sort fa-3x text-success mb-3"></i>
+                                <h6>Fill with Median</h6>
+                                <p class="small">For numeric data with outliers</p>
+                                <button class="btn btn-sm btn-success">Learn More</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card strategy-card h-100" onclick="showStrategy('mode')">
+                            <div class="card-body text-center">
+                                <i class="fas fa-bars fa-3x text-warning mb-3"></i>
+                                <h6>Fill with Mode</h6>
+                                <p class="small">For categorical data</p>
+                                <button class="btn btn-sm btn-warning">Learn More</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card strategy-card h-100" onclick="showStrategy('drop')">
+                            <div class="card-body text-center">
+                                <i class="fas fa-trash fa-3x text-danger mb-3"></i>
+                                <h6>Drop Rows</h6>
+                                <p class="small">Remove rows with missing values</p>
+                                <button class="btn btn-sm btn-danger">Learn More</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card strategy-card h-100" onclick="showStrategy('forward')">
+                            <div class="card-body text-center">
+                                <i class="fas fa-arrow-down fa-3x text-info mb-3"></i>
+                                <h6>Forward Fill</h6>
+                                <p class="small">Use previous value</p>
+                                <button class="btn btn-sm btn-info">Learn More</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card strategy-card h-100" onclick="showStrategy('backward')">
+                            <div class="card-body text-center">
+                                <i class="fas fa-arrow-up fa-3x text-secondary mb-3"></i>
+                                <h6>Backward Fill</h6>
+                                <p class="small">Use next value</p>
+                                <button class="btn btn-sm btn-secondary">Learn More</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="strategyExplanation" class="mt-4"></div>
+            </div>
+        </div>
+
+        <!-- Interactive Activities -->
+        <div class="card mb-4" id="activitiesCard" style="display: none;">
+            <div class="card-header bg-primary text-white">
+                <h4><i class="fas fa-tasks me-2"></i>Interactive Activities</h4>
+            </div>
+            <div class="card-body">
+                <p>Practice handling missing values with these activities:</p>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="card activity-card h-100">
+                            <div class="card-body">
+                                <h5><i class="fas fa-search me-2"></i>Find Missing Values</h5>
+                                <p>Discover which columns have missing data in your dataset</p>
+                                <button class="btn btn-primary" onclick="findMissingValues()">
+                                    <i class="fas fa-play me-2"></i>Start Activity
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card activity-card h-100">
+                            <div class="card-body">
+                                <h5><i class="fas fa-fill-drip me-2"></i>Choose Fill Strategy</h5>
+                                <p>Select the best strategy for each column with missing values</p>
+                                <button class="btn btn-success" onclick="chooseFillStrategy()">
+                                    <i class="fas fa-play me-2"></i>Start Activity
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card activity-card h-100">
+                            <div class="card-body">
+                                <h5><i class="fas fa-check-circle me-2"></i>Apply & Compare</h5>
+                                <p>Apply cleaning and see the before/after comparison</p>
+                                <button class="btn btn-warning" onclick="applyCleaning()">
+                                    <i class="fas fa-play me-2"></i>Start Activity
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card activity-card h-100">
+                            <div class="card-body">
+                                <h5><i class="fas fa-chart-line me-2"></i>Impact Analysis</h5>
+                                <p>See how cleaning affects your statistics</p>
+                                <button class="btn btn-info" onclick="analyzeImpact()">
+                                    <i class="fas fa-play me-2"></i>Start Activity
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="activityResult" class="mt-4"></div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-body text-center">
+                <a href="/level/1/task/2" class="btn btn-outline-secondary">← Previous Task</a>
+                <a href="/level/1" class="btn btn-outline-secondary">Back to Level 1</a>
+                <a href="/level/1/task/4" class="btn btn-primary">Next Task →</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let currentProjectId = localStorage.getItem('currentProjectId');
+        let datasetInfo = null;
+
+        async function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            if (!file.name.endsWith('.csv')) {
+                alert('Please upload a CSV file');
+                return;
+            }
+
+            document.getElementById('datasetStatus').innerHTML = 
+                '<div class="alert alert-info">📤 Uploading your dataset... <i class="fas fa-spinner fa-spin"></i></div>';
+
+            try {
+                const formData = new FormData();
+                formData.append('file', file);
+
+                const response = await fetch('/level/1/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(errorText || 'Upload failed');
+                }
+
+                const data = await response.json();
+                
+                if (data.project_id) {
+                    currentProjectId = data.project_id;
+                    localStorage.setItem('currentProjectId', currentProjectId);
+                    
+                    document.getElementById('datasetStatus').innerHTML = 
+                        `<div class="alert alert-success">
+                            <i class="fas fa-check-circle me-2"></i>Dataset uploaded successfully!
+                            <br>Project ID: ${currentProjectId}
+                            <br>File: ${file.name}
+                        </div>`;
+                    
+                    document.getElementById('strategiesCard').style.display = 'block';
+                    document.getElementById('activitiesCard').style.display = 'block';
+                    
+                    // Load dataset info
+                    try {
+                        const previewResponse = await fetch(`/projects/${currentProjectId}/dataset/preview`);
+                        datasetInfo = await previewResponse.json();
+                    } catch (previewError) {
+                        console.error('Error loading preview:', previewError);
+                    }
+                } else {
+                    throw new Error('Failed to upload dataset: No project ID returned');
+                }
+            } catch (error) {
+                console.error('Upload error:', error);
+                document.getElementById('datasetStatus').innerHTML = 
+                    '<div class="alert alert-danger">❌ Error uploading file: ' + error.message + '</div>';
+            }
+        }
+
+        async function loadSample(filename) {
+            try {
+                const response = await fetch(`/level/1/load-sample/${filename}`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'}
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to load sample');
+                }
+                
+                const data = await response.json();
+                currentProjectId = data.project_id;
+                localStorage.setItem('currentProjectId', currentProjectId);
+                
+                document.getElementById('datasetStatus').innerHTML = 
+                    `<div class="alert alert-success">
+                        <i class="fas fa-check-circle me-2"></i>Dataset loaded successfully! Project ID: ${currentProjectId}
+                    </div>`;
+                
+                document.getElementById('strategiesCard').style.display = 'block';
+                document.getElementById('activitiesCard').style.display = 'block';
+                
+                // Load dataset info
+                const previewResponse = await fetch(`/projects/${currentProjectId}/dataset/preview`);
+                datasetInfo = await previewResponse.json();
+            } catch (error) {
+                alert('Error loading sample: ' + error);
+            }
+        }
+
+        function showStrategy(strategy) {
+            if (!datasetInfo) {
+                alert('Please load a dataset first!');
+                return;
+            }
+
+            const explanations = {
+                'mean': {
+                    title: 'Fill with Mean (Average)',
+                    description: 'Replace missing values with the mean (average) of the column.',
+                    when: 'Best for: Numeric data with no extreme outliers',
+                    example: 'If student marks are 85, 90, ?, 88, 92 → Fill with mean = 88.75',
+                    datasetExample: 'Use this when your data is normally distributed'
+                },
+                'median': {
+                    title: 'Fill with Median (Middle Value)',
+                    description: 'Replace missing values with the median (middle value) of the column.',
+                    when: 'Best for: Numeric data with outliers or skewed distributions',
+                    example: 'If exam scores are 95, 98, ?, 30, 25 → Use median to avoid impact of outliers',
+                    datasetExample: 'Better for your data when you have extreme values'
+                },
+                'mode': {
+                    title: 'Fill with Mode (Most Frequent)',
+                    description: 'Replace missing values with the most common value.',
+                    when: 'Best for: Categorical data or when you want the most typical value',
+                    example: 'If favorite colors are "red", "blue", ?, "red", "red" → Fill with "red"',
+                    datasetExample: 'Use for text categories like grades, colors, or types'
+                },
+                'drop': {
+                    title: 'Drop Rows with Missing Values',
+                    description: 'Remove entire rows that contain any missing values.',
+                    when: 'Best for: When missing data is small (< 5% of dataset)',
+                    example: 'If only 3% of rows have missing values, drop them',
+                    datasetExample: 'Use this only if you have plenty of data left after dropping'
+                },
+                'forward': {
+                    title: 'Forward Fill (Use Previous Value)',
+                    description: 'Fill missing value with the value from the previous row.',
+                    when: 'Best for: Time series or ordered data',
+                    example: 'Day 1: 20°C, Day 2: ?, Day 3: 22°C → Use Day 1 value (20°C)',
+                    datasetExample: 'Good for daily data where today is likely similar to yesterday'
+                },
+                'backward': {
+                    title: 'Backward Fill (Use Next Value)',
+                    description: 'Fill missing value with the value from the next row.',
+                    when: 'Best for: Time series when forward fill makes sense',
+                    example: 'Day 1: ?, Day 2: 20°C, Day 3: 22°C → Use Day 2 value (20°C)',
+                    datasetExample: 'Good when you have more recent data to work from'
+                }
+            };
+
+            const exp = explanations[strategy];
+            const html = `
+                <div class="card border-primary">
+                    <div class="card-header bg-primary text-white">
+                        <h5>${exp.title}</h5>
+                    </div>
+                    <div class="card-body">
+                        <p><strong>Description:</strong> ${exp.description}</p>
+                        <p><strong>When to use:</strong> ${exp.when}</p>
+                        <p><strong>Example:</strong> ${exp.example}</p>
+                        <div class="alert alert-info mt-3">
+                            <i class="fas fa-lightbulb me-2"></i>
+                            <strong>For your dataset:</strong> ${exp.datasetExample}
+                        </div>
+                        <div class="alert alert-warning mt-2">
+                            <i class="fas fa-hand-pointer me-2"></i>
+                            <strong>Try it:</strong> Use the activities below to apply this strategy to your data!
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('strategyExplanation').innerHTML = html;
+        }
+
+        async function findMissingValues() {
+            if (!currentProjectId) {
+                alert('Please load a dataset first!');
+                return;
+            }
+
+            document.getElementById('activityResult').innerHTML = 
+                '<div class="alert alert-info">🔍 Scanning dataset for missing values... <i class="fas fa-spinner fa-spin"></i></div>';
+
+            try {
+                const response = await fetch(`/projects/${currentProjectId}/dataset/preview`);
+                const data = await response.json();
+                
+                // Read the CSV to get actual missing counts
+                const csvResponse = await fetch(`/artifacts/projects/${currentProjectId}/dataset/original.csv`);
+                const csvText = await csvResponse.text();
+                const lines = csvText.split('\n').filter(l => l.trim());
+                const headers = lines[0].split(',');
+                const totalRows = lines.length - 1; // Exclude header
+                
+                // Calculate missing counts
+                const missingCounts = {};
+                const rowData = [];
+                for (let i = 1; i < lines.length; i++) {
+                    const values = lines[i].split(',');
+                    headers.forEach((header, idx) => {
+                        if (!missingCounts[header]) missingCounts[header] = 0;
+                        if (!values[idx] || values[idx].trim() === '' || values[idx] === 'NaN' || values[idx] === 'null') {
+                            missingCounts[header]++;
+                        }
+                    });
+                }
+                
+                let html = '<h6>🔍 Missing Values Report</h6>';
+                html += '<p class="alert alert-info"><i class="fas fa-info-circle me-2"></i>Scanning YOUR dataset for missing values...</p>';
+                html += '<div class="table-responsive"><table class="table table-striped">';
+                html += '<thead class="table-dark"><tr><th>Column</th><th>Missing Count</th><th>Percentage</th><th>Status</th></tr></thead><tbody>';
+                
+                let columnsWithMissing = 0;
+                
+                data.columns.forEach((col, idx) => {
+                    const missingCount = missingCounts[col] || 0;
+                    const percentage = totalRows > 0 ? ((missingCount / totalRows) * 100).toFixed(2) : 0;
+                    const hasMissing = missingCount > 0;
+                    
+                    if (hasMissing) columnsWithMissing++;
+                    
+                    html += '<tr>';
+                    html += `<td><strong>${col}</strong></td>`;
+                    html += `<td>${missingCount}</td>`;
+                    html += `<td>${percentage}%</td>`;
+                    html += `<td><span class="badge bg-${hasMissing ? 'danger' : 'success'}">${hasMissing ? 'Has Missing' : 'Complete'}</span></td>`;
+                    html += '</tr>';
+                });
+                
+                html += '</tbody></table></div>';
+                
+                // Add summary
+                html += '<div class="alert alert-';
+                if (columnsWithMissing === 0) {
+                    html += 'success';
+                    html += '"><h6>✅ No Missing Values Found!</h6>';
+                    html += '<p>Your dataset is complete - all columns have data for every row.</p>';
+                } else {
+                    html += 'warning';
+                    html += '"><h6>⚠️ Summary</h6>';
+                    html += `<p><strong>${columnsWithMissing} out of ${data.columns.length}</strong> columns have missing values.</p>`;
+                    html += '<p><i class="fas fa-info-circle me-2"></i>Use the activities below to choose and apply the best filling strategy for each column.</p>';
+                }
+                html += '</div>';
+                
+                document.getElementById('activityResult').innerHTML = html;
+            } catch (error) {
+                console.error('Error finding missing values:', error);
+                document.getElementById('activityResult').innerHTML = 
+                    '<div class="alert alert-danger">Error analyzing dataset: ' + error.message + '</div>';
+            }
+        }
+
+        async function chooseFillStrategy() {
+            if (!currentProjectId) {
+                alert('Please load a dataset first!');
+                return;
+            }
+
+            document.getElementById('activityResult').innerHTML = 
+                '<div class="alert alert-info">🎯 Analyzing columns... <i class="fas fa-spinner fa-spin"></i></div>';
+
+            try {
+                const response = await fetch(`/projects/${currentProjectId}/dataset/preview`);
+                const data = await response.json();
+                const columnsResponse = await fetch(`/projects/${currentProjectId}/columns`);
+                const columnsData = await columnsResponse.json();
+                
+                // Read CSV to get missing counts
+                const csvResponse = await fetch(`/artifacts/projects/${currentProjectId}/dataset/original.csv`);
+                const csvText = await csvResponse.text();
+                const lines = csvText.split('\n').filter(l => l.trim());
+                const headers = lines[0].split(',');
+                const totalRows = lines.length - 1;
+                
+                // Calculate missing counts
+                const missingCounts = {};
+                for (let i = 1; i < lines.length; i++) {
+                    const values = lines[i].split(',');
+                    headers.forEach((header, idx) => {
+                        if (!missingCounts[header]) missingCounts[header] = 0;
+                        if (!values[idx] || values[idx].trim() === '' || values[idx] === 'NaN' || values[idx] === 'null') {
+                            missingCounts[header]++;
+                        }
+                    });
+                }
+                
+                // Find columns with missing values
+                const colsWithMissing = data.columns.filter(col => (missingCounts[col] || 0) > 0);
+                
+                if (colsWithMissing.length === 0) {
+                    document.getElementById('activityResult').innerHTML = 
+                        '<div class="alert alert-success">✅ No columns with missing values found! Your data is clean.</div>';
+                    return;
+                }
+                
+                let html = '<h6>🎯 Choose Fill Strategy for Each Column</h6>';
+                html += '<p class="alert alert-info"><i class="fas fa-info-circle me-2"></i>Select the best strategy for each column with missing values:</p>';
+                html += '<div class="table-responsive"><table class="table table-bordered">';
+                html += '<thead class="table-dark"><tr><th>Column</th><th>Type</th><th>Missing</th><th>Recommended</th><th>Your Choice</th></tr></thead><tbody>';
+                
+                colsWithMissing.forEach(col => {
+                    const isNumeric = columnsData.numeric_columns.includes(col);
+                    const isCategorical = columnsData.categorical_columns.includes(col);
+                    const missingCount = missingCounts[col] || 0;
+                    
+                    // Determine recommended strategy
+                    let recommended = '';
+                    if (isNumeric) {
+                        recommended = '<span class="badge bg-success">Median (robust to outliers)</span>';
+                    } else if (isCategorical) {
+                        recommended = '<span class="badge bg-warning">Mode (most common)</span>';
+                    } else {
+                        recommended = '<span class="badge bg-info">Check data type</span>';
+                    }
+                    
+                    html += '<tr>';
+                    html += `<td><strong>${col}</strong></td>`;
+                    html += `<td><span class="badge bg-${isNumeric ? 'primary' : 'info'}">${isNumeric ? 'Numeric' : 'Categorical'}</span></td>`;
+                    html += `<td>${missingCount}</td>`;
+                    html += `<td>${recommended}</td>`;
+                    html += `<td>`;
+                    html += `<select class="form-select form-select-sm" onchange="selectStrategy('${col}', this.value)">`;
+                    html += `<option value="">Choose...</option>`;
+                    html += `<option value="mean">Mean</option>`;
+                    html += `<option value="median">Median</option>`;
+                    html += `<option value="mode">Mode</option>`;
+                    html += `<option value="drop">Drop Rows</option>`;
+                    html += `</select>`;
+                    html += `</td>`;
+                    html += '</tr>';
+                });
+                
+                html += '</tbody></table></div>';
+                html += '<div id="strategyChoices" class="mt-3"></div>';
+                
+                document.getElementById('activityResult').innerHTML = html;
+            } catch (error) {
+                console.error('Error choosing fill strategy:', error);
+                document.getElementById('activityResult').innerHTML = 
+                    '<div class="alert alert-danger">Error analyzing columns: ' + error.message + '</div>';
+            }
+        }
+
+        function selectStrategy(column, strategy) {
+            let choicesDiv = document.getElementById('strategyChoices');
+            if (!choicesDiv) {
+                const resultDiv = document.getElementById('activityResult');
+                choicesDiv = document.createElement('div');
+                choicesDiv.id = 'strategyChoices';
+                choicesDiv.className = 'mt-3';
+                resultDiv.insertAdjacentElement('beforeend', choicesDiv);
+            }
+            
+            choicesDiv.innerHTML += `
+                <div class="alert alert-info">
+                    <i class="fas fa-check me-2"></i>
+                    <strong>${column}</strong>: Will use <strong>${strategy}</strong> strategy
+                </div>
+            `;
+        }
+
+        async function applyCleaning() {
+            if (!currentProjectId) {
+                alert('Please load a dataset first!');
+                return;
+            }
+
+            alert('This feature will allow you to apply cleaning strategies to your data. It will open in the next step.');
+        }
+
+        async function analyzeImpact() {
+            if (!currentProjectId) {
+                alert('Please load a dataset first!');
+                return;
+            }
+
+            alert('This feature will show you how cleaning affects your statistics.');
+        }
+
+        // Load dataset if available
+        if (currentProjectId) {
+            fetch(`/projects/${currentProjectId}/dataset/preview`)
+            .then(r => r.json())
+            .then(data => {
+                datasetInfo = data;
+                document.getElementById('strategiesCard').style.display = 'block';
+                document.getElementById('activitiesCard').style.display = 'block';
+                document.getElementById('datasetStatus').innerHTML = 
+                    `<div class="alert alert-success">Dataset already loaded!</div>`;
+            });
+        }
+    </script>
+</body>
+</html>

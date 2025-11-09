@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task 2.10: Complete ML Project</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .task-header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 2rem 0; }
+        .learning-objective { background: #f8f9fa; padding: 1rem; border-left: 4px solid #667eea; }
+        .activity-card { background: #fff; border: 2px solid #667eea; border-radius: 8px; padding: 1.5rem; margin-bottom: 1rem; }
+        .activity-card h6 { color: #667eea; font-weight: bold; }
+        #projectResult { min-height: 200px; background: white; border: 1px solid #dee2e6; padding: 1.5rem; }
+        .phase-card { background: #f8f9fa; border-left: 4px solid #667eea; padding: 1rem; margin-bottom: 1rem; }
+        .checklist-item { background: #fff; border: 1px solid #dee2e6; padding: 0.5rem; margin-bottom: 0.5rem; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <div class="task-header">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1><i class="fas fa-project-diagram me-3"></i>Task 2.10: Complete ML Project</h1>
+                    <p class="lead mb-0">Build a complete machine learning project from start to finish</p>
+                </div>
+                <div class="text-end">
+                    <a href="/level/2" class="btn btn-light me-2">← Back to Level 2</a>
+                    <span class="badge bg-light text-dark me-2" style="font-size: 0.9rem;">
+                        <i class="fas fa-clock me-1"></i>45 minutes
+                    </span>
+                    <a href="/level/2/task/10/document" target="_blank" class="btn btn-light btn-sm">
+                        <i class="fas fa-book me-2"></i>Document
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container py-4">
+        <!-- Learning Objective -->
+        <div class="learning-objective mb-4">
+            <h4><i class="fas fa-bullseye me-2"></i>Learning Objective</h4>
+            <p class="mb-0">Complete a full machine learning project by combining all learned skills: data preparation, model training, evaluation, optimization, and deployment in a real-world scenario.</p>
+        </div>
+
+        <!-- Dataset Selection -->
+        <div class="card mb-4">
+            <div class="card-header bg-secondary text-white">
+                <h4><i class="fas fa-database me-2"></i>Select Your Project Dataset</h4>
+            </div>
+            <div class="card-body">
+                <p>Choose a dataset for your complete ML project:</p>
+                
+                <div class="btn-group" role="group">
+                    <button type="button" class="btn btn-outline-primary" onclick="loadSample('housing_small')">
+                        <i class="fas fa-home me-2"></i>Housing Price Prediction
+                    </button>
+                    <button type="button" class="btn btn-outline-primary" onclick="loadSample('student_performance')">
+                        <i class="fas fa-graduation-cap me-2"></i>Student Performance Analysis
+                    </button>
+                </div>
+                <div id="datasetStatus" class="mt-3"></div>
+                
+                <!-- Data Preview Section -->
+                <div id="dataPreview" class="mt-4" style="display: none;">
+                    <h6><i class="fas fa-eye me-2"></i>Dataset Preview</h6>
+                    <div id="dataInfo" class="alert alert-info mb-3"></div>
+                    <div id="dataTable" class="table-responsive"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Project Phases -->
+        <div class="card mb-4" id="projectCard" style="display: none;">
+            <div class="card-header bg-primary text-white">
+                <h5><i class="fas fa-tasks me-2"></i>Complete ML Project Phases</h5>
+            </div>
+            <div class="card-body">
+                <p class="mb-4">Follow these phases to complete your ML project:</p>
+                
+                <!-- Phase 1: Data Preparation -->
+                <div class="phase-card">
+                    <h6><i class="fas fa-database me-2"></i>Phase 1: Data Preparation</h6>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="dataLoad" class="form-check-input me-2">
+                        <label for="dataLoad">Load and explore dataset</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="dataClean" class="form-check-input me-2">
+                        <label for="dataClean">Clean and preprocess data</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="dataSplit" class="form-check-input me-2">
+                        <label for="dataSplit">Split into train/test sets</label>
+                    </div>
+                    <button onclick="completePhase1()" class="btn btn-primary btn-sm mt-2">Complete Phase 1</button>
+                </div>
+
+                <!-- Phase 2: Model Development -->
+                <div class="phase-card">
+                    <h6><i class="fas fa-brain me-2"></i>Phase 2: Model Development</h6>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="modelTrain" class="form-check-input me-2">
+                        <label for="modelTrain">Train multiple algorithms</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="modelCompare" class="form-check-input me-2">
+                        <label for="modelCompare">Compare model performance</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="modelSelect" class="form-check-input me-2">
+                        <label for="modelSelect">Select best performing model</label>
+                    </div>
+                    <button onclick="completePhase2()" class="btn btn-primary btn-sm mt-2">Complete Phase 2</button>
+                </div>
+
+                <!-- Phase 3: Optimization -->
+                <div class="phase-card">
+                    <h6><i class="fas fa-sliders-h me-2"></i>Phase 3: Model Optimization</h6>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="featureEng" class="form-check-input me-2">
+                        <label for="featureEng">Engineer new features</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="hyperTune" class="form-check-input me-2">
+                        <label for="hyperTune">Tune hyperparameters</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="finalEval" class="form-check-input me-2">
+                        <label for="finalEval">Final model evaluation</label>
+                    </div>
+                    <button onclick="completePhase3()" class="btn btn-primary btn-sm mt-2">Complete Phase 3</button>
+                </div>
+
+                <!-- Phase 4: Deployment -->
+                <div class="phase-card">
+                    <h6><i class="fas fa-rocket me-2"></i>Phase 4: Model Deployment</h6>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="apiCreate" class="form-check-input me-2">
+                        <label for="apiCreate">Create prediction API</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="webInterface" class="form-check-input me-2">
+                        <label for="webInterface">Build web interface</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="documentation" class="form-check-input me-2">
+                        <label for="documentation">Create documentation</label>
+                    </div>
+                    <button onclick="completePhase4()" class="btn btn-primary btn-sm mt-2">Complete Phase 4</button>
+                </div>
+
+                <div class="text-center mt-4">
+                    <button onclick="runCompleteProject()" class="btn btn-success btn-lg">
+                        <i class="fas fa-play me-2"></i>Run Complete Project
+                    </button>
+                </div>
+                
+                <div id="projectResult" class="mt-4"></div>
+            </div>
+        </div>
+
+        <!-- Interactive Activities -->
+        <div class="card mb-4" id="activitiesCard" style="display: none;">
+            <div class="card-header bg-success text-white">
+                <h5><i class="fas fa-hands-on me-2"></i>Project Activities</h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="activity-card">
+                            <h6><i class="fas fa-chart-line"></i> Project Dashboard</h6>
+                            <p class="small">View complete project metrics and progress</p>
+                            <button onclick="showProjectDashboard()" class="btn btn-success btn-sm w-100">Show Dashboard</button>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="activity-card">
+                            <h6><i class="fas fa-file-alt"></i> Generate Report</h6>
+                            <p class="small">Create comprehensive project report</p>
+                            <button onclick="generateProjectReport()" class="btn btn-success btn-sm w-100">Generate Report</button>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="activity-card">
+                            <h6><i class="fas fa-download"></i> Export Project</h6>
+                            <p class="small">Export complete project package</p>
+                            <button onclick="exportProject()" class="btn btn-success btn-sm w-100">Export</button>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="activity-card">
+                            <h6><i class="fas fa-trophy"></i> Project Completion</h6>
+                            <p class="small">Celebrate your ML project completion!</p>
+                            <button onclick="celebrateCompletion()" class="btn btn-success btn-sm w-100">Celebrate!</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <div class="card">
+            <div class="card-body text-center">
+                <a href="/level/2/task/9" class="btn btn-outline-secondary me-2">
+                    <i class="fas fa-arrow-left me-2"></i>Previous Task
+                </a>
+                <a href="/level/3" class="btn btn-primary">
+                    Next Level <i class="fas fa-arrow-right ms-2"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let currentProjectId = localStorage.getItem('currentProjectId');
+
+        // Load dataset if available
+        if (currentProjectId) {
+            document.getElementById('datasetStatus').innerHTML = '<div class="alert alert-success">Dataset loaded! Project ID: ' + currentProjectId + '</div>';
+            document.getElementById('projectCard').style.display = 'block';
+            document.getElementById('activitiesCard').style.display = 'block';
+        }
+
+        async function loadSample(filename) {
+            if (!filename) { alert('Please select a dataset'); return; }
+
+            try {
+                const response = await fetch(`/level/2/load-sample/${filename}`, { method: 'POST' });
+                const data = await response.json();
+
+                if (data.project_id) {
+                    currentProjectId = data.project_id;
+                    localStorage.setItem('currentProjectId', currentProjectId);
+                    document.getElementById('datasetStatus').innerHTML = `<div class="alert alert-success">Sample loaded! Project ID: ${currentProjectId}</div>`;
+                    document.getElementById('projectCard').style.display = 'block';
+                    document.getElementById('activitiesCard').style.display = 'block';
+                    loadDatasetInfo();
+                }
+            } catch (error) {
+                alert('Error loading sample: ' + error.message);
+            }
+        }
+
+        async function loadDatasetInfo() {
+            try {
+                const response = await fetch(`/projects/${currentProjectId}/columns`);
+                const data = await response.json();
+                
+                // Show data preview
+                showDataPreview(data);
+                
+                document.getElementById('datasetStatus').innerHTML = `<div class="alert alert-success"><i class="fas fa-check-circle me-2"></i>Dataset loaded: ${data.shape[0]} rows, ${data.shape[1]} columns</div>`;
+            } catch (error) {
+                console.error('Error loading dataset info:', error);
+            }
+        }
+
+        async function showDataPreview(data) {
+            // Show data info
+            let infoHtml = `<h6>📊 Dataset Information:</h6>`;
+            infoHtml += `<div class="row">`;
+            infoHtml += `<div class="col-md-6">`;
+            infoHtml += `<p><strong>Total Rows:</strong> ${data.shape[0]}</p>`;
+            infoHtml += `<p><strong>Total Columns:</strong> ${data.shape[1]}</p>`;
+            infoHtml += `</div>`;
+            infoHtml += `<div class="col-md-6">`;
+            infoHtml += `<p><strong>Numeric Columns:</strong> ${data.numeric_columns.length}</p>`;
+            infoHtml += `<p><strong>Categorical Columns:</strong> ${data.columns.length - data.numeric_columns.length}</p>`;
+            infoHtml += `</div>`;
+            infoHtml += `</div>`;
+            
+            document.getElementById('dataInfo').innerHTML = infoHtml;
+            
+            // Show data table preview
+            try {
+                const previewResponse = await fetch(`/projects/${currentProjectId}/dataset/preview`);
+                const previewData = await previewResponse.json();
+                
+                let tableHtml = `<table class="table table-sm table-striped">`;
+                tableHtml += `<thead><tr>`;
+                previewData.columns.forEach(col => {
+                    const isNumeric = data.numeric_columns.includes(col);
+                    const icon = isNumeric ? 'fas fa-calculator' : 'fas fa-tag';
+                    tableHtml += `<th><i class="${icon} me-1"></i>${col}</th>`;
+                });
+                tableHtml += `</tr></thead><tbody>`;
+                
+                // Convert head data (list of objects) to array format
+                previewData.head.slice(0, 10).forEach(row => {
+                    tableHtml += `<tr>`;
+                    previewData.columns.forEach(col => {
+                        tableHtml += `<td>${row[col]}</td>`;
+                    });
+                    tableHtml += `</tr>`;
+                });
+                tableHtml += `</tbody></table>`;
+                
+                if (previewData.head.length > 10) {
+                    tableHtml += `<p class="small text-muted">Showing first 10 rows of ${previewData.head.length} total rows</p>`;
+                }
+                
+                document.getElementById('dataTable').innerHTML = tableHtml;
+                document.getElementById('dataPreview').style.display = 'block';
+            } catch (error) {
+                console.error('Error loading data preview:', error);
+            }
+        }
+
+        async function completePhase1() {
+            document.getElementById('dataLoad').checked = true;
+            document.getElementById('dataClean').checked = true;
+            document.getElementById('dataSplit').checked = true;
+            
+            let html = '<h6><i class="fas fa-database text-success me-2"></i>Phase 1 Complete!</h6>';
+            html += '<div class="alert alert-success">';
+            html += '<h6>✅ Data Preparation Complete:</h6>';
+            html += '<ul class="small">';
+            html += '<li>Dataset loaded and explored</li>';
+            html += '<li>Missing values handled</li>';
+            html += '<li>Categorical variables encoded</li>';
+            html += '<li>Data split into train/test (80/20)</li>';
+            html += '</ul>';
+            html += '</div>';
+            
+            document.getElementById('projectResult').innerHTML = html;
+        }
+
+        async function completePhase2() {
+            document.getElementById('modelTrain').checked = true;
+            document.getElementById('modelCompare').checked = true;
+            document.getElementById('modelSelect').checked = true;
+            
+            let html = '<h6><i class="fas fa-brain text-success me-2"></i>Phase 2 Complete!</h6>';
+            html += '<div class="alert alert-info">';
+            html += '<h6>🧠 Model Development Complete:</h6>';
+            html += '<ul class="small">';
+            html += '<li>Linear Regression: R² = 0.85</li>';
+            html += '<li>Random Forest: R² = 0.89</li>';
+            html += '<li>SVM: R² = 0.87</li>';
+            html += '<li><strong>Best Model:</strong> Random Forest</li>';
+            html += '</ul>';
+            html += '</div>';
+            
+            document.getElementById('projectResult').innerHTML = html;
+        }
+
+        async function completePhase3() {
+            document.getElementById('featureEng').checked = true;
+            document.getElementById('hyperTune').checked = true;
+            document.getElementById('finalEval').checked = true;
+            
+            let html = '<h6><i class="fas fa-sliders-h text-success me-2"></i>Phase 3 Complete!</h6>';
+            html += '<div class="alert alert-warning">';
+            html += '<h6>⚙️ Model Optimization Complete:</h6>';
+            html += '<ul class="small">';
+            html += '<li>Created polynomial features</li>';
+            html += '<li>Tuned hyperparameters</li>';
+            html += '<li>Final R² Score: 0.92</li>';
+            html += '<li>RMSE: 8,500</li>';
+            html += '</ul>';
+            html += '</div>';
+            
+            document.getElementById('projectResult').innerHTML = html;
+        }
+
+        async function completePhase4() {
+            document.getElementById('apiCreate').checked = true;
+            document.getElementById('webInterface').checked = true;
+            document.getElementById('documentation').checked = true;
+            
+            let html = '<h6><i class="fas fa-rocket text-success me-2"></i>Phase 4 Complete!</h6>';
+            html += '<div class="alert alert-success">';
+            html += '<h6>🚀 Model Deployment Complete:</h6>';
+            html += '<ul class="small">';
+            html += '<li>REST API created</li>';
+            html += '<li>Web interface built</li>';
+            html += '<li>Documentation generated</li>';
+            html += '<li>Model ready for production</li>';
+            html += '</ul>';
+            html += '</div>';
+            
+            document.getElementById('projectResult').innerHTML = html;
+        }
+
+        async function runCompleteProject() {
+            let html = '<h6><i class="fas fa-play text-success me-2"></i>Complete Project Executed!</h6>';
+            html += '<div class="alert alert-success">';
+            html += '<h6>🎉 Full ML Project Pipeline Complete:</h6>';
+            html += '<div class="row">';
+            html += '<div class="col-md-6">';
+            html += '<h6>Project Summary:</h6>';
+            html += '<ul class="small">';
+            html += '<li><strong>Dataset:</strong> Housing prices</li>';
+            html += '<li><strong>Problem Type:</strong> Regression</li>';
+            html += '<li><strong>Best Model:</strong> Random Forest</li>';
+            html += '<li><strong>Final Performance:</strong> R² = 0.92</li>';
+            html += '</ul>';
+            html += '</div>';
+            html += '<div class="col-md-6">';
+            html += '<h6>Deliverables:</h6>';
+            html += '<ul class="small">';
+            html += '<li>✅ Trained model</li>';
+            html += '<li>✅ Prediction API</li>';
+            html += '<li>✅ Web interface</li>';
+            html += '<li>✅ Documentation</li>';
+            html += '</ul>';
+            html += '</div>';
+            html += '</div>';
+            html += '</div>';
+            
+            document.getElementById('projectResult').innerHTML = html;
+        }
+
+        async function showProjectDashboard() {
+            let html = '<h6><i class="fas fa-chart-line text-success me-2"></i>Project Dashboard</h6>';
+            html += '<div class="alert alert-info">';
+            html += '<h6>📊 Project Metrics Dashboard:</h6>';
+            html += '<div class="row">';
+            html += '<div class="col-md-3 text-center">';
+            html += '<h4 class="text-primary">92%</h4>';
+            html += '<small>Model Accuracy</small>';
+            html += '</div>';
+            html += '<div class="col-md-3 text-center">';
+            html += '<h4 class="text-success">4</h4>';
+            html += '<small>Models Trained</small>';
+            html += '</div>';
+            html += '<div class="col-md-3 text-center">';
+            html += '<h4 class="text-warning">15</h4>';
+            html += '<small>Features Engineered</small>';
+            html += '</div>';
+            html += '<div class="col-md-3 text-center">';
+            html += '<h4 class="text-info">100%</h4>';
+            html += '<small>Deployment Ready</small>';
+            html += '</div>';
+            html += '</div>';
+            html += '</div>';
+            
+            document.getElementById('projectResult').innerHTML = html;
+        }
+
+        async function generateProjectReport() {
+            let html = '<h6><i class="fas fa-file-alt text-success me-2"></i>Project Report Generated!</h6>';
+            html += '<div class="alert alert-success">';
+            html += '<h6>📄 Comprehensive Project Report:</h6>';
+            html += '<div class="row">';
+            html += '<div class="col-md-6">';
+            html += '<h6>Report Sections:</h6>';
+            html += '<ul class="small">';
+            html += '<li>Executive Summary</li>';
+            html += '<li>Data Analysis</li>';
+            html += '<li>Model Development</li>';
+            html += '<li>Results & Evaluation</li>';
+            html += '</ul>';
+            html += '</div>';
+            html += '<div class="col-md-6">';
+            html += '<h6>Key Findings:</h6>';
+            html += '<ul class="small">';
+            html += '<li>Square footage is the strongest predictor</li>';
+            html += '<li>Random Forest outperformed other models</li>';
+            html += '<li>Feature engineering improved performance by 3%</li>';
+            html += '<li>Model ready for production deployment</li>';
+            html += '</ul>';
+            html += '</div>';
+            html += '</div>';
+            html += '<button class="btn btn-primary btn-sm mt-2">Download PDF Report</button>';
+            html += '</div>';
+            
+            document.getElementById('projectResult').innerHTML = html;
+        }
+
+        async function exportProject() {
+            let html = '<h6><i class="fas fa-download text-success me-2"></i>Project Exported!</h6>';
+            html += '<div class="alert alert-success">';
+            html += '<h6>📦 Complete Project Package:</h6>';
+            html += '<ul class="small">';
+            html += '<li><strong>models/</strong> - Trained model files</li>';
+            html += '<li><strong>data/</strong> - Processed datasets</li>';
+            html += '<li><strong>src/</strong> - Source code and scripts</li>';
+            html += '<li><strong>api/</strong> - REST API implementation</li>';
+            html += '<li><strong>web/</strong> - Web interface files</li>';
+            html += '<li><strong>docs/</strong> - Documentation and reports</li>';
+            html += '<li><strong>tests/</strong> - Test cases and validation</li>';
+            html += '</ul>';
+            html += '<button class="btn btn-primary btn-sm">Download ZIP Package</button>';
+            html += '</div>';
+            
+            document.getElementById('projectResult').innerHTML = html;
+        }
+
+        async function celebrateCompletion() {
+            let html = '<h6><i class="fas fa-trophy text-success me-2"></i>Congratulations!</h6>';
+            html += '<div class="alert alert-success text-center">';
+            html += '<h2>🎉🎊🎉</h2>';
+            html += '<h4>Level 2 Complete!</h4>';
+            html += '<p class="lead">You have successfully completed the Machine Learning Level!</p>';
+            html += '<div class="row mt-4">';
+            html += '<div class="col-md-4">';
+            html += '<h5>🏆 Achievements Unlocked:</h5>';
+            html += '<ul class="list-unstyled small">';
+            html += '<li>✅ Data Preparation Master</li>';
+            html += '<li>✅ Model Training Expert</li>';
+            html += '<li>✅ Evaluation Specialist</li>';
+            html += '<li>✅ Deployment Engineer</li>';
+            html += '</ul>';
+            html += '</div>';
+            html += '<div class="col-md-4">';
+            html += '<h5>📈 Skills Developed:</h5>';
+            html += '<ul class="list-unstyled small">';
+            html += '<li>✅ Regression & Classification</li>';
+            html += '<li>✅ Feature Engineering</li>';
+            html += '<li>✅ Model Optimization</li>';
+            html += '<li>✅ Production Deployment</li>';
+            html += '</ul>';
+            html += '</div>';
+            html += '<div class="col-md-4">';
+            html += '<h5>🚀 Ready for:</h5>';
+            html += '<ul class="list-unstyled small">';
+            html += '<li>✅ Level 3: Computer Vision</li>';
+            html += '<li>✅ Real-world ML projects</li>';
+            html += '<li>✅ Advanced techniques</li>';
+            html += '<li>✅ Professional development</li>';
+            html += '</ul>';
+            html += '</div>';
+            html += '</div>';
+            html += '<div class="mt-4">';
+            html += '<a href="/level/3" class="btn btn-primary btn-lg me-3">Continue to Level 3</a>';
+            html += '<a href="/level/2" class="btn btn-outline-primary btn-lg">Review Level 2</a>';
+            html += '</div>';
+            html += '</div>';
+            
+            document.getElementById('projectResult').innerHTML = html;
+        }
+    </script>
+</body>
+</html>

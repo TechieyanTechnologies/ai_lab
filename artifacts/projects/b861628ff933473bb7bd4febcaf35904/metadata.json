@@ -1,0 +1,17 @@
+{
+  "project_id": "b861628ff933473bb7bd4febcaf35904",
+  "title": "Data Analysis Project - student_marks",
+  "level": 1,
+  "created_at": "2025-10-27T10:07:06.205867",
+  "datasets": [
+    {
+      "filename": "original.csv",
+      "path": "dataset/original.csv",
+      "uploaded_at": "2025-10-27T10:07:06.206719",
+      "source": "sample_student_marks"
+    }
+  ],
+  "cleaned_versions": [],
+  "runs": [],
+  "reports": []
+}

@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task 10: Build Reports</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .task-header { background: linear-gradient(135deg, #FF6B35 0%, #F7931E 100%); color: white; padding: 2rem 0; }
+        .learning-objective { background: #f8f9fa; padding: 1rem; border-left: 4px solid #FF6B35; }
+        .section-card { border: 2px solid #FF6B35; border-radius: 8px; padding: 1.5rem; margin-bottom: 1rem; }
+        .section-card h6 { color: #FF6B35; font-weight: bold; }
+        #reportPreview { min-height: 400px; background: white; border: 1px solid #dee2e6; padding: 2rem; }
+        .report-section { margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 1px solid #e9ecef; }
+        .activity-card { background: #fff; border: 2px solid #FF6B35; border-radius: 8px; padding: 1.5rem; margin-bottom: 1rem; }
+        .activity-card h6 { color: #FF6B35; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="task-header">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1><i class="fas fa-file-pdf me-3"></i>Task 10: Build Reports</h1>
+                    <p class="lead mb-0">Compile multi-chart reports with visualizations and analysis</p>
+                </div>
+                <div class="text-end">
+                    <a href="/level/1" class="btn btn-light me-2">← Back to Level 1</a>
+                    <span class="badge bg-light text-dark me-2" style="font-size: 0.9rem;">
+                        <i class="fas fa-clock me-1"></i>30 minutes
+                    </span>
+                    <a href="/level/1/task/10/document" target="_blank" class="btn btn-light btn-sm">
+                        <i class="fas fa-book me-2"></i>Document
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container py-4">
+        <!-- Dataset Selection -->
+        <div class="card mb-4">
+            <div class="card-header bg-secondary text-white">
+                <h4><i class="fas fa-database me-2"></i>Select Your Dataset</h4>
+            </div>
+            <div class="card-body">
+                <p>Choose a dataset to work with for this task:</p>
+                
+                <!-- Upload Your Own Dataset -->
+                <div class="mb-3">
+                    <label class="form-label"><i class="fas fa-upload me-2"></i>Upload Your Own Dataset</label>
+                    <div class="input-group">
+                        <input type="file" class="form-control" id="csvFileInput" accept=".csv" onchange="handleFileUpload(event)">
+                        <button class="btn btn-primary" onclick="document.getElementById('csvFileInput').click()">
+                            <i class="fas fa-folder-open me-2"></i>Browse CSV Files
+                        </button>
+                    </div>
+                    <small class="text-muted">Upload a CSV file to build reports</small>
+                </div>
+                
+                <hr class="my-4">
+                
+                <p class="mb-2">Or choose from sample datasets:</p>
+                <div class="btn-group" role="group">
+                    <button type="button" class="btn btn-outline-primary" onclick="loadSample('student_marks')">
+                        <i class="fas fa-file-csv me-2"></i>Student Marks
+                    </button>
+                    <button type="button" class="btn btn-outline-primary" onclick="loadSample('weather_week')">
+                        <i class="fas fa-file-csv me-2"></i>Weather Data
+                    </button>
+                    <button type="button" class="btn btn-outline-primary" onclick="loadSample('sales_small')">
+                        <i class="fas fa-file-csv me-2"></i>Sales Data
+                    </button>
+                    <button type="button" class="btn btn-outline-primary" onclick="loadSample('survey_small')">
+                        <i class="fas fa-file-csv me-2"></i>Survey Data
+                    </button>
+                </div>
+                <div id="datasetStatus" class="mt-3"></div>
+            </div>
+        </div>
+
+        <!-- Learning Objective -->
+        <div class="learning-objective mb-4">
+            <h4><i class="fas fa-bullseye me-2"></i>Learning Objective</h4>
+            <p class="mb-0">Learn to compile professional reports by combining multiple visualizations, statistical summaries, and insights into a cohesive narrative that tells your data story.</p>
+        </div>
+
+        <!-- Report Builder -->
+        <div class="card mb-4" id="reportBuilderCard" style="display: none;">
+            <div class="card-header bg-primary text-white">
+                <h5><i class="fas fa-tools me-2"></i>Report Builder</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <h6 class="mb-3">Report Information:</h6>
+                        <input type="text" id="reportTitle" class="form-control mb-2" placeholder="Report Title">
+                        <textarea id="reportDescription" class="form-control mb-2" rows="3" placeholder="Report Description"></textarea>
+                        
+                        <h6 class="mt-3 mb-3">Add Charts:</h6>
+                        <button onclick="addBarChart()" class="btn btn-success btn-sm w-100 mb-2">📊 Add Bar Chart</button>
+                        <button onclick="addLineChart()" class="btn btn-success btn-sm w-100 mb-2">📈 Add Line Chart</button>
+                        <button onclick="addScatterPlot()" class="btn btn-success btn-sm w-100 mb-2">📉 Add Scatter Plot</button>
+                        <button onclick="addHistogram()" class="btn btn-success btn-sm w-100 mb-2">📊 Add Histogram</button>
+                        <button onclick="addBoxPlot()" class="btn btn-success btn-sm w-100 mb-2">📦 Add Box Plot</button>
+                        <button onclick="addPieChart()" class="btn btn-success btn-sm w-100 mb-2">🥧 Add Pie Chart</button>
+                        
+                        <hr class="my-3">
+                        
+                        <button onclick="generateReport()" class="btn btn-primary w-100 mb-2">
+                            <i class="fas fa-file-pdf me-2"></i>Generate Report
+                        </button>
+                        
+                        <button onclick="clearReport()" class="btn btn-outline-danger w-100">
+                            <i class="fas fa-trash me-2"></i>Clear All
+                        </button>
+                    </div>
+                    <div class="col-md-8">
+                        <h6 class="mb-3">Report Preview:</h6>
+                        <div id="reportPreview" class="shadow-sm">
+                            <p class="text-muted text-center">Add sections to build your report</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Interactive Activities -->
+        <div class="card mb-4" id="activitiesCard" style="display: none;">
+            <div class="card-header bg-success text-white">
+                <h5><i class="fas fa-hands-on me-2"></i>Report Building Activities</h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="activity-card">
+                            <h6><i class="fas fa-magic"></i> 1. Auto-Generate Report</h6>
+                            <p class="small">Create a complete report with summary statistics and visualizations</p>
+                            <button onclick="autoGenerateReport()" class="btn btn-success btn-sm w-100">Auto-Generate Report</button>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="activity-card">
+                            <h6><i class="fas fa-save"></i> 2. Download Report</h6>
+                            <p class="small">Export your report as PDF or HTML</p>
+                            <button onclick="downloadReport()" class="btn btn-success btn-sm w-100">Download Report</button>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="activity-card">
+                            <h6><i class="fas fa-eye"></i> 3. Preview Report</h6>
+                            <p class="small">See how your report looks before downloading</p>
+                            <button onclick="previewReport()" class="btn btn-success btn-sm w-100">Preview Report</button>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="activity-card">
+                            <h6><i class="fas fa-cog"></i> 4. Customize Report</h6>
+                            <p class="small">Add notes, insights, and explanations</p>
+                            <button onclick="customizeReport()" class="btn btn-success btn-sm w-100">Customize Report</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Export Preview -->
+        <div class="card mb-4" id="exportPreviewCard" style="display: none;">
+            <div class="card-header bg-info text-white">
+                <h5><i class="fas fa-download me-2"></i>Export Results</h5>
+            </div>
+            <div class="card-body">
+                <div id="exportPreview">
+                    <p class="text-muted text-center">Export results will appear here</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <div class="card">
+            <div class="card-body text-center">
+                <a href="/level/1" class="btn btn-outline-secondary me-2">
+                    <i class="fas fa-arrow-left me-2"></i>Back to Tasks
+                </a>
+                <a href="/level/1/task/11" class="btn btn-primary">
+                    Next Task <i class="fas fa-arrow-right ms-2"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let currentProjectId = localStorage.getItem('currentProjectId');
+        let datasetInfo = null;
+        let reportSections = [];
+
+        // Load dataset if available
+        if (currentProjectId) {
+            document.getElementById('datasetStatus').innerHTML = '<div class="alert alert-success">Dataset loaded! Project ID: ' + currentProjectId + '</div>';
+            document.getElementById('reportBuilderCard').style.display = 'block';
+            document.getElementById('activitiesCard').style.display = 'block';
+            document.getElementById('exportPreviewCard').style.display = 'block';
+            
+            fetch(`/projects/${currentProjectId}/dataset/preview`)
+                .then(r => r.json())
+                .then(data => {
+                    datasetInfo = data;
+                    document.getElementById('datasetStatus').innerHTML = `<div class="alert alert-success"><i class="fas fa-check-circle me-2"></i>Dataset loaded: ${data.shape[0]} rows, ${data.shape[1]} columns</div>`;
+                });
+        }
+
+        async function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            if (!file.name.endsWith('.csv')) {
+                alert('Please upload a CSV file'); return;
+            }
+
+            document.getElementById('datasetStatus').innerHTML = '<div class="alert alert-info">Uploading... <i class="fas fa-spinner fa-spin"></i></div>';
+
+            try {
+                const formData = new FormData();
+                formData.append('file', file);
+                const response = await fetch('/level/1/upload', { method: 'POST', body: formData });
+
+                if (!response.ok) throw new Error('Upload failed');
+                const data = await response.json();
+
+                if (data.project_id) {
+                    currentProjectId = data.project_id;
+                    localStorage.setItem('currentProjectId', currentProjectId);
+                    document.getElementById('datasetStatus').innerHTML = `<div class="alert alert-success">Dataset uploaded! Project ID: ${currentProjectId}</div>`;
+                    document.getElementById('reportBuilderCard').style.display = 'block';
+                    document.getElementById('activitiesCard').style.display = 'block';
+                    document.getElementById('exportPreviewCard').style.display = 'block';
+                    
+                    const previewResponse = await fetch(`/projects/${currentProjectId}/dataset/preview`);
+                    datasetInfo = await previewResponse.json();
+                }
+            } catch (error) {
+                document.getElementById('datasetStatus').innerHTML = '<div class="alert alert-danger">Error: ' + error.message + '</div>';
+            }
+        }
+
+        async function loadSample(filename) {
+            if (!filename) { alert('Please select a dataset'); return; }
+
+            try {
+                const response = await fetch(`/level/1/load-sample/${filename}`, { method: 'POST' });
+                const data = await response.json();
+
+                if (data.project_id) {
+                    currentProjectId = data.project_id;
+                    localStorage.setItem('currentProjectId', currentProjectId);
+                    document.getElementById('datasetStatus').innerHTML = `<div class="alert alert-success">Sample loaded! Project ID: ${currentProjectId}</div>`;
+                    document.getElementById('reportBuilderCard').style.display = 'block';
+                    document.getElementById('activitiesCard').style.display = 'block';
+                    document.getElementById('exportPreviewCard').style.display = 'block';
+                    
+                    const previewResponse = await fetch(`/projects/${currentProjectId}/dataset/preview`);
+                    datasetInfo = await previewResponse.json();
+                }
+            } catch (error) {
+                alert('Error loading sample: ' + error.message);
+            }
+        }
+
+        async function addBarChart() {
+            await addChartToReport('bar');
+        }
+
+        async function addLineChart() {
+            await addChartToReport('line');
+        }
+
+        async function addScatterPlot() {
+            await addChartToReport('scatter');
+        }
+
+        async function addHistogram() {
+            await addChartToReport('histogram');
+        }
+
+        async function addBoxPlot() {
+            await addChartToReport('boxplot');
+        }
+
+        async function addPieChart() {
+            await addChartToReport('pie');
+        }
+
+        async function addChartToReport(chartType) {
+            if (!currentProjectId) { alert('Please load a dataset first'); return; }
+
+            try {
+                const response = await fetch(`/projects/${currentProjectId}/columns`);
+                const data = await response.json();
+                const cols = data.columns;
+                const numericCols = data.numeric_columns;
+
+                const params = {
+                    title: `${chartType.charAt(0).toUpperCase() + chartType.slice(1)} Chart`,
+                    xlabel: '',
+                    ylabel: ''
+                };
+
+                if (chartType === 'bar') {
+                    params.x_column = cols[0];
+                } else if (chartType === 'line' || chartType === 'scatter') {
+                    params.x_column = cols[0];
+                    params.y_column = cols.length > 1 ? cols[1] : cols[0];
+                } else if (chartType === 'histogram' || chartType === 'boxplot') {
+                    params.column = numericCols.length > 0 ? numericCols[0] : cols[0];
+                } else if (chartType === 'pie') {
+                    params.x_column = cols[0];
+                }
+
+                const chartResponse = await fetch(`/projects/${currentProjectId}/visualize`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ chart_type: chartType, params })
+                });
+
+                const result = await chartResponse.json();
+
+                if (result.success && result.plot_filename) {
+                    const section = {
+                        type: 'chart',
+                        chartType: chartType,
+                        filename: result.plot_filename,
+                        title: params.title
+                    };
+                    reportSections.push(section);
+                    updateReportPreview();
+                }
+            } catch (error) {
+                alert('Error adding chart: ' + error.message);
+            }
+        }
+
+        function updateReportPreview() {
+            const title = document.getElementById('reportTitle').value || 'Data Analysis Report';
+            const description = document.getElementById('reportDescription').value || '';
+            
+            let html = `<div class="report-section"><h2>${title}</h2>`;
+            if (description) html += `<p class="text-muted">${description}</p>`;
+            html += `<hr></div>`;
+
+            reportSections.forEach((section, idx) => {
+                if (section.type === 'chart') {
+                    const imageUrl = `/artifacts/projects/${currentProjectId}/runs/${section.filename}`;
+                    html += `<div class="report-section">`;
+                    html += `<h4>${section.title}</h4>`;
+                    html += `<img src="${imageUrl}" class="img-fluid border rounded shadow mb-3">`;
+                    html += `</div>`;
+                }
+            });
+
+            html += '<div class="report-section"><p class="small text-muted">Report generated using School AI Lab</p></div>';
+            
+            document.getElementById('reportPreview').innerHTML = html;
+        }
+
+        function generateReport() {
+            updateReportPreview();
+            alert('Report generated! You can now download it as PDF or HTML.');
+        }
+
+        function clearReport() {
+            if (confirm('Clear all report sections?')) {
+                reportSections = [];
+                document.getElementById('reportPreview').innerHTML = '<p class="text-muted text-center">Add sections to build your report</p>';
+                document.getElementById('reportTitle').value = '';
+                document.getElementById('reportDescription').value = '';
+            }
+        }
+
+        async function autoGenerateReport() {
+            if (!currentProjectId) { alert('Please load a dataset first'); return; }
+            alert('Auto-generating complete report with summary statistics and visualizations...');
+            
+            // Add multiple charts
+            await addBarChart();
+            await addHistogram();
+            
+            updateReportPreview();
+            alert('Auto-generated report with multiple visualizations!');
+        }
+
+        function downloadReport() {
+            if (!currentProjectId) { alert('Please load a dataset first'); return; }
+            
+            const title = document.getElementById('reportTitle').value || 'Data Analysis Report';
+            const description = document.getElementById('reportDescription').value || '';
+            
+            // Generate HTML content
+            let htmlContent = `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${title}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { padding: 2rem; font-family: Arial, sans-serif; }
+        .report-header { border-bottom: 2px solid #007bff; padding-bottom: 1rem; margin-bottom: 2rem; }
+        .report-section { margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 1px solid #e9ecef; }
+        .chart-image { max-width: 100%; height: auto; border: 1px solid #dee2e6; border-radius: 8px; }
+        .report-footer { margin-top: 3rem; padding-top: 1rem; border-top: 1px solid #e9ecef; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="report-header">
+            <h1 class="display-4">${title}</h1>`;
+            
+            if (description) {
+                htmlContent += `<p class="lead text-muted">${description}</p>`;
+            }
+            
+            htmlContent += `
+            <p class="text-muted"><small>Generated on ${new Date().toLocaleDateString()} using School AI Lab</small></p>
+        </div>`;
+            
+            // Add report sections
+            reportSections.forEach((section, idx) => {
+                if (section.type === 'chart') {
+                    // For downloaded HTML, we need to embed the image as base64 or provide instructions
+                    htmlContent += `
+        <div class="report-section">
+            <h3>${section.title}</h3>
+            <div class="alert alert-info">
+                <strong>Chart:</strong> ${section.chartType.charAt(0).toUpperCase() + section.chartType.slice(1)} Chart
+                <br><small>Note: Chart images are saved separately in the project folder.</small>
+            </div>
+        </div>`;
+                }
+            });
+            
+            htmlContent += `
+        <div class="report-footer">
+            <p class="small text-muted">This report was generated using the School AI Lab data analysis platform.</p>
+        </div>
+    </div>
+</body>
+</html>`;
+            
+            // Create and download the file
+            const blob = new Blob([htmlContent], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${title.replace(/[^a-zA-Z0-9]/g, '_')}_report.html`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            // Also provide download links for individual charts
+            let chartDownloads = '<div class="alert alert-success mt-3"><h6>📊 Download Individual Charts:</h6><ul class="list-unstyled">';
+            reportSections.forEach(section => {
+                if (section.type === 'chart') {
+                    const chartUrl = `/artifacts/projects/${currentProjectId}/runs/${section.filename}`;
+                    chartDownloads += `<li class="mb-2"><a href="${chartUrl}" download class="btn btn-sm btn-outline-primary">Download ${section.chartType} Chart <i class="fas fa-download ms-1"></i></a></li>`;
+                }
+            });
+            chartDownloads += '</ul></div>';
+            
+            // Show success message with chart downloads
+            document.getElementById('exportPreview').innerHTML = 
+                '<div class="alert alert-success"><h6><i class="fas fa-check-circle me-2"></i>Report Downloaded!</h6>' +
+                '<p>Your HTML report has been downloaded. You can open it in any web browser.</p>' +
+                chartDownloads +
+                '</div>';
+        }
+
+        function previewReport() {
+            updateReportPreview();
+            alert('Your report preview is shown below.');
+        }
+
+        function customizeReport() {
+            alert('Use the Report Builder to customize your report title, description, and add charts!');
+        }
+    </script>
+</body>
+</html>

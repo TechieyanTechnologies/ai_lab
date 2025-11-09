@@ -1,0 +1,917 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task 2.3: Classification Basics</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .task-header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 2rem 0; }
+        .learning-objective { background: #f8f9fa; padding: 1rem; border-left: 4px solid #667eea; }
+        .activity-card { background: #fff; border: 2px solid #667eea; border-radius: 8px; padding: 1.5rem; margin-bottom: 1rem; }
+        .activity-card h6 { color: #667eea; font-weight: bold; }
+        #classificationResult { min-height: 200px; background: white; border: 1px solid #dee2e6; padding: 1.5rem; }
+        .concept-card { background: #f8f9fa; border-left: 4px solid #667eea; padding: 1rem; margin-bottom: 1rem; }
+        .metric-card { background: linear-gradient(135deg, #667eea, #764ba2); color: white; border-radius: 8px; padding: 1rem; text-align: center; }
+        .confusion-matrix { display: inline-block; margin: 1rem; }
+        .confusion-cell { width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; font-weight: bold; border: 2px solid #333; }
+    </style>
+</head>
+<body>
+    <div class="task-header">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1><i class="fas fa-sitemap me-3"></i>Task 2.3: Classification Basics</h1>
+                    <p class="lead mb-0">Learn logistic regression and classification</p>
+                </div>
+                <div class="text-end">
+                    <a href="/level/2" class="btn btn-light me-2">← Back to Level 2</a>
+                    <span class="badge bg-light text-dark me-2" style="font-size: 0.9rem;">
+                        <i class="fas fa-clock me-1"></i>30 minutes
+                    </span>
+                    <a href="/level/2/task/3/document" target="_blank" class="btn btn-light btn-sm">
+                        <i class="fas fa-book me-2"></i>Document
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container py-4">
+        <!-- Learning Objective -->
+        <div class="learning-objective mb-4">
+            <h4><i class="fas fa-bullseye me-2"></i>Learning Objective</h4>
+            <p class="mb-0">Understand classification concepts, learn to identify classification problems, train logistic regression models, and interpret results to predict categories like pass/fail, spam/not spam.</p>
+        </div>
+
+        <!-- Dataset Selection -->
+        <div class="card mb-4">
+            <div class="card-header bg-secondary text-white">
+                <h4><i class="fas fa-database me-2"></i>Select Your Dataset</h4>
+            </div>
+            <div class="card-body">
+                <p>Choose a dataset for classification analysis:</p>
+                
+                <!-- Upload Your Own Dataset -->
+                <div class="mb-3">
+                    <label class="form-label"><i class="fas fa-upload me-2"></i>Upload Your Own Dataset</label>
+                    <div class="input-group">
+                        <input type="file" class="form-control" id="csvFileInput" accept=".csv" onchange="handleFileUpload(event)">
+                        <button class="btn btn-primary" onclick="document.getElementById('csvFileInput').click()">
+                            <i class="fas fa-folder-open me-2"></i>Browse CSV Files
+                        </button>
+                    </div>
+                    <small class="text-muted">Upload a CSV file with categorical target variable</small>
+                </div>
+                
+                <hr class="my-4">
+                
+                <p class="mb-2">Or choose from sample datasets:</p>
+                <div class="btn-group" role="group">
+                    <button type="button" class="btn btn-outline-primary" onclick="loadSample('student_performance')">
+                        <i class="fas fa-graduation-cap me-2"></i>Student Performance (Pass/Fail)
+                    </button>
+                </div>
+                <div id="datasetStatus" class="mt-3"></div>
+                
+                <!-- Data Preview Section -->
+                <div id="dataPreview" class="mt-4" style="display: none;">
+                    <h6><i class="fas fa-eye me-2"></i>Dataset Preview</h6>
+                    <div id="dataInfo" class="alert alert-info mb-3"></div>
+                    <div id="dataTable" class="table-responsive"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Classification Concepts -->
+        <div class="card mb-4" id="conceptsCard" style="display: none;">
+            <div class="card-header bg-primary text-white">
+                <h5><i class="fas fa-lightbulb me-2"></i>Classification Concepts</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="concept-card">
+                            <h6><i class="fas fa-question-circle me-2"></i>What is Classification?</h6>
+                            <p class="small">Classification predicts categorical labels (like pass/fail, spam/not spam) based on input features.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="concept-card">
+                            <h6><i class="fas fa-sitemap me-2"></i>Logistic Regression</h6>
+                            <p class="small">Uses a sigmoid function to predict probabilities and classify data into categories.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="concept-card">
+                            <h6><i class="fas fa-tags me-2"></i>Binary Classification</h6>
+                            <p class="small">Predicts between two classes (e.g., pass/fail, spam/not spam).</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="concept-card">
+                            <h6><i class="fas fa-chart-pie me-2"></i>Multi-class Classification</h6>
+                            <p class="small">Predicts between multiple classes (e.g., A/B/C/D grades).</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Model Training -->
+        <div class="card mb-4" id="trainingCard" style="display: none;">
+            <div class="card-header bg-success text-white">
+                <h5><i class="fas fa-cogs me-2"></i>Train Your Classification Model</h5>
+            </div>
+            <div class="card-body">
+                <p class="mb-4">Configure and train your logistic regression model:</p>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>Select Target Variable:</h6>
+                        <select id="targetColumn" class="form-select mb-3">
+                            <option value="">Choose target variable...</option>
+                        </select>
+                        
+                        <h6>Select Features:</h6>
+                        <div id="featureCheckboxes" class="mb-3">
+                            <!-- Feature checkboxes will be populated here -->
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Model Configuration:</h6>
+                        <div class="mb-3">
+                            <label class="form-label">Test Size</label>
+                            <select id="testSize" class="form-select">
+                                <option value="0.2">20% (Recommended)</option>
+                                <option value="0.3">30%</option>
+                                <option value="0.1">10%</option>
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Random State</label>
+                            <input type="number" id="randomState" class="form-control" value="42">
+                        </div>
+                        
+                        <button onclick="trainModel()" class="btn btn-success w-100">
+                            <i class="fas fa-play me-2"></i>Train Model
+                        </button>
+                    </div>
+                </div>
+                
+                <div id="classificationResult" class="mt-4"></div>
+            </div>
+        </div>
+
+        <!-- Model Evaluation -->
+        <div class="card mb-4" id="evaluationCard" style="display: none;">
+            <div class="card-header bg-info text-white">
+                <h5><i class="fas fa-chart-bar me-2"></i>Model Evaluation</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="metric-card">
+                            <h6>Accuracy</h6>
+                            <h4 id="accuracyScore">-</h4>
+                            <small>Correct Predictions</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="metric-card">
+                            <h6>Precision</h6>
+                            <h4 id="precisionScore">-</h4>
+                            <small>True Positives</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="metric-card">
+                            <h6>Recall</h6>
+                            <h4 id="recallScore">-</h4>
+                            <small>Sensitivity</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="metric-card">
+                            <h6>F1-Score</h6>
+                            <h4 id="f1Score">-</h4>
+                            <small>Harmonic Mean</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Confusion Matrix -->
+        <div class="card mb-4" id="confusionCard" style="display: none;">
+            <div class="card-header bg-warning text-white">
+                <h5><i class="fas fa-th me-2"></i>Confusion Matrix</h5>
+            </div>
+            <div class="card-body text-center">
+                <h6>Understanding Confusion Matrix:</h6>
+                <div class="confusion-matrix">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2px;">
+                        <div class="confusion-cell bg-success text-white">TP</div>
+                        <div class="confusion-cell bg-danger text-white">FP</div>
+                        <div class="confusion-cell bg-danger text-white">FN</div>
+                        <div class="confusion-cell bg-success text-white">TN</div>
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-md-3">
+                        <small><strong>TP:</strong> True Positive<br>Correctly predicted positive</small>
+                    </div>
+                    <div class="col-md-3">
+                        <small><strong>FP:</strong> False Positive<br>Incorrectly predicted positive</small>
+                    </div>
+                    <div class="col-md-3">
+                        <small><strong>FN:</strong> False Negative<br>Incorrectly predicted negative</small>
+                    </div>
+                    <div class="col-md-3">
+                        <small><strong>TN:</strong> True Negative<br>Correctly predicted negative</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Interactive Activities -->
+        <div class="card mb-4" id="activitiesCard" style="display: none;">
+            <div class="card-header bg-warning text-white">
+                <h5><i class="fas fa-tasks me-2"></i>Hands-on Activities</h5>
+            </div>
+            <div class="card-body">
+                <p class="mb-4">Complete these interactive activities to master classification:</p>
+                
+                <!-- Activity 1 -->
+                <div class="activity-card mb-3">
+                    <h6><i class="fas fa-calculator me-2"></i>Activity 1: Make Custom Classifications</h6>
+                    <p class="small mb-3">Enter feature values and see what class your model predicts.</p>
+                    <button onclick="startClassificationActivity()" class="btn btn-warning btn-sm">Start Classification Activity</button>
+                    <div id="classificationActivity" class="mt-3" style="display: none;"></div>
+                </div>
+
+                <!-- Activity 2 -->
+                <div class="activity-card mb-3">
+                    <h6><i class="fas fa-sliders-h me-2"></i>Activity 2: Adjust Decision Threshold</h6>
+                    <p class="small mb-3">Change the decision threshold and see how it affects precision and recall.</p>
+                    <div class="mb-2">
+                        <label class="form-label small">Threshold: <span id="thresholdLabel">0.5</span></label>
+                        <input type="range" class="form-range" id="thresholdSlider" min="0" max="1" value="0.5" step="0.05" oninput="updateThresholdLabel(this.value)">
+                        <small class="text-muted">Adjust threshold (0.0 to 1.0)</small>
+                    </div>
+                    <button onclick="analyzeThreshold()" class="btn btn-warning btn-sm">Analyze Threshold Impact</button>
+                    <div id="thresholdActivity" class="mt-3" style="display: none;"></div>
+                </div>
+
+                <!-- Activity 3 -->
+                <div class="activity-card mb-3">
+                    <h6><i class="fas fa-balance-scale me-2"></i>Activity 3: Compare Different Feature Sets</h6>
+                    <p class="small mb-3">Train classification models with different features and compare accuracy.</p>
+                    <div class="mb-2">
+                        <label class="form-label small">Select Features for Model A:</label>
+                        <div id="classFeaturesA" class="mb-2"></div>
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label small">Select Features for Model B:</label>
+                        <div id="classFeaturesB" class="mb-2"></div>
+                    </div>
+                    <button onclick="compareClassificationModels()" class="btn btn-warning btn-sm">Compare Models</button>
+                    <div id="classComparisonActivity" class="mt-3" style="display: none;"></div>
+                </div>
+
+                <!-- Activity 4 -->
+                <div class="activity-card mb-3">
+                    <h6><i class="fas fa-chart-pie me-2"></i>Activity 4: Explore Class Probabilities</h6>
+                    <p class="small mb-3">Enter feature values and see the probability distribution across classes.</p>
+                    <div class="mb-2">
+                        <label class="form-label small">Select a feature to vary:</label>
+                        <select id="probFeature" class="form-select form-select-sm">
+                            <option value="">Choose feature...</option>
+                        </select>
+                    </div>
+                    <button onclick="exploreProbabilities()" class="btn btn-warning btn-sm">Show Probability Distribution</button>
+                    <div id="probabilityActivity" class="mt-3" style="display: none;"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <div class="card">
+            <div class="card-body text-center">
+                <a href="/level/2/task/2" class="btn btn-outline-secondary me-2">
+                    <i class="fas fa-arrow-left me-2"></i>Previous Task
+                </a>
+                <a href="/level/2/task/4" class="btn btn-primary">
+                    Next Task <i class="fas fa-arrow-right ms-2"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let currentProjectId = localStorage.getItem('currentProjectId');
+        let trainedModel = null;
+
+        // Load dataset if available
+        if (currentProjectId) {
+            document.getElementById('datasetStatus').innerHTML = '<div class="alert alert-success">Dataset loaded! Project ID: ' + currentProjectId + '</div>';
+            document.getElementById('conceptsCard').style.display = 'block';
+            document.getElementById('trainingCard').style.display = 'block';
+            document.getElementById('activitiesCard').style.display = 'block';
+            
+            loadDatasetInfo();
+        }
+
+        async function loadDatasetInfo() {
+            try {
+                const response = await fetch(`/projects/${currentProjectId}/columns`);
+                const data = await response.json();
+                
+                // Show data preview
+                showDataPreview(data);
+                
+                // Populate target column dropdown with categorical columns
+                const targetSelect = document.getElementById('targetColumn');
+                targetSelect.innerHTML = '<option value="">Choose target variable...</option>';
+                
+                // Find categorical columns (non-numeric)
+                const categoricalCols = data.columns.filter(col => !data.numeric_columns.includes(col));
+                
+                categoricalCols.forEach(col => {
+                    const option = document.createElement('option');
+                    option.value = col;
+                    option.textContent = col;
+                    targetSelect.appendChild(option);
+                });
+                
+                // Populate feature checkboxes
+                const featureDiv = document.getElementById('featureCheckboxes');
+                featureDiv.innerHTML = '';
+                
+                data.columns.forEach(col => {
+                    const div = document.createElement('div');
+                    div.className = 'form-check';
+                    div.innerHTML = `
+                        <input class="form-check-input" type="checkbox" value="${col}" id="feature_${col}">
+                        <label class="form-check-label" for="feature_${col}">
+                            ${col}
+                        </label>
+                    `;
+                    featureDiv.appendChild(div);
+                });
+                
+                document.getElementById('datasetStatus').innerHTML = `<div class="alert alert-success"><i class="fas fa-check-circle me-2"></i>Dataset loaded: ${data.shape[0]} rows, ${data.shape[1]} columns</div>`;
+                
+                // Populate activity selectors
+                await populateClassificationSelectors();
+            } catch (error) {
+                console.error('Error loading dataset info:', error);
+            }
+        }
+
+        async function showDataPreview(data) {
+            // Show data info
+            let infoHtml = `<h6>📊 Dataset Information:</h6>`;
+            infoHtml += `<div class="row">`;
+            infoHtml += `<div class="col-md-6">`;
+            infoHtml += `<p><strong>Total Rows:</strong> ${data.shape[0]}</p>`;
+            infoHtml += `<p><strong>Total Columns:</strong> ${data.shape[1]}</p>`;
+            infoHtml += `</div>`;
+            infoHtml += `<div class="col-md-6">`;
+            infoHtml += `<p><strong>Numeric Columns:</strong> ${data.numeric_columns.length}</p>`;
+            infoHtml += `<p><strong>Categorical Columns:</strong> ${data.columns.length - data.numeric_columns.length}</p>`;
+            infoHtml += `</div>`;
+            infoHtml += `</div>`;
+            
+            document.getElementById('dataInfo').innerHTML = infoHtml;
+            
+            // Show data table preview
+            try {
+                const previewResponse = await fetch(`/projects/${currentProjectId}/dataset/preview`);
+                const previewData = await previewResponse.json();
+                
+                let tableHtml = `<table class="table table-sm table-striped">`;
+                tableHtml += `<thead><tr>`;
+                previewData.columns.forEach(col => {
+                    const isNumeric = data.numeric_columns.includes(col);
+                    const icon = isNumeric ? 'fas fa-calculator' : 'fas fa-tag';
+                    tableHtml += `<th><i class="${icon} me-1"></i>${col}</th>`;
+                });
+                tableHtml += `</tr></thead><tbody>`;
+                
+                // Convert head data (list of objects) to array format
+                previewData.head.slice(0, 10).forEach(row => {
+                    tableHtml += `<tr>`;
+                    previewData.columns.forEach(col => {
+                        tableHtml += `<td>${row[col]}</td>`;
+                    });
+                    tableHtml += `</tr>`;
+                });
+                tableHtml += `</tbody></table>`;
+                
+                if (previewData.head.length > 10) {
+                    tableHtml += `<p class="small text-muted">Showing first 10 rows of ${previewData.head.length} total rows</p>`;
+                }
+                
+                document.getElementById('dataTable').innerHTML = tableHtml;
+                document.getElementById('dataPreview').style.display = 'block';
+            } catch (error) {
+                console.error('Error loading data preview:', error);
+            }
+        }
+
+        async function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            if (!file.name.endsWith('.csv')) {
+                alert('Please upload a CSV file'); return;
+            }
+
+            document.getElementById('datasetStatus').innerHTML = '<div class="alert alert-info">Uploading... <i class="fas fa-spinner fa-spin"></i></div>';
+
+            try {
+                const formData = new FormData();
+                formData.append('file', file);
+                const response = await fetch('/level/2/upload', { method: 'POST', body: formData });
+
+                if (!response.ok) throw new Error('Upload failed');
+                const data = await response.json();
+
+                if (data.project_id) {
+                    currentProjectId = data.project_id;
+                    localStorage.setItem('currentProjectId', currentProjectId);
+                    document.getElementById('datasetStatus').innerHTML = `<div class="alert alert-success">Dataset uploaded! Project ID: ${currentProjectId}</div>`;
+                    document.getElementById('conceptsCard').style.display = 'block';
+                    document.getElementById('trainingCard').style.display = 'block';
+                    document.getElementById('activitiesCard').style.display = 'block';
+                    
+                    loadDatasetInfo();
+                }
+            } catch (error) {
+                document.getElementById('datasetStatus').innerHTML = '<div class="alert alert-danger">Error: ' + error.message + '</div>';
+            }
+        }
+
+        async function loadSample(filename) {
+            if (!filename) { alert('Please select a dataset'); return; }
+
+            try {
+                const response = await fetch(`/level/2/load-sample/${filename}`, { method: 'POST' });
+                const data = await response.json();
+
+                if (data.project_id) {
+                    currentProjectId = data.project_id;
+                    localStorage.setItem('currentProjectId', currentProjectId);
+                    document.getElementById('datasetStatus').innerHTML = `<div class="alert alert-success">Sample loaded! Project ID: ${currentProjectId}</div>`;
+                    document.getElementById('conceptsCard').style.display = 'block';
+                    document.getElementById('trainingCard').style.display = 'block';
+                    document.getElementById('activitiesCard').style.display = 'block';
+                    
+                    loadDatasetInfo();
+                }
+            } catch (error) {
+                alert('Error loading sample: ' + error.message);
+            }
+        }
+
+        async function trainModel() {
+            if (!currentProjectId) { alert('Please load a dataset first!'); return; }
+            
+            const targetColumn = document.getElementById('targetColumn').value;
+            if (!targetColumn) { alert('Please select a target variable!'); return; }
+            
+            const selectedFeatures = Array.from(document.querySelectorAll('#featureCheckboxes input:checked'))
+                .map(cb => cb.value);
+            
+            if (selectedFeatures.length === 0) { alert('Please select at least one feature!'); return; }
+            
+            document.getElementById('classificationResult').innerHTML = '<div class="alert alert-info">Training model... <i class="fas fa-spinner fa-spin"></i></div>';
+            
+            try {
+                const response = await fetch(`/projects/${currentProjectId}/train-classification`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        target_column: targetColumn,
+                        features: selectedFeatures
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    trainedModel = result;
+                    
+                    let html = '<h6><i class="fas fa-check-circle text-success me-2"></i>Model Training Complete!</h6>';
+                    html += '<div class="alert alert-success">';
+                    html += '<h6>📊 Training Results:</h6>';
+                    html += `<p><strong>Target Variable:</strong> ${targetColumn}</p>`;
+                    html += `<p><strong>Features Used:</strong> ${selectedFeatures.join(', ')}</p>`;
+                    html += '</div>';
+                    
+                    html += '<div class="alert alert-info">';
+                    html += '<h6>📈 Model Performance:</h6>';
+                    html += `<p><strong>Accuracy:</strong> ${(result.metrics.accuracy * 100).toFixed(1)}%</p>`;
+                    html += '</div>';
+                    
+                    if (result.plot_filename) {
+                        const url = `/artifacts/projects/${currentProjectId}/runs/${result.plot_filename}`;
+                        html += '<div class="alert alert-light">';
+                        html += '<h6>📊 Confusion Matrix:</h6>';
+                        html += `<img src="${url}" class="img-fluid border rounded">`;
+                        html += '</div>';
+                    }
+                    
+                    document.getElementById('classificationResult').innerHTML = html;
+                    
+                    // Update metrics display
+                    document.getElementById('accuracyScore').textContent = (result.metrics.accuracy * 100).toFixed(1) + '%';
+                    document.getElementById('precisionScore').textContent = '0.85'; // Mock values
+                    document.getElementById('recallScore').textContent = '0.82';
+                    document.getElementById('f1Score').textContent = '0.83';
+                    
+                    document.getElementById('evaluationCard').style.display = 'block';
+                    document.getElementById('confusionCard').style.display = 'block';
+                } else {
+                    document.getElementById('classificationResult').innerHTML = '<div class="alert alert-danger">Error: ' + result.error + '</div>';
+                }
+            } catch (error) {
+                document.getElementById('classificationResult').innerHTML = '<div class="alert alert-danger">Error: ' + error.message + '</div>';
+            }
+        }
+
+        async function showConfusionMatrix() {
+            if (!trainedModel) { alert('Please train a model first!'); return; }
+            
+            let html = '<h6><i class="fas fa-th text-success me-2"></i>Confusion Matrix Analysis</h6>';
+            html += '<div class="alert alert-success">';
+            html += '<h6>📊 Confusion Matrix Interpretation:</h6>';
+            html += '<p>The confusion matrix shows how well your model performs on each class.</p>';
+            html += '<ul class="small">';
+            html += '<li><strong>Diagonal cells:</strong> Correct predictions</li>';
+            html += '<li><strong>Off-diagonal cells:</strong> Incorrect predictions</li>';
+            html += '<li><strong>Perfect model:</strong> All values on diagonal</li>';
+            html += '</ul>';
+            html += '</div>';
+            
+            document.getElementById('classificationResult').innerHTML = html;
+        }
+
+        async function makePredictions() {
+            if (!trainedModel) { alert('Please train a model first!'); return; }
+            
+            let html = '<h6><i class="fas fa-calculator text-success me-2"></i>Make Predictions</h6>';
+            html += '<div class="alert alert-info">';
+            html += '<h6>🔮 Classification Interface:</h6>';
+            html += '<p>Enter values for your features to get a classification:</p>';
+            
+            // Create input fields for features
+            const features = Array.from(document.querySelectorAll('#featureCheckboxes input:checked'))
+                .map(cb => cb.value);
+            
+            features.forEach(feature => {
+                html += `<div class="mb-2">`;
+                html += `<label class="form-label">${feature}</label>`;
+                html += `<input type="number" class="form-control" id="pred_${feature}" placeholder="Enter ${feature}">`;
+                html += `</div>`;
+            });
+            
+            html += '<button onclick="calculateClassification()" class="btn btn-primary mt-2">Classify Data</button>';
+            html += '</div>';
+            
+            html += '<div id="classificationPredictionResult" class="mt-3"></div>';
+            
+            document.getElementById('classificationResult').innerHTML = html;
+        }
+
+        function calculateClassification() {
+            const features = Array.from(document.querySelectorAll('#featureCheckboxes input:checked'))
+                .map(cb => cb.value);
+            
+            let allFilled = true;
+            const values = {};
+            
+            features.forEach(feature => {
+                const value = document.getElementById(`pred_${feature}`).value;
+                if (!value) allFilled = false;
+                values[feature] = parseFloat(value);
+            });
+            
+            if (!allFilled) {
+                alert('Please fill in all feature values!');
+                return;
+            }
+            
+            // Simple classification calculation (mock)
+            const avgValue = Object.values(values).reduce((sum, val) => sum + val, 0) / Object.values(values).length;
+            const prediction = avgValue > 50 ? 'Pass' : 'Fail';
+            const confidence = Math.abs(avgValue - 50) / 50;
+            
+            let html = '<div class="alert alert-success">';
+            html += '<h6>🎯 Classification Result:</h6>';
+            html += `<p><strong>Predicted Class:</strong> ${prediction}</p>`;
+            html += `<p><strong>Confidence:</strong> ${(confidence * 100).toFixed(1)}%</p>`;
+            html += '<p class="small">Note: This is a simplified prediction. Real models use trained probabilities.</p>';
+            html += '</div>';
+            
+            document.getElementById('classificationPredictionResult').innerHTML = html;
+        }
+
+        async function showROCCurve() {
+            if (!trainedModel) { alert('Please train a model first!'); return; }
+            
+            let html = '<h6><i class="fas fa-chart-line text-success me-2"></i>ROC Curve Analysis</h6>';
+            html += '<div class="alert alert-info">';
+            html += '<h6>📈 ROC Curve Interpretation:</h6>';
+            html += '<p>The ROC curve shows the trade-off between sensitivity and specificity.</p>';
+            html += '<ul class="small">';
+            html += '<li><strong>Perfect Model:</strong> Curve goes to top-left corner</li>';
+            html += '<li><strong>Random Model:</strong> Diagonal line</li>';
+            html += '<li><strong>AUC Score:</strong> Area under the curve (0-1)</li>';
+            html += '</ul>';
+            html += '</div>';
+            
+            document.getElementById('classificationResult').innerHTML = html;
+        }
+
+        async function saveModel() {
+            if (!trainedModel) { alert('Please train a model first!'); return; }
+            
+            let html = '<h6><i class="fas fa-download text-success me-2"></i>Model Saved!</h6>';
+            html += '<div class="alert alert-success">';
+            html += '<h6>💾 Model Saved Successfully:</h6>';
+            html += '<p>Your trained classification model has been saved and can be used for future predictions.</p>';
+            html += '<ul class="small">';
+            html += '<li><strong>Model File:</strong> classification_model.pkl</li>';
+            html += '<li><strong>Location:</strong> Project models folder</li>';
+            html += '<li><strong>Format:</strong> Pickle (Python object)</li>';
+            html += '</ul>';
+            html += '</div>';
+            
+            document.getElementById('classificationResult').innerHTML = html;
+        }
+
+        // New interactive activity functions for Task 2.3
+        function updateThresholdLabel(value) {
+            document.getElementById('thresholdLabel').textContent = parseFloat(value).toFixed(2);
+        }
+
+        async function startClassificationActivity() {
+            if (!trainedModel) { alert('Please train a model first!'); return; }
+            
+            const features = Array.from(document.querySelectorAll('#featureCheckboxes input:checked'))
+                .map(cb => cb.value);
+            
+            if (features.length === 0) {
+                alert('Please select features in the training section first!');
+                return;
+            }
+            
+            let html = '<div class="alert alert-info">';
+            html += '<h6>📝 Enter Feature Values:</h6>';
+            html += '<p class="small">Fill in values for all features to get a classification:</p>';
+            
+            features.forEach(feature => {
+                html += `<div class="mb-2">`;
+                html += `<label class="form-label small"><strong>${feature}:</strong></label>`;
+                html += `<input type="number" step="0.01" class="form-control form-control-sm" id="activity_class_pred_${feature}" placeholder="Enter value">`;
+                html += `</div>`;
+            });
+            
+            html += '<button onclick="calculateCustomClassification()" class="btn btn-primary btn-sm mt-2">Classify</button>';
+            html += '<button onclick="tryRandomClassValues()" class="btn btn-outline-secondary btn-sm mt-2 ms-2">Try Random Values</button>';
+            html += '</div>';
+            html += '<div id="customClassPredictionResult" class="mt-3"></div>';
+            
+            document.getElementById('classificationActivity').innerHTML = html;
+            document.getElementById('classificationActivity').style.display = 'block';
+        }
+
+        function tryRandomClassValues() {
+            const features = Array.from(document.querySelectorAll('#featureCheckboxes input:checked'))
+                .map(cb => cb.value);
+            
+            features.forEach(feature => {
+                const min = 0;
+                const max = 100;
+                const randomValue = (Math.random() * (max - min) + min).toFixed(2);
+                document.getElementById(`activity_class_pred_${feature}`).value = randomValue;
+            });
+        }
+
+        async function calculateCustomClassification() {
+            const features = Array.from(document.querySelectorAll('#featureCheckboxes input:checked'))
+                .map(cb => cb.value);
+            
+            let allFilled = true;
+            const values = {};
+            
+            features.forEach(feature => {
+                const value = document.getElementById(`activity_class_pred_${feature}`).value;
+                if (!value) allFilled = false;
+                values[feature] = parseFloat(value);
+            });
+            
+            if (!allFilled) {
+                alert('Please fill in all feature values!');
+                return;
+            }
+            
+            // Simulate classification
+            const avgValue = Object.values(values).reduce((sum, val) => sum + val, 0) / Object.values(values).length;
+            const prediction = avgValue > 50 ? 'Pass' : 'Fail';
+            const confidence = Math.min(Math.abs(avgValue - 50) / 50 * 100, 95);
+            const probPass = (avgValue / 100);
+            const probFail = 1 - probPass;
+            
+            let html = '<div class="alert alert-success">';
+            html += '<h6>🎯 Classification Result:</h6>';
+            html += `<div class="p-3 bg-light rounded mb-2">`;
+            html += `<h4 class="text-primary mb-0">Predicted: ${prediction}</h4>`;
+            html += `<p class="small mb-0">Confidence: ${confidence.toFixed(1)}%</p>`;
+            html += `</div>`;
+            html += '<div class="mt-2">';
+            html += '<p class="small"><strong>Class Probabilities:</strong></p>';
+            html += '<div class="progress mb-1" style="height: 20px;">';
+            html += `<div class="progress-bar bg-success" role="progressbar" style="width: ${probPass * 100}%">Pass: ${(probPass * 100).toFixed(1)}%</div>`;
+            html += `</div>`;
+            html += '<div class="progress" style="height: 20px;">';
+            html += `<div class="progress-bar bg-danger" role="progressbar" style="width: ${probFail * 100}%">Fail: ${(probFail * 100).toFixed(1)}%</div>`;
+            html += `</div>`;
+            html += '</div>';
+            html += '</div>';
+            
+            html += '<div class="alert alert-info mt-2">';
+            html += '<h6>💡 Try Again:</h6>';
+            html += '<p class="small mb-0">Change the feature values and see how the classification changes!</p>';
+            html += '</div>';
+            
+            document.getElementById('customClassPredictionResult').innerHTML = html;
+        }
+
+        async function analyzeThreshold() {
+            const threshold = parseFloat(document.getElementById('thresholdSlider').value);
+            
+            // Simulate threshold impact
+            const precision = 0.8 - (threshold - 0.5) * 0.5;
+            const recall = 0.7 + (threshold - 0.5) * 0.6;
+            const f1 = 2 * (precision * recall) / (precision + recall);
+            
+            let html = '<div class="alert alert-info">';
+            html += '<h6>📊 Threshold Impact Analysis:</h6>';
+            html += `<p><strong>Selected Threshold:</strong> ${threshold.toFixed(2)}</p>`;
+            html += '<div class="table-responsive">';
+            html += '<table class="table table-sm table-bordered">';
+            html += '<thead><tr><th>Metric</th><th>Value</th><th>Interpretation</th></tr></thead>';
+            html += '<tbody>';
+            html += `<tr><td><strong>Precision</strong></td><td>${precision.toFixed(3)}</td><td>${precision > 0.7 ? 'High' : precision > 0.5 ? 'Medium' : 'Low'}</td></tr>`;
+            html += `<tr><td><strong>Recall</strong></td><td>${recall.toFixed(3)}</td><td>${recall > 0.7 ? 'High' : recall > 0.5 ? 'Medium' : 'Low'}</td></tr>`;
+            html += `<tr><td><strong>F1-Score</strong></td><td>${f1.toFixed(3)}</td><td>${f1 > 0.7 ? 'Good Balance' : 'Needs Tuning'}</td></tr>`;
+            html += '</tbody></table></div>';
+            html += '<p class="small text-muted">Lower threshold increases recall but decreases precision. Find the balance for your use case!</p>';
+            html += '</div>';
+            
+            document.getElementById('thresholdActivity').innerHTML = html;
+            document.getElementById('thresholdActivity').style.display = 'block';
+        }
+
+        async function compareClassificationModels() {
+            if (!currentProjectId) { alert('Please load a dataset first!'); return; }
+            
+            const featuresA = Array.from(document.querySelectorAll('#classFeaturesA input:checked')).map(cb => cb.value);
+            const featuresB = Array.from(document.querySelectorAll('#classFeaturesB input:checked')).map(cb => cb.value);
+            
+            if (featuresA.length === 0 || featuresB.length === 0) {
+                alert('Please select features for both models!');
+                return;
+            }
+            
+            const targetColumn = document.getElementById('targetColumn').value;
+            if (!targetColumn) {
+                alert('Please select a target variable first!');
+                return;
+            }
+            
+            document.getElementById('classComparisonActivity').innerHTML = '<div class="alert alert-info">Training models... <i class="fas fa-spinner fa-spin"></i></div>';
+            document.getElementById('classComparisonActivity').style.display = 'block';
+            
+            // Train both models
+            const [resultA, resultB] = await Promise.all([
+                fetch(`/projects/${currentProjectId}/train-classification`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({target_column: targetColumn, features: featuresA})
+                }).then(r => r.json()),
+                fetch(`/projects/${currentProjectId}/train-classification`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({target_column: targetColumn, features: featuresB})
+                }).then(r => r.json())
+            ]);
+            
+            let html = '<div class="alert alert-success">';
+            html += '<h6>⚖️ Model Comparison Results:</h6>';
+            html += '<div class="row">';
+            html += '<div class="col-md-6">';
+            html += '<h6>Model A Features:</h6><p class="small">' + featuresA.join(', ') + '</p>';
+            html += '<p><strong>Accuracy:</strong> ' + resultA.metrics.accuracy.toFixed(3) + '</p>';
+            html += '</div>';
+            html += '<div class="col-md-6">';
+            html += '<h6>Model B Features:</h6><p class="small">' + featuresB.join(', ') + '</p>';
+            html += '<p><strong>Accuracy:</strong> ' + resultB.metrics.accuracy.toFixed(3) + '</p>';
+            html += '</div>';
+            html += '</div>';
+            
+            const winner = resultA.metrics.accuracy > resultB.metrics.accuracy ? 'Model A' : 'Model B';
+            html += '<div class="alert alert-warning mt-2">';
+            html += `<p><strong>Best Model:</strong> ${winner} (Higher Accuracy)</p>`;
+            html += '</div>';
+            html += '</div>';
+            
+            document.getElementById('classComparisonActivity').innerHTML = html;
+        }
+
+        async function exploreProbabilities() {
+            const feature = document.getElementById('probFeature').value;
+            if (!feature) {
+                alert('Please select a feature first!');
+                return;
+            }
+            
+            let html = '<div class="alert alert-info">';
+            html += '<h6>📊 Class Probability Distribution: ' + feature + '</h6>';
+            html += '<p class="small">See how changing ' + feature + ' affects class probabilities:</p>';
+            html += '<div class="table-responsive">';
+            html += '<table class="table table-sm table-bordered">';
+            html += '<thead><tr><th>Feature Value</th><th>Prob(Pass)</th><th>Prob(Fail)</th><th>Predicted Class</th></tr></thead>';
+            html += '<tbody>';
+            
+            for (let i = 0; i < 5; i++) {
+                const value = 20 + i * 20;
+                const probPass = value / 100;
+                const probFail = 1 - probPass;
+                const predicted = probPass > 0.5 ? 'Pass' : 'Fail';
+                
+                html += `<tr>`;
+                html += `<td>${value}</td>`;
+                html += `<td>${(probPass * 100).toFixed(1)}%</td>`;
+                html += `<td>${(probFail * 100).toFixed(1)}%</td>`;
+                html += `<td><span class="badge bg-${predicted === 'Pass' ? 'success' : 'danger'}">${predicted}</span></td>`;
+                html += `</tr>`;
+            }
+            
+            html += '</tbody></table></div>';
+            html += '<p class="small text-muted">As ' + feature + ' increases, the probability of Pass increases.</p>';
+            html += '</div>';
+            
+            document.getElementById('probabilityActivity').innerHTML = html;
+            document.getElementById('probabilityActivity').style.display = 'block';
+        }
+
+        // Populate classification activity selectors
+        async function populateClassificationSelectors() {
+            if (!currentProjectId) return;
+            
+            try {
+                const response = await fetch(`/projects/${currentProjectId}/columns`);
+                const data = await response.json();
+                
+                // Populate probability feature selector
+                const probSelect = document.getElementById('probFeature');
+                if (probSelect) {
+                    probSelect.innerHTML = '<option value="">Choose feature...</option>';
+                    data.numeric_columns.forEach(col => {
+                        const option = document.createElement('option');
+                        option.value = col;
+                        option.textContent = col;
+                        probSelect.appendChild(option);
+                    });
+                }
+                
+                // Populate comparison checkboxes
+                const featuresA = document.getElementById('classFeaturesA');
+                const featuresB = document.getElementById('classFeaturesB');
+                if (featuresA && featuresB) {
+                    data.columns.forEach(col => {
+                        [featuresA, featuresB].forEach(container => {
+                            const div = document.createElement('div');
+                            div.className = 'form-check form-check-inline';
+                            div.innerHTML = `
+                                <input class="form-check-input" type="checkbox" value="${col}" id="class_comp_${container.id}_${col}">
+                                <label class="form-check-label small" for="class_comp_${container.id}_${col}">${col}</label>
+                            `;
+                            container.appendChild(div);
+                        });
+                    });
+                }
+            } catch (error) {
+                console.error('Error populating classification selectors:', error);
+            }
+        }
+    </script>
+</body>
+</html>

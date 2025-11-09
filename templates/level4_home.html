@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Level 4: NLP & Chatbot</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .hero {
+            background: radial-gradient(1200px 400px at 10% -10%, rgba(91,134,229,.25), transparent),
+                        linear-gradient(135deg, #36d1dc 0%, #5b86e5 100%);
+            color: white;
+            padding: 3rem 0 2.25rem 0;
+        }
+        .hero h1 { letter-spacing: .3px; }
+        .hero .tag { background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.25); }
+        .card-hover { transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease; border: 1px solid #edf2ff; }
+        .card-hover:hover { transform: translateY(-6px); box-shadow: 0 14px 26px rgba(25,31,53,.12); border-color: #dbe4ff; }
+        .card-title { display:flex; align-items:center; gap:.5rem; margin-bottom:.25rem; }
+        .card-title i { color: #5b86e5; }
+        .pill { font-size: .75rem; padding: .2rem .45rem; border-radius: 999px; background: #f1f3f5; color: #495057; border: 1px solid #e9ecef; }
+        .section-title { font-weight: 700; font-size: 1rem; color: #5b86e5; letter-spacing: .3px; }
+    </style>
+    </head>
+<body>
+    <div class="hero">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+                <div>
+                    <div class="d-flex gap-2 mb-2 flex-wrap">
+                        <span class="badge tag rounded-pill">Offline</span>
+                        <span class="badge tag rounded-pill">Hands-on</span>
+                        <span class="badge tag rounded-pill">Beginner → Intermediate</span>
+                    </div>
+                    <h1 class="mb-2"><i class="fas fa-comments me-3"></i>Level 4: NLP & Chatbot</h1>
+                    <p class="mb-0 lead">Clean text • Vectorize • Classify • Evaluate • Build a local FAQ chatbot</p>
+                </div>
+                <div>
+                    <a href="/" class="btn btn-light"><i class="fas fa-home me-2"></i>Back to Landing</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container py-4">
+        <div class="row g-4">
+            <div class="col-12">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="section-title">Complete NLP Pipeline - 16 Tasks</div>
+                    <div class="small text-muted">Progressive learning from basics to production chatbot</div>
+                </div>
+            </div>
+
+            <!-- Phase 1: Data Preparation (Tasks 1-2) -->
+            <div class="col-12 mt-2"><h6 class="text-muted"><i class="fas fa-database me-2"></i>Phase 1: Data Preparation</h6></div>
+            
+            <div class="col-md-6 col-lg-3">
+                <a class="text-decoration-none" href="/level/4/task/1">
+                    <div class="card card-hover h-100">
+                        <div class="card-body">
+                            <div class="card-title"><i class="fas fa-database"></i><h6 class="mb-0">4.1: Data Prep</h6></div>
+                            <p class="text-muted small mb-2">Upload, validate, explore, distribution, split planning</p>
+                            <div class="d-flex gap-1 flex-wrap"><span class="pill">CSV</span><span class="pill">Stats</span></div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            <div class="col-md-6 col-lg-3">
+                <a class="text-decoration-none" href="/level/4/task/2">
+                    <div class="card card-hover h-100">
+                        <div class="card-body">
+                            <div class="card-title"><i class="fas fa-broom"></i><h6 class="mb-0">4.2: Text Cleaning</h6></div>
+                            <p class="text-muted small mb-2">Lowercase, punctuation, stopwords, custom regex, presets</p>
+                            <div class="d-flex gap-1 flex-wrap"><span class="pill">Tokens</span><span class="pill">Regex</span></div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            <!-- Phase 2: Vectorization & Features (Tasks 3-5) -->
+            <div class="col-12 mt-3"><h6 class="text-muted"><i class="fas fa-shapes me-2"></i>Phase 2: Vectorization & Features</h6></div>
+            
+            <div class="col-md-6 col-lg-3">
+                <a class="text-decoration-none" href="/level/4/task/3">
+                    <div class="card card-hover h-100">
+                        <div class="card-body">
+                            <div class="card-title"><i class="fas fa-shapes"></i><h6 class="mb-0">4.3: Vectorization</h6></div>
+                            <p class="text-muted small mb-2">BoW, TF-IDF, top terms, 2D PCA visualization</p>
+                            <div class="d-flex gap-1 flex-wrap"><span class="pill">BoW</span><span class="pill">TF-IDF</span></div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            <div class="col-md-6 col-lg-3">
+                <a class="text-decoration-none" href="/level/4/task/10">
+                    <div class="card card-hover h-100">
+                        <div class="card-body">
+                            <div class="card-title"><i class="fas fa-sliders-h"></i><h6 class="mb-0">4.10: Advanced Preprocessing</h6></div>
+                            <p class="text-muted small mb-2">Stemming, lemmatization, URL/email removal, custom rules</p>
+                            <div class="d-flex gap-1 flex-wrap"><span class="pill">Stem</span><span class="pill">Lemma</span></div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            <div class="col-md-6 col-lg-3">
+                <a class="text-decoration-none" href="/level/4/task/5">
+                    <div class="card card-hover h-100">
+                        <div class="card-body">
+                            <div class="card-title"><i class="fas fa-wrench"></i><h6 class="mb-0">4.5: Feature Engineering</h6></div>
+                            <p class="text-muted small mb-2">Custom features, domain-specific, length, sentiment hints</p>
+                            <div class="d-flex gap-1 flex-wrap"><span class="pill">Features</span><span class="pill">Domain</span></div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            <div class="col-md-6 col-lg-3">
+                <a class="text-decoration-none" href="/level/4/task/11">
+                    <div class="card card-hover h-100">
+                        <div class="card-body">
+                            <div class="card-title"><i class="fas fa-cube"></i><h6 class="mb-0">4.11: Word Embeddings</h6></div>
+                            <p class="text-muted small mb-2">Word2Vec concepts, similarity, analogies, visualization</p>
+                            <div class="d-flex gap-1 flex-wrap"><span class="pill">W2V</span><span class="pill">Similarity</span></div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            <!-- Phase 3: Model Training & Evaluation (Tasks 4, 6-9) -->
+            <div class="col-12 mt-3"><h6 class="text-muted"><i class="fas fa-brain me-2"></i>Phase 3: Model Training & Evaluation</h6></div>
+            
+            <div class="col-md-6 col-lg-3">
+                <a class="text-decoration-none" href="/level/4/task/4">
+                    <div class="card card-hover h-100">
+                        <div class="card-body">
+                            <div class="card-title"><i class="fas fa-chart-line"></i><h6 class="mb-0">4.4: Classification</h6></div>
+                            <p class="text-muted small mb-2">Train LogReg/NB/SVM, configure params, cross-validation</p>
+                            <div class="d-flex gap-1 flex-wrap"><span class="pill">Models</span><span class="pill">CV</span></div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            <div class="col-md-6 col-lg-3">
+                <a class="text-decoration-none" href="/level/4/task/6">
+                    <div class="card card-hover h-100">
+                        <div class="card-body">
+                            <div class="card-title"><i class="fas fa-clipboard-check"></i><h6 class="mb-0">4.6: Evaluation</h6></div>
+                            <p class="text-muted small mb-2">Metrics, confusion matrix, ROC, precision-recall curves</p>
+                            <div class="d-flex gap-1 flex-wrap"><span class="pill">ROC</span><span class="pill">PR</span></div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            <div class="col-md-6 col-lg-3">
+                <a class="text-decoration-none" href="/level/4/task/7">
+                    <div class="card card-hover h-100">
+                        <div class="card-body">
+                            <div class="card-title"><i class="fas fa-tune"></i><h6 class="mb-0">4.7: Hyperparameter Tuning</h6></div>
+                            <p class="text-muted small mb-2">Grid search, random search, C, n-grams, max_features</p>
+                            <div class="d-flex gap-1 flex-wrap"><span class="pill">Grid</span><span class="pill">Random</span></div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            <div class="col-md-6 col-lg-3">
+                <a class="text-decoration-none" href="/level/4/task/8">
+                    <div class="card card-hover h-100">
+                        <div class="card-body">
+                            <div class="card-title"><i class="fas fa-balance-scale"></i><h6 class="mb-0">4.8: Model Comparison</h6></div>
+                            <p class="text-muted small mb-2">Compare multiple models side-by-side, ensemble ideas</p>
+                            <div class="d-flex gap-1 flex-wrap"><span class="pill">Compare</span><span class="pill">Ensemble</span></div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            <div class="col-md-6 col-lg-3">
+                <a class="text-decoration-none" href="/level/4/task/9">
+                    <div class="card card-hover h-100">
+                        <div class="card-body">
+                            <div class="card-title"><i class="fas fa-search"></i><h6 class="mb-0">4.9: Error Analysis</h6></div>
+                            <p class="text-muted small mb-2">Analyze misclassifications, confusion patterns, fix strategies</p>
+                            <div class="d-flex gap-1 flex-wrap"><span class="pill">Errors</span><span class="pill">Fixes</span></div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            <!-- Phase 4: Chatbot Pipeline (Tasks 12-15) -->
+            <div class="col-12 mt-3"><h6 class="text-muted"><i class="fas fa-robot me-2"></i>Phase 4: Chatbot Development</h6></div>
+            
+            <div class="col-md-6 col-lg-3">
+                <a class="text-decoration-none" href="/level/4/task/12">
+                    <div class="card card-hover h-100">
+                        <div class="card-body">
+                            <div class="card-title"><i class="fas fa-cogs"></i><h6 class="mb-0">4.12: Chatbot Setup</h6></div>
+                            <p class="text-muted small mb-2">Build FAQ index, configure similarity, normalize queries</p>
+                            <div class="d-flex gap-1 flex-wrap"><span class="pill">FAQ</span><span class="pill">Index</span></div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            <div class="col-md-6 col-lg-3">
+                <a class="text-decoration-none" href="/level/4/task/13">
+                    <div class="card card-hover h-100">
+                        <div class="card-body">
+                            <div class="card-title"><i class="fas fa-comments"></i><h6 class="mb-0">4.13: Chatbot Chat</h6></div>
+                            <p class="text-muted small mb-2">Interactive chat, feedback, bookmarks, context handling</p>
+                            <div class="d-flex gap-1 flex-wrap"><span class="pill">Chat</span><span class="pill">Feedback</span></div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            <div class="col-md-6 col-lg-3">
+                <a class="text-decoration-none" href="/level/4/task/14">
+                    <div class="card card-hover h-100">
+                        <div class="card-body">
+                            <div class="card-title"><i class="fas fa-chart-bar"></i><h6 class="mb-0">4.14: Chatbot Eval</h6></div>
+                            <p class="text-muted small mb-2">Test set evaluation, coverage, response quality metrics</p>
+                            <div class="d-flex gap-1 flex-wrap"><span class="pill">Coverage</span><span class="pill">Quality</span></div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            <div class="col-md-6 col-lg-3">
+                <a class="text-decoration-none" href="/level/4/task/15">
+                    <div class="card card-hover h-100">
+                        <div class="card-body">
+                            <div class="card-title"><i class="fas fa-rocket"></i><h6 class="mb-0">4.15: Production Deploy</h6></div>
+                            <p class="text-muted small mb-2">Export chatbot, create API wrapper, deployment checklist</p>
+                            <div class="d-flex gap-1 flex-wrap"><span class="pill">API</span><span class="pill">Deploy</span></div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            <!-- Phase 5: Final (Task 16) -->
+            <div class="col-12 mt-3"><h6 class="text-muted"><i class="fas fa-share-alt me-2"></i>Phase 5: Export & Share</h6></div>
+            
+            <div class="col-md-6 col-lg-3">
+                <a class="text-decoration-none" href="/level/4/task/16">
+                    <div class="card card-hover h-100">
+                        <div class="card-body">
+                            <div class="card-title"><i class="fas fa-share-square"></i><h6 class="mb-0">4.16: Export & Share</h6></div>
+                            <p class="text-muted small mb-2">Package all artifacts, create project report, zip download</p>
+                            <div class="d-flex gap-1 flex-wrap"><span class="pill">ZIP</span><span class="pill">Report</span></div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <div class="row mt-4 g-4">
+            <div class="col-12 col-lg-8">
+                <div class="card h-100">
+                    <div class="card-header bg-light"><strong>Tips for Students</strong></div>
+                    <div class="card-body">
+                        <ul class="mb-0">
+                            <li>Start with a small sample dataset to iterate quickly.</li>
+                            <li>Balance classes for better metrics; check distribution in Task 4.1.</li>
+                            <li>Experiment with n‑grams and different models in Task 4.4.</li>
+                            <li>Use misclassifications to improve cleaning or labels.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-lg-4">
+                <div class="card h-100">
+                    <div class="card-header bg-light"><strong>Module Status</strong></div>
+                    <div class="card-body">
+                        <div class="d-flex align-items-center mb-2"><span class="badge bg-success me-2">Ready</span> Tasks 4.1–4.3</div>
+                        <div class="d-flex align-items-center mb-2"><span class="badge bg-success me-2">Ready</span> Tasks 4.4–4.5</div>
+                        <div class="d-flex align-items-center"><span class="badge bg-success me-2">Ready</span> Tasks 4.6–4.8</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+
+

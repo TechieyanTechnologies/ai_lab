@@ -1,0 +1,16 @@
+Student_ID,Age,Gender,Favorite_Subject,Study_Hours,Extracurricular,Grade_Expectation
+S001,13,Female,Mathematics,3,Music,A+
+S002,14,Male,Science,4,Sports,A
+S003,13,Female,English,2,Art,B+
+S004,14,Male,Mathematics,5,Sports,A+
+S005,13,Female,Science,3,Music,A
+S006,14,Male,English,2,Art,B
+S007,13,Female,Mathematics,4,Drama,A
+S008,14,Male,Science,3,Sports,A
+S009,13,Female,English,2,Music,B+
+S010,14,Male,Mathematics,6,Sports,A+
+S011,13,Female,Science,3,Art,A
+S012,14,Male,English,2,Drama,B
+S013,13,Female,Mathematics,4,Music,A
+S014,14,Male,Science,5,Sports,A+
+S015,13,Female,English,3,Art,B+

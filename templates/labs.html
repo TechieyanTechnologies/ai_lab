@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+
+{% block title %}Guided Labs - {{ config.school_name }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h3 mb-0">
+                    <i class="fas fa-flask me-2"></i>Guided Labs
+                </h1>
+                <div>
+                    <span class="badge bg-info">Class-8 Level</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row g-4">
+        {% for lab in labs %}
+        <div class="col-md-6 col-lg-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="{{ lab.icon }} fa-2x text-primary me-3"></i>
+                        <div>
+                            <h5 class="card-title mb-0">{{ lab.title }}</h5>
+                            <span class="badge bg-{{ 'success' if lab.difficulty == 'Beginner' else 'warning' if lab.difficulty == 'Intermediate' else 'danger' }}">
+                                {{ lab.difficulty }}
+                            </span>
+                        </div>
+                    </div>
+                    <p class="card-text">{{ lab.description }}</p>
+                </div>
+                <div class="card-footer bg-transparent">
+                    <a href="{{ url_for('lab_detail', lab_id=lab.id) }}" class="btn btn-primary w-100">
+                        <i class="fas fa-play me-2"></i>Start Lab
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    
+    <!-- Learning Path -->
+    <div class="row mt-5">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-route me-2"></i>Recommended Learning Path
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="text-center p-3">
+                                <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 50px; height: 50px;">
+                                    <strong>1</strong>
+                                </div>
+                                <h6>Basic Statistics</h6>
+                                <p class="text-muted small">Start with fundamental concepts</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="text-center p-3">
+                                <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 50px; height: 50px;">
+                                    <strong>2</strong>
+                                </div>
+                                <h6>Categorical Analysis</h6>
+                                <p class="text-muted small">Learn bar charts and counts</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="text-center p-3">
+                                <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 50px; height: 50px;">
+                                    <strong>3</strong>
+                                </div>
+                                <h6>Relationships</h6>
+                                <p class="text-muted small">Explore correlations</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="text-center p-3">
+                                <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 50px; height: 50px;">
+                                    <strong>4</strong>
+                                </div>
+                                <h6>Time & Trends</h6>
+                                <p class="text-muted small">Work with dates</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="text-center p-3">
+                                <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 50px; height: 50px;">
+                                    <strong>5</strong>
+                                </div>
+                                <h6>Distributions</h6>
+                                <p class="text-muted small">Find outliers</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="text-center p-3">
+                                <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 50px; height: 50px;">
+                                    <strong>6</strong>
+                                </div>
+                                <h6>Mini Dashboard</h6>
+                                <p class="text-muted small">Combine everything</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Help Section -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="help-section">
+                <h4><i class="fas fa-question-circle me-2"></i>About Guided Labs</h4>
+                <p class="mb-0">
+                    Each lab provides step-by-step instructions to help you learn data analysis concepts. 
+                    Labs are designed to be completed in 30-45 minutes and include sample datasets. 
+                    Start with "Basic Statistics" if you're new to data analysis!
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

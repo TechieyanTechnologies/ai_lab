@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task 3.2: Upload Images</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .task-header { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; padding: 2rem 0; }
+        .learning-objective { background: #f8f9fa; padding: 1rem; border-left: 4px solid #f5576c; }
+        .upload-area { border: 3px dashed #f5576c; border-radius: 12px; padding: 3rem; text-align: center; transition: all 0.3s; }
+        .upload-area:hover { background: #fff5f7; border-color: #f093fb; }
+        .upload-area.dragover { background: #fff5f7; border-color: #f093fb; border-style: solid; }
+        .image-preview { max-width: 150px; max-height: 150px; margin: 0.5rem; border-radius: 8px; object-fit: cover; }
+        .class-tab { cursor: pointer; }
+        .class-tab.active { background: #f5576c; color: white; }
+    </style>
+</head>
+<body>
+    <div class="task-header">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1><i class="fas fa-cloud-upload-alt me-3"></i>Task 3.2: Upload Images</h1>
+                    <p class="lead mb-0">Upload and organize your training images by class</p>
+                </div>
+                <a href="/level/3" class="btn btn-light">← Back to Level 3</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="container py-4">
+        <!-- Learning Objective -->
+        <div class="learning-objective mb-4">
+            <h4><i class="fas fa-bullseye me-2"></i>Learning Objective</h4>
+            <p class="mb-0">Learn to organize and upload image datasets for training object detection models. Images should be organized by class for efficient annotation and training.</p>
+        </div>
+
+        <!-- Project Check -->
+        <div class="card mb-4" id="noProjectCard">
+            <div class="card-body text-center">
+                <i class="fas fa-exclamation-triangle text-warning" style="font-size: 3rem;"></i>
+                <h5 class="mt-3">No Project Found</h5>
+                <p>Please create a project first in Task 3.1</p>
+                <a href="/level/3/task/1" class="btn btn-primary">
+                    <i class="fas fa-arrow-left me-2"></i>Go to Task 3.1
+                </a>
+            </div>
+        </div>
+
+        <!-- Upload Interface -->
+        <div class="card mb-4" id="uploadCard" style="display: none;">
+            <div class="card-header bg-primary text-white">
+                <h4><i class="fas fa-images me-2"></i>Upload Images by Class</h4>
+            </div>
+            <div class="card-body">
+                <!-- Class Tabs -->
+                <div class="mb-4">
+                    <label class="form-label"><i class="fas fa-list me-2"></i>Select Class for Upload</label>
+                    <div id="classTabs" class="d-flex flex-wrap gap-2 mb-3">
+                        <!-- Class tabs will be populated here -->
+                    </div>
+                    <p class="small text-muted">Select a class above, then upload images for that class</p>
+                </div>
+
+                <!-- Upload Area -->
+                <div class="upload-area" id="uploadArea">
+                    <i class="fas fa-cloud-upload-alt" style="font-size: 4rem; color: #f5576c;"></i>
+                    <h5 class="mt-3">Drag & Drop Images Here</h5>
+                    <p class="text-muted">or</p>
+                    <input type="file" id="fileInput" multiple accept="image/*" style="display: none;" onchange="handleFiles(event)">
+                    <button class="btn btn-primary btn-lg" onclick="document.getElementById('fileInput').click()">
+                        <i class="fas fa-folder-open me-2"></i>Browse Files
+                    </button>
+                    <p class="small text-muted mt-3">
+                        Supported formats: PNG, JPG, JPEG, BMP, GIF<br>
+                        <strong id="selectedClassInfo">Select a class first</strong>
+                    </p>
+                </div>
+
+                <!-- Upload Progress -->
+                <div id="uploadProgress" class="mt-3" style="display: none;">
+                    <div class="progress" style="height: 30px;">
+                        <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" 
+                             id="progressBar" style="width: 0%">0%</div>
+                    </div>
+                    <p class="text-center mt-2" id="progressText">Uploading...</p>
+                </div>
+
+                <!-- Uploaded Images Preview -->
+                <div id="uploadedImages" class="mt-4" style="display: none;">
+                    <h6><i class="fas fa-check-circle text-success me-2"></i>Uploaded Images</h6>
+                    <div id="imagesGrid" class="d-flex flex-wrap"></div>
+                </div>
+
+                <!-- Upload Status -->
+                <div id="uploadStatus" class="mt-3"></div>
+            </div>
+        </div>
+
+        <!-- Statistics -->
+        <div class="card mb-4" id="statsCard" style="display: none;">
+            <div class="card-header bg-info text-white">
+                <h5><i class="fas fa-chart-bar me-2"></i>Project Statistics</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3 text-center">
+                        <h3 id="totalImages">0</h3>
+                        <p class="text-muted mb-0">Total Images</p>
+                    </div>
+                    <div class="col-md-3 text-center">
+                        <h3 id="totalClasses">0</h3>
+                        <p class="text-muted mb-0">Classes</p>
+                    </div>
+                    <div class="col-md-3 text-center">
+                        <h3 id="avgPerClass">0</h3>
+                        <p class="text-muted mb-0">Avg per Class</p>
+                    </div>
+                    <div class="col-md-3 text-center">
+                        <h3 id="readyForLabeling">0</h3>
+                        <p class="text-muted mb-0">Ready for Labeling</p>
+                    </div>
+                </div>
+                <div id="classBreakdown" class="mt-3">
+                    <!-- Class breakdown will be shown here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Next Step -->
+        <div class="card" id="nextStepCard" style="display: none;">
+            <div class="card-body text-center">
+                <h5><i class="fas fa-check-circle text-success me-2"></i>Images Uploaded Successfully!</h5>
+                <p class="mb-3">You're ready to start labeling your images. Proceed to the next task to create bounding box annotations.</p>
+                <a href="/level/3/task/3" class="btn btn-success btn-lg">
+                    <i class="fas fa-arrow-right me-2"></i>Next: Start Labeling
+                </a>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <div class="card mt-4">
+            <div class="card-body text-center">
+                <a href="/level/3/task/1" class="btn btn-outline-secondary me-2">
+                    <i class="fas fa-arrow-left me-2"></i>Previous Task
+                </a>
+                <a href="/level/3" class="btn btn-outline-secondary me-2">
+                    Back to Level 3
+                </a>
+                <a href="/level/3/task/3" class="btn btn-primary" id="nextTaskBtn" style="display: none;">
+                    Next Task <i class="fas fa-arrow-right ms-2"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let currentProjectId = null;
+        let currentClass = null;
+        let projectClasses = [];
+        let uploadedFiles = [];
+        let uploadCardOriginalHTML = null;
+
+        // Load project on page load
+        window.addEventListener('DOMContentLoaded', async () => {
+            currentProjectId = localStorage.getItem('level3_project_id');
+            
+            if (!currentProjectId) {
+                document.getElementById('noProjectCard').style.display = 'block';
+                return;
+            }
+
+            // Save original upload card HTML
+            uploadCardOriginalHTML = document.getElementById('uploadCard').innerHTML;
+
+            // Load project metadata
+            await loadProjectInfo();
+            setupUploadArea();
+        });
+
+        async function loadProjectInfo() {
+            try {
+                console.log('Loading project info for:', currentProjectId);
+                
+                // First try to load from backend
+                const response = await fetch(`/level/3/projects/${currentProjectId}/metadata`);
+                console.log('Metadata response status:', response.status);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log('Metadata data:', data);
+                    
+                    if (data.classes && data.classes.length > 0) {
+                        projectClasses = data.classes;
+                        console.log('Loaded classes:', projectClasses);
+                        // Save to localStorage for consistency
+                        localStorage.setItem('level3_classes', JSON.stringify(projectClasses));
+                        setupClassTabs();
+                        document.getElementById('uploadCard').style.display = 'block';
+                        
+                        // Also update statistics if images exist
+                        await updateStatistics();
+                        return;
+                    } else if (data.error) {
+                        console.warn('Project metadata error:', data.error);
+                    } else {
+                        console.warn('Project metadata exists but no classes found');
+                    }
+                } else {
+                    const errorData = await response.json().catch(() => ({}));
+                    console.warn('Metadata endpoint returned:', response.status, errorData);
+                }
+                
+                // Fallback to localStorage
+                const classesJson = localStorage.getItem('level3_classes');
+                if (classesJson) {
+                    try {
+                        projectClasses = JSON.parse(classesJson);
+                        if (projectClasses && projectClasses.length > 0) {
+                            setupClassTabs();
+                            document.getElementById('uploadCard').style.display = 'block';
+                            await updateStatistics();
+                            return;
+                        }
+                    } catch (e) {
+                        console.error('Error parsing localStorage classes:', e);
+                    }
+                }
+                
+                // No valid project data found
+                document.getElementById('uploadCard').style.display = 'none';
+                document.getElementById('noProjectCard').style.display = 'block';
+                document.getElementById('noProjectCard').innerHTML = `
+                    <div class="card-body text-center">
+                        <i class="fas fa-exclamation-triangle text-warning" style="font-size: 3rem;"></i>
+                        <h5 class="mt-3">Project Not Found</h5>
+                        <p>Unable to load project data. Project ID: <code>${currentProjectId}</code></p>
+                        <p class="small text-muted">Please create a new project in Task 3.1</p>
+                        <a href="/level/3/task/1" class="btn btn-primary">
+                            <i class="fas fa-arrow-left me-2"></i>Go to Task 3.1: Create Project
+                        </a>
+                    </div>
+                `;
+            } catch (error) {
+                console.error('Error loading project:', error);
+                // Fallback to localStorage
+                const classesJson = localStorage.getItem('level3_classes');
+                if (classesJson) {
+                    try {
+                        projectClasses = JSON.parse(classesJson);
+                        if (projectClasses && projectClasses.length > 0) {
+                            setupClassTabs();
+                            document.getElementById('uploadCard').style.display = 'block';
+                            return;
+                        }
+                    } catch (e) {
+                        console.error('Error parsing localStorage:', e);
+                    }
+                }
+                document.getElementById('uploadCard').style.display = 'none';
+                document.getElementById('noProjectCard').style.display = 'block';
+            }
+        }
+
+        function setupClassTabs() {
+            const tabsContainer = document.getElementById('classTabs');
+            tabsContainer.innerHTML = '';
+            
+            projectClasses.forEach((className, index) => {
+                const tab = document.createElement('button');
+                tab.className = 'btn btn-outline-primary class-tab' + (index === 0 ? ' active' : '');
+                tab.textContent = className;
+                tab.onclick = () => selectClass(className);
+                tabsContainer.appendChild(tab);
+            });
+            
+            if (projectClasses.length > 0) {
+                selectClass(projectClasses[0]);
+            }
+        }
+
+        function selectClass(className) {
+            currentClass = className;
+            document.getElementById('selectedClassInfo').textContent = `Uploading to class: ${className}`;
+            
+            // Update active tab
+            document.querySelectorAll('.class-tab').forEach(tab => {
+                tab.classList.remove('active', 'btn-primary');
+                tab.classList.add('btn-outline-primary');
+                if (tab.textContent === className) {
+                    tab.classList.add('active', 'btn-primary');
+                    tab.classList.remove('btn-outline-primary');
+                }
+            });
+        }
+
+        function setupUploadArea() {
+            const uploadArea = document.getElementById('uploadArea');
+            
+            uploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadArea.classList.add('dragover');
+            });
+            
+            uploadArea.addEventListener('dragleave', () => {
+                uploadArea.classList.remove('dragover');
+            });
+            
+            uploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadArea.classList.remove('dragover');
+                const files = Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('image/'));
+                if (files.length > 0) {
+                    uploadFiles(files);
+                }
+            });
+        }
+
+        function handleFiles(event) {
+            const files = Array.from(event.target.files).filter(f => f.type.startsWith('image/'));
+            if (files.length > 0) {
+                uploadFiles(files);
+            }
+        }
+
+        async function uploadFiles(files) {
+            if (!currentProjectId || !currentClass) {
+                alert('Please select a class first');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('project_id', currentProjectId);
+            formData.append('class_name', currentClass);
+            
+            files.forEach(file => {
+                formData.append('images', file);
+            });
+
+            document.getElementById('uploadProgress').style.display = 'block';
+            document.getElementById('progressBar').style.width = '0%';
+            document.getElementById('progressBar').textContent = '0%';
+
+            try {
+                const response = await fetch('/level/3/upload-images', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    document.getElementById('progressBar').style.width = '100%';
+                    document.getElementById('progressBar').textContent = '100%';
+                    document.getElementById('progressText').textContent = `Successfully uploaded ${data.uploaded_count} image(s)`;
+                    
+                    setTimeout(() => {
+                        document.getElementById('uploadProgress').style.display = 'none';
+                    }, 2000);
+
+                    // Show uploaded images preview
+                    displayUploadedImages(files, data.uploaded_count);
+                    
+                    // Update statistics
+                    await updateStatistics();
+                    
+                    // Show success message
+                    document.getElementById('uploadStatus').innerHTML = `
+                        <div class="alert alert-success">
+                            <i class="fas fa-check-circle me-2"></i>Successfully uploaded ${data.uploaded_count} image(s) to class "${currentClass}"
+                        </div>
+                    `;
+
+                    // Show next step if enough images
+                    if (data.uploaded_count > 0) {
+                        document.getElementById('nextStepCard').style.display = 'block';
+                        document.getElementById('nextTaskBtn').style.display = 'inline-block';
+                    }
+                } else {
+                    throw new Error(data.error || 'Upload failed');
+                }
+            } catch (error) {
+                document.getElementById('uploadStatus').innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-circle me-2"></i>Error: ${error.message}
+                    </div>
+                `;
+                document.getElementById('uploadProgress').style.display = 'none';
+            }
+        }
+
+        function displayUploadedImages(files, count) {
+            const grid = document.getElementById('imagesGrid');
+            grid.innerHTML = '';
+            
+            Array.from(files).slice(0, 10).forEach(file => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    img.className = 'image-preview';
+                    grid.appendChild(img);
+                };
+                reader.readAsDataURL(file);
+            });
+            
+            if (count > 10) {
+                const more = document.createElement('p');
+                more.className = 'small text-muted mt-2';
+                more.textContent = `... and ${count - 10} more images`;
+                grid.appendChild(more);
+            }
+            
+            document.getElementById('uploadedImages').style.display = 'block';
+        }
+
+        async function updateStatistics() {
+            try {
+                const response = await fetch(`/level/3/projects/${currentProjectId}/images`);
+                
+                if (!response.ok) {
+                    // If no images endpoint works, just hide stats
+                    document.getElementById('statsCard').style.display = 'none';
+                    return;
+                }
+                
+                const data = await response.json();
+                const images = data.images || [];
+                const totalImages = images.length;
+                
+                if (totalImages === 0) {
+                    document.getElementById('statsCard').style.display = 'none';
+                    return;
+                }
+                
+                const classCounts = {};
+                images.forEach(img => {
+                    classCounts[img.class] = (classCounts[img.class] || 0) + 1;
+                });
+                
+                const totalClasses = Object.keys(classCounts).length;
+                const avgPerClass = totalClasses > 0 ? Math.round(totalImages / totalClasses) : 0;
+                
+                document.getElementById('totalImages').textContent = totalImages;
+                document.getElementById('totalClasses').textContent = totalClasses;
+                document.getElementById('avgPerClass').textContent = avgPerClass;
+                document.getElementById('readyForLabeling').textContent = totalImages;
+                
+                // Show class breakdown
+                const breakdown = document.getElementById('classBreakdown');
+                breakdown.innerHTML = '<h6>Images by Class:</h6>';
+                Object.entries(classCounts).forEach(([className, count]) => {
+                    breakdown.innerHTML += `<p class="mb-1"><strong>${className}:</strong> ${count} images</p>`;
+                });
+                
+                document.getElementById('statsCard').style.display = 'block';
+            } catch (error) {
+                console.error('Error updating statistics:', error);
+                document.getElementById('statsCard').style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>
+

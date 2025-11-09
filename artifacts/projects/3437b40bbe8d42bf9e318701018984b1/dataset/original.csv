@@ -1,0 +1,41 @@
+respondent_id,age,gender,satisfaction_score,comment
+1,25,Male,4.5,Very satisfied with the service
+2,30,Female,3.8,Good overall experience
+3,22,Male,4.2,Impressed with quality
+4,35,Female,3.5,Average service provided
+5,28,Male,4.8,Excellent service and support
+6,45,Female,2.9,Needs improvement in some areas
+7,19,Male,4.7,Very happy with the results
+8,32,Female,3.2,Some issues but generally okay
+9,27,Male,4.6,Great experience
+10,38,Female,3.9,Good value for money
+11,24,Male,4.4,Satisfied with the product
+12,29,Female,3.7,Decent service
+13,33,Male,4.3,Very good quality
+14,26,Female,4.0,Met my expectations
+15,31,Male,3.6,Above average
+16,40,Female,4.1,Would recommend to others
+17,23,Male,4.9,Exceptional service
+18,36,Female,3.4,Nothing special
+19,28,Male,4.5,Very pleased
+20,29,Female,3.8,Good communication
+21,24,Male,4.2,Solid performance
+22,34,Female,3.3,Acceptable but room for improvement
+23,27,Male,4.7,Exceeded expectations
+24,32,Female,4.0,Decent enough
+25,26,Male,4.6,Very satisfied
+26,30,Female,3.9,Good service level
+27,35,Male,3.7,Met requirements
+28,28,Female,4.3,Impressive quality
+29,22,Male,4.8,Outstanding experience
+30,37,Female,3.5,Fair service
+31,25,Male,4.4,Satisfied customer
+32,29,Female,4.1,Good overall
+33,31,Male,3.8,Above average quality
+34,26,Female,4.6,Very happy
+35,33,Male,4.2,Great value
+36,24,Female,4.7,Excellent
+37,30,Male,3.9,Good enough
+38,28,Female,4.3,Satisfied with purchase
+39,32,Male,4.5,High quality
+40,27,Female,4.0,Decent product

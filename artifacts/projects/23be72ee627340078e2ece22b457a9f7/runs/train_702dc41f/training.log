@@ -1,0 +1,8 @@
+Training started at 2025-10-29 17:17:51.506209
+Using YOLOv5 pretrained: yolov5s.pt
+Training on: artifacts/projects/23be72ee627340078e2ece22b457a9f7/data.yaml
+Epochs: 10, Batch: 4, Img size: 640
+
+
+Training completed successfully!
+Model saved to: artifacts/projects/23be72ee627340078e2ece22b457a9f7/runs/train_702dc41f/weights/best.pt

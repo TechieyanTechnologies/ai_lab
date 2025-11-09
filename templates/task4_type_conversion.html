@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task 4: Data Type Conversion</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .task-header { background: linear-gradient(135deg, #f6d365 0%, #fda085 100%); color: white; padding: 2rem 0; }
+        .learning-objective { background: #f8f9fa; padding: 1rem; border-left: 4px solid #fda085; }
+        .type-card { transition: transform 0.2s; cursor: pointer; }
+        .type-card:hover { transform: translateY(-5px); }
+        .activity-card { border: 2px solid #fda085; }
+        .stats-card { background: #f8f9fa; padding: 1rem; border-radius: 8px; margin: 0.5rem 0; }
+    </style>
+</head>
+<body>
+    <div class="task-header">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1><i class="fas fa-exchange-alt me-3"></i>Task 4: Data Type Conversion</h1>
+                    <p class="lead mb-0">Learn to convert data types and understand when each type is needed</p>
+                </div>
+                <div class="text-end">
+                    <a href="/level/1" class="btn btn-light me-2">← Back to Level 1</a>
+                    <span class="badge bg-light text-dark me-2" style="font-size: 0.9rem;">
+                        <i class="fas fa-clock me-1"></i>20 minutes
+                    </span>
+                    <a href="/level/1/task/4/document" target="_blank" class="btn btn-light btn-sm">
+                        <i class="fas fa-book me-2"></i>Document
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container py-4">
+        <!-- Dataset Selection -->
+        <div class="card mb-4">
+            <div class="card-header bg-secondary text-white">
+                <h4><i class="fas fa-database me-2"></i>Select Your Dataset</h4>
+            </div>
+            <div class="card-body">
+                <p>Choose a dataset to work with for this task:</p>
+                
+                <!-- Upload Your Own Dataset -->
+                <div class="mb-3">
+                    <label class="form-label"><i class="fas fa-upload me-2"></i>Upload Your Own Dataset</label>
+                    <div class="input-group">
+                        <input type="file" class="form-control" id="csvFileInput" accept=".csv" onchange="handleFileUpload(event)">
+                        <button class="btn btn-primary" onclick="document.getElementById('csvFileInput').click()">
+                            <i class="fas fa-folder-open me-2"></i>Browse CSV Files
+                        </button>
+                    </div>
+                    <small class="text-muted">Upload a CSV file to practice with your own data</small>
+                </div>
+                
+                <hr class="my-4">
+                
+                <p class="mb-2">Or choose from sample datasets:</p>
+                <div class="btn-group" role="group">
+                    <button type="button" class="btn btn-outline-primary" onclick="loadSample('student_marks')">
+                        <i class="fas fa-file-csv me-2"></i>Student Marks
+                    </button>
+                    <button type="button" class="btn btn-outline-primary" onclick="loadSample('weather_week')">
+                        <i class="fas fa-file-csv me-2"></i>Weather Data
+                    </button>
+                    <button type="button" class="btn btn-outline-primary" onclick="loadSample('sales_small')">
+                        <i class="fas fa-file-csv me-2"></i>Sales Data
+                    </button>
+                    <button type="button" class="btn btn-outline-primary" onclick="loadSample('survey_small')">
+                        <i class="fas fa-file-csv me-2"></i>Survey Data
+                    </button>
+                </div>
+                <div id="datasetStatus" class="mt-3"></div>
+            </div>
+        </div>
+
+        <!-- Learning Objective -->
+        <div class="learning-objective mb-4">
+            <h4><i class="fas fa-bullseye me-2"></i>Learning Objective</h4>
+            <p class="mb-0">You'll learn to <strong>convert data types</strong> in your dataset — changing strings to numbers, numbers to dates, text to categories — so your data is ready for analysis and visualization.</p>
+        </div>
+
+        <!-- Data Types Overview -->
+        <div class="card mb-4" id="typesCard" style="display: none;">
+            <div class="card-header bg-info text-white">
+                <h4><i class="fas fa-graduation-cap me-2"></i>Understanding Data Types</h4>
+            </div>
+            <div class="card-body">
+                <p>Click on each data type to learn when and how to convert it:</p>
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <div class="card type-card h-100" onclick="showType('numeric')">
+                            <div class="card-body text-center">
+                                <i class="fas fa-sort-numeric-up fa-3x text-primary mb-3"></i>
+                                <h6>Numeric (int, float)</h6>
+                                <p class="small">Numbers for calculations</p>
+                                <button class="btn btn-sm btn-primary">Learn More</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card type-card h-100" onclick="showType('string')">
+                            <div class="card-body text-center">
+                                <i class="fas fa-font fa-3x text-info mb-3"></i>
+                                <h6>String (text)</h6>
+                                <p class="small">Text data for categories</p>
+                                <button class="btn btn-sm btn-info">Learn More</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card type-card h-100" onclick="showType('datetime')">
+                            <div class="card-body text-center">
+                                <i class="fas fa-calendar-alt fa-3x text-success mb-3"></i>
+                                <h6>DateTime</h6>
+                                <p class="small">Dates and timestamps</p>
+                                <button class="btn btn-sm btn-success">Learn More</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card type-card h-100" onclick="showType('category')">
+                            <div class="card-body text-center">
+                                <i class="fas fa-tags fa-3x text-warning mb-3"></i>
+                                <h6>Category</h6>
+                                <p class="small">Limited categories</p>
+                                <button class="btn btn-sm btn-warning">Learn More</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card type-card h-100" onclick="showType('boolean')">
+                            <div class="card-body text-center">
+                                <i class="fas fa-toggle-on fa-3x text-danger mb-3"></i>
+                                <h6>Boolean</h6>
+                                <p class="small">True/False values</p>
+                                <button class="btn btn-sm btn-danger">Learn More</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card type-card h-100" onclick="showType('timestamp')">
+                            <div class="card-body text-center">
+                                <i class="fas fa-clock fa-3x text-secondary mb-3"></i>
+                                <h6>Timestamp</h6>
+                                <p class="small">Date and time together</p>
+                                <button class="btn btn-sm btn-secondary">Learn More</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="typeExplanation" class="mt-4"></div>
+            </div>
+        </div>
+
+        <!-- Interactive Activities -->
+        <div class="card mb-4" id="activitiesCard" style="display: none;">
+            <div class="card-header bg-primary text-white">
+                <h4><i class="fas fa-tasks me-2"></i>Interactive Activities</h4>
+            </div>
+            <div class="card-body">
+                <p>Practice type conversion with these activities:</p>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="card activity-card h-100">
+                            <div class="card-body">
+                                <h5><i class="fas fa-search me-2"></i>Inspect Column Types</h5>
+                                <p>See what types your columns currently have</p>
+                                <button class="btn btn-primary" onclick="inspectTypes()">
+                                    <i class="fas fa-play me-2"></i>Start Activity
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card activity-card h-100">
+                            <div class="card-body">
+                                <h5><i class="fas fa-exchange-alt me-2"></i>Convert Column</h5>
+                                <p>Practice converting columns between types</p>
+                                <button class="btn btn-success" onclick="convertColumn()">
+                                    <i class="fas fa-play me-2"></i>Start Activity
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card activity-card h-100">
+                            <div class="card-body">
+                                <h5><i class="fas fa-check-circle me-2"></i>Type Detective</h5>
+                                <p>Guess the correct type for columns</p>
+                                <button class="btn btn-warning" onclick="typeDetective()">
+                                    <i class="fas fa-play me-2"></i>Start Activity
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card activity-card h-100">
+                            <div class="card-body">
+                                <h5><i class="fas fa-list-check me-2"></i>Batch Conversion</h5>
+                                <p>Convert multiple columns at once</p>
+                                <button class="btn btn-info" onclick="batchConversion()">
+                                    <i class="fas fa-play me-2"></i>Start Activity
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card activity-card h-100">
+                            <div class="card-body">
+                                <h5><i class="fas fa-code me-2"></i>Practice Quiz</h5>
+                                <p>Test your type conversion knowledge</p>
+                                <button class="btn btn-danger" onclick="practiceQuiz()">
+                                    <i class="fas fa-play me-2"></i>Start Activity
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card activity-card h-100">
+                            <div class="card-body">
+                                <h5><i class="fas fa-chart-pie me-2"></i>Before/After View</h5>
+                                <p>Compare data before and after conversion</p>
+                                <button class="btn btn-dark" onclick="compareConversion()">
+                                    <i class="fas fa-play me-2"></i>Start Activity
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="activityResult" class="mt-4"></div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-body text-center">
+                <a href="/level/1/task/3" class="btn btn-outline-secondary">← Previous Task</a>
+                <a href="/level/1" class="btn btn-outline-secondary">Back to Level 1</a>
+                <a href="/level/1/task/5" class="btn btn-primary">Next Task →</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let currentProjectId = localStorage.getItem('currentProjectId');
+        let datasetInfo = null;
+
+        async function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            if (!file.name.endsWith('.csv')) {
+                alert('Please upload a CSV file');
+                return;
+            }
+
+            document.getElementById('datasetStatus').innerHTML = 
+                '<div class="alert alert-info">📤 Uploading your dataset... <i class="fas fa-spinner fa-spin"></i></div>';
+
+            try {
+                const formData = new FormData();
+                formData.append('file', file);
+
+                const response = await fetch('/level/1/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(errorText || 'Upload failed');
+                }
+
+                const data = await response.json();
+                
+                if (data.project_id) {
+                    currentProjectId = data.project_id;
+                    localStorage.setItem('currentProjectId', currentProjectId);
+                    
+                    document.getElementById('datasetStatus').innerHTML = 
+                        `<div class="alert alert-success">
+                            <i class="fas fa-check-circle me-2"></i>Dataset uploaded successfully!
+                            <br>Project ID: ${currentProjectId}
+                            <br>File: ${file.name}
+                        </div>`;
+                    
+                    document.getElementById('typesCard').style.display = 'block';
+                    document.getElementById('activitiesCard').style.display = 'block';
+                    
+                    try {
+                        const previewResponse = await fetch(`/projects/${currentProjectId}/dataset/preview`);
+                        datasetInfo = await previewResponse.json();
+                    } catch (previewError) {
+                        console.error('Error loading preview:', previewError);
+                    }
+                } else {
+                    throw new Error('Failed to upload dataset: No project ID returned');
+                }
+            } catch (error) {
+                console.error('Upload error:', error);
+                document.getElementById('datasetStatus').innerHTML = 
+                    '<div class="alert alert-danger">❌ Error uploading file: ' + error.message + '</div>';
+            }
+        }
+
+        async function loadSample(filename) {
+            try {
+                const response = await fetch(`/level/1/load-sample/${filename}`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'}
+                });
+                
+                if (!response.ok) throw new Error('Failed to load sample');
+                
+                const data = await response.json();
+                currentProjectId = data.project_id;
+                localStorage.setItem('currentProjectId', currentProjectId);
+                
+                document.getElementById('datasetStatus').innerHTML = 
+                    `<div class="alert alert-success">
+                        <i class="fas fa-check-circle me-2"></i>Dataset loaded successfully! Project ID: ${currentProjectId}
+                    </div>`;
+                
+                document.getElementById('typesCard').style.display = 'block';
+                document.getElementById('activitiesCard').style.display = 'block';
+                
+                const previewResponse = await fetch(`/projects/${currentProjectId}/dataset/preview`);
+                datasetInfo = await previewResponse.json();
+            } catch (error) {
+                alert('Error loading sample: ' + error);
+            }
+        }
+
+        function showType(type) {
+            if (!datasetInfo) {
+                alert('Please load a dataset first!');
+                return;
+            }
+
+            const explanations = {
+                'numeric': {
+                    title: 'Numeric Types (int, float)',
+                    description: 'Numbers used for mathematical calculations and statistics.',
+                    examples: ['42', '3.14', '99.99'],
+                    when: 'Use for: quantities, measurements, scores, counts',
+                    conversion: 'Convert from string: pd.to_numeric() or .astype(float)'
+                },
+                'string': {
+                    title: 'String Types (object/text)',
+                    description: 'Text data used for names, categories, descriptions.',
+                    examples: ['"Hello"', '"Category A"', '"Student Name"'],
+                    when: 'Use for: names, labels, text descriptions, categories',
+                    conversion: 'Convert with: .astype(str) or pd.Categorical()'
+                },
+                'datetime': {
+                    title: 'DateTime Types',
+                    description: 'Date and time values for temporal analysis.',
+                    examples: ['2024-01-15', '2024-12-25', '2024-06-30'],
+                    when: 'Use for: dates, temporal patterns, time-series analysis',
+                    conversion: 'Convert with: pd.to_datetime()'
+                },
+                'category': {
+                    title: 'Category Types',
+                    description: 'Limited set of distinct values for efficiency and analysis.',
+                    examples: ['Grade A', 'Grade B', 'Grade C'],
+                    when: 'Use for: limited unique values, memory efficiency, grouping',
+                    conversion: 'Convert with: .astype("category")'
+                },
+                'boolean': {
+                    title: 'Boolean Types (True/False)',
+                    description: 'Logical values representing binary states.',
+                    examples: ['True', 'False', '1', '0'],
+                    when: 'Use for: yes/no, on/off, pass/fail decisions',
+                    conversion: 'Convert with: .astype(bool)'
+                },
+                'timestamp': {
+                    title: 'Timestamp Types',
+                    description: 'Specific date and time for precise temporal tracking.',
+                    examples: ['2024-01-15 14:30:00', '2024-12-25 08:00:00'],
+                    when: 'Use for: precise time tracking, event logging, scheduling',
+                    conversion: 'Convert with: pd.to_datetime() and .dt accessor'
+                }
+            };
+
+            const exp = explanations[type];
+            const html = `
+                <div class="card border-primary">
+                    <div class="card-header bg-primary text-white">
+                        <h5>${exp.title}</h5>
+                    </div>
+                    <div class="card-body">
+                        <p><strong>Description:</strong> ${exp.description}</p>
+                        <p><strong>Examples:</strong> ${exp.examples.join(', ')}</p>
+                        <p><strong>When to use:</strong> ${exp.when}</p>
+                        <p><strong>How to convert:</strong> ${exp.conversion}</p>
+                        <div class="alert alert-info mt-3">
+                            <i class="fas fa-hand-pointer me-2"></i>
+                            <strong>Try it:</strong> Use the activities below to practice converting types in your data!
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('typeExplanation').innerHTML = html;
+        }
+
+        async function inspectTypes() {
+            if (!currentProjectId) {
+                alert('Please load a dataset first!');
+                return;
+            }
+
+            document.getElementById('activityResult').innerHTML = 
+                '<div class="alert alert-info">🔍 Analyzing column types... <i class="fas fa-spinner fa-spin"></i></div>';
+
+            try {
+                const response = await fetch(`/projects/${currentProjectId}/columns`);
+                const data = await response.json();
+                
+                let html = '<h6>📊 Current Data Types in Your Dataset</h6>';
+                html += '<p class="alert alert-info"><i class="fas fa-info-circle me-2"></i>Here are the current types for all columns in your data:</p>';
+                html += '<div class="table-responsive"><table class="table table-striped">';
+                html += '<thead class="table-dark"><tr><th>Column</th><th>Current Type</th><th>Classification</th><th>Sample Values</th></tr></thead><tbody>';
+                
+                data.columns.forEach(col => {
+                    const dtype = data.dtypes[col];
+                    const isNumeric = data.numeric_columns.includes(col);
+                    const isCategorical = data.categorical_columns.includes(col);
+                    const badgeClass = isNumeric ? 'primary' : (isCategorical ? 'info' : 'secondary');
+                    const classification = isNumeric ? 'Numeric' : (isCategorical ? 'Categorical' : 'Mixed');
+                    
+                    // Get sample values
+                    const values = datasetInfo.head.map(row => row[col]).slice(0, 3);
+                    const sampleValues = values.length > 0 ? values.join(', ') : 'N/A';
+                    
+                    html += '<tr>';
+                    html += `<td><strong>${col}</strong></td>`;
+                    html += `<td><code>${dtype}</code></td>`;
+                    html += `<td><span class="badge bg-${badgeClass}">${classification}</span></td>`;
+                    html += `<td class="text-muted small">${sampleValues}</td>`;
+                    html += '</tr>';
+                });
+                
+                html += '</tbody></table></div>';
+                
+                // Add insights
+                html += '<div class="alert alert-success mt-3">';
+                html += '<h6>💡 Insights:</h6>';
+                html += `<p>• <strong>${data.numeric_columns.length}</strong> numeric columns - ready for calculations</p>`;
+                html += `<p>• <strong>${data.categorical_columns.length}</strong> categorical columns - ready for grouping</p>`;
+                html += '<p>• Review each column to see if type conversion is needed for your analysis</p>';
+                html += '</div>';
+                
+                document.getElementById('activityResult').innerHTML = html;
+            } catch (error) {
+                console.error('Error inspecting types:', error);
+                document.getElementById('activityResult').innerHTML = 
+                    '<div class="alert alert-danger">Error inspecting types: ' + error.message + '</div>';
+            }
+        }
+
+        async function convertColumn() {
+            if (!currentProjectId) {
+                alert('Please load a dataset first!');
+                return;
+            }
+
+            try {
+                const response = await fetch(`/projects/${currentProjectId}/columns`);
+                const data = await response.json();
+                
+                let html = '<h6>🔄 Column Type Conversion Practice</h6>';
+                html += '<p class="alert alert-info"><i class="fas fa-info-circle me-2"></i>Select a column and target type to see conversion options:</p>';
+                html += '<div class="row">';
+                html += '<div class="col-md-6 mb-3"><label class="form-label">Select Column</label>';
+                html += '<select class="form-select" id="convertColumnSelect" onchange="showConversionOptions()">';
+                html += '<option value="">Choose a column...</option>';
+                data.columns.forEach(col => {
+                    html += `<option value="${col}">${col} (${data.dtypes[col]})</option>`;
+                });
+                html += '</select></div>';
+                html += '<div class="col-md-6 mb-3"><label class="form-label">Convert To</label>';
+                html += '<select class="form-select" id="convertTargetType" onchange="previewConversion()">';
+                html += '<option value="">Choose target type...</option>';
+                html += '<option value="numeric">Numeric (int/float)</option>';
+                html += '<option value="string">String (text)</option>';
+                html += '<option value="datetime">DateTime</option>';
+                html += '<option value="category">Category</option>';
+                html += '<option value="boolean">Boolean</option>';
+                html += '</select></div>';
+                html += '</div>';
+                html += '<div id="conversionPreview" class="mt-3"></div>';
+                
+                document.getElementById('activityResult').innerHTML = html;
+            } catch (error) {
+                console.error('Error in convert column:', error);
+                document.getElementById('activityResult').innerHTML = 
+                    '<div class="alert alert-danger">Error: ' + error.message + '</div>';
+            }
+        }
+
+        function showConversionOptions() {
+            const selectedCol = document.getElementById('convertColumnSelect').value;
+            if (!selectedCol) return;
+            
+            // Load column data and show current values
+            fetch(`/projects/${currentProjectId}/dataset/preview`)
+                .then(r => r.json())
+                .then(data => {
+                    const values = data.head.map(row => row[selectedCol]).slice(0, 5);
+                    const previewDiv = document.getElementById('conversionPreview');
+                    if (previewDiv) {
+                        previewDiv.innerHTML = `
+                            <div class="alert alert-light">
+                                <h6>Current Values:</h6>
+                                <code>${values.join(', ')}</code>
+                            </div>
+                        `;
+                    }
+                });
+        }
+
+        function previewConversion() {
+            const targetType = document.getElementById('convertTargetType').value;
+            const col = document.getElementById('convertColumnSelect').value;
+            if (!col || !targetType) return;
+            
+            const previewDiv = document.getElementById('conversionPreview');
+            if (previewDiv) {
+                previewDiv.innerHTML += `
+                    <div class="alert alert-info">
+                        <h6>Conversion Result:</h6>
+                        <p>Column <strong>${col}</strong> will be converted to <strong>${targetType}</strong></p>
+                        <p class="small">💡 This allows you to perform ${targetType}-specific operations on this column</p>
+                    </div>
+                `;
+            }
+        }
+
+        async function typeDetective() {
+            if (!currentProjectId) {
+                alert('Please load a dataset first!');
+                return;
+            }
+
+            try {
+                const response = await fetch(`/projects/${currentProjectId}/columns`);
+                const data = await response.json();
+                
+                // Pick a random column
+                const cols = data.columns.slice(0, 5);
+                const randomCol = cols[Math.floor(Math.random() * cols.length)];
+                const correctType = data.numeric_columns.includes(randomCol) ? 'numeric' : 'categorical';
+                
+                // Get sample values
+                const values = datasetInfo.head.map(row => row[randomCol]).slice(0, 3);
+                
+                let html = '<h6>🕵️ Type Detective Challenge</h6>';
+                html += '<p class="alert alert-info"><i class="fas fa-info-circle me-2"></i>Look at this column and guess its type:</p>';
+                html += `<div class="card mb-3">`;
+                html += `<div class="card-header"><h5>Column: <strong>${randomCol}</strong></h5></div>`;
+                html += `<div class="card-body">`;
+                html += `<p class="lead">Sample Values:</p>`;
+                html += `<p><code>${values.join(', ')}</code></p>`;
+                html += `</div></div>`;
+                html += `<p>What type should this column be?</p>`;
+                html += `<div class="btn-group-vertical w-100 mb-3">`;
+                html += `<button class="btn btn-outline-primary" onclick="guessType('${randomCol}', 'numeric', '${correctType}')">Numeric</button>`;
+                html += `<button class="btn btn-outline-primary" onclick="guessType('${randomCol}', 'categorical', '${correctType}')">Categorical</button>`;
+                html += `<button class="btn btn-outline-primary" onclick="guessType('${randomCol}', 'datetime', '${correctType}')">DateTime</button>`;
+                html += `<button class="btn btn-outline-primary" onclick="guessType('${randomCol}', 'string', '${correctType}')">String</button>`;
+                html += `</div>`;
+                html += `<div id="guessResult" class="mt-3"></div>`;
+                
+                document.getElementById('activityResult').innerHTML = html;
+            } catch (error) {
+                console.error('Error in type detective:', error);
+                document.getElementById('activityResult').innerHTML = 
+                    '<div class="alert alert-danger">Error: ' + error.message + '</div>';
+            }
+        }
+
+        function guessType(col, guess, correct) {
+            const resultDiv = document.getElementById('guessResult');
+            if (guess === correct) {
+                resultDiv.innerHTML = '<div class="alert alert-success"><i class="fas fa-check-circle me-2"></i>Correct! Well done!</div>';
+            } else {
+                resultDiv.innerHTML = `<div class="alert alert-danger"><i class="fas fa-times-circle me-2"></i>Not quite! The correct type is: <strong>${correct}</strong></div>`;
+            }
+        }
+
+        async function batchConversion() {
+            alert('Batch conversion allows you to convert multiple columns at once. This feature is coming soon!');
+        }
+
+        async function practiceQuiz() {
+            if (!currentProjectId) {
+                alert('Please load a dataset first!');
+                return;
+            }
+
+            const questions = [
+                {
+                    q: 'What type should you use for student scores?',
+                    options: ['Numeric', 'String', 'Boolean', 'DateTime'],
+                    correct: 0
+                },
+                {
+                    q: 'When should you convert a column to "category" type?',
+                    options: ['Never', 'When there are many unique values', 'When values repeat often', 'Only for numbers'],
+                    correct: 2
+                },
+                {
+                    q: 'Which conversion is needed for dates like "2024-01-15"?',
+                    options: ['String to Numeric', 'String to DateTime', 'Category to Boolean', 'No conversion needed'],
+                    correct: 1
+                }
+            ];
+
+            let html = '<h6>📝 Type Conversion Quiz</h6>';
+            html += '<p>Test your knowledge of data types:</p>';
+            
+            questions.forEach((q, idx) => {
+                html += `<div class="card mb-3">`;
+                html += `<div class="card-body">`;
+                html += `<p><strong>${idx + 1}. ${q.q}</strong></p>`;
+                q.options.forEach((opt, optIdx) => {
+                    const isCorrect = optIdx === q.correct;
+                    html += `<button class="btn btn-outline-primary me-2 mb-2" onclick="checkQuizAnswer(${idx}, ${optIdx}, ${isCorrect})">${opt}</button>`;
+                });
+                html += `<div id="quizResult${idx}" class="mt-2"></div>`;
+                html += `</div></div>`;
+            });
+            
+            document.getElementById('activityResult').innerHTML = html;
+        }
+
+        function checkQuizAnswer(qIdx, selectedIdx, isCorrect) {
+            const resultDiv = document.getElementById('quizResult' + qIdx);
+            if (isCorrect) {
+                resultDiv.innerHTML = '<div class="alert alert-success"><i class="fas fa-check me-2"></i>Correct!</div>';
+            } else {
+                resultDiv.innerHTML = '<div class="alert alert-danger"><i class="fas fa-times me-2"></i>Incorrect</div>';
+            }
+        }
+
+        async function compareConversion() {
+            alert('Before/After view shows data before and after type conversion. This feature is coming soon!');
+        }
+
+        // Load dataset if available
+        if (currentProjectId) {
+            fetch(`/projects/${currentProjectId}/dataset/preview`)
+            .then(r => r.json())
+            .then(data => {
+                datasetInfo = data;
+                document.getElementById('typesCard').style.display = 'block';
+                document.getElementById('activitiesCard').style.display = 'block';
+                document.getElementById('datasetStatus').innerHTML = 
+                    `<div class="alert alert-success">Dataset already loaded!</div>`;
+            });
+        }
+    </script>
+</body>
+</html>

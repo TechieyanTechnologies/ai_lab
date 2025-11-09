@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analysis Report - AI Lab</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @media print {
+            .no-print { display: none !important; }
+            .page-break { page-break-before: always; }
+        }
+        .report-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem 0;
+        }
+        .artifact-card {
+            transition: transform 0.3s ease;
+        }
+        .artifact-card:hover {
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <!-- Report Header -->
+    <div class="report-header">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h1 class="display-5 mb-2">
+                        <i class="fas fa-chart-line me-3"></i>
+                        Analysis Report
+                    </h1>
+                    <p class="lead mb-0">Generated on {{ progress.message }}</p>
+                </div>
+                <div class="col-md-4 text-end no-print">
+                    <button class="btn btn-outline-light me-2" onclick="window.print()">
+                        <i class="fas fa-print me-2"></i>Print Report
+                    </button>
+                    <a href="/projects/{{ project_id }}" class="btn btn-outline-light">
+                        <i class="fas fa-arrow-left me-2"></i>Back to Project
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container py-4">
+        <!-- Report Summary -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="fas fa-info-circle me-2"></i>Report Summary
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <strong>Project ID:</strong><br>
+                                <code>{{ project_id }}</code>
+                            </div>
+                            <div class="col-md-3">
+                                <strong>Run ID:</strong><br>
+                                <code>{{ run_id }}</code>
+                            </div>
+                            <div class="col-md-3">
+                                <strong>Status:</strong><br>
+                                <span class="badge bg-{{ 'success' if progress.status == 'completed' else 'warning' if progress.status == 'running' else 'danger' }}">
+                                    {{ progress.status.title() }}
+                                </span>
+                            </div>
+                            <div class="col-md-3">
+                                <strong>Progress:</strong><br>
+                                {{ progress.progress }}%
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Generated Artifacts -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="fas fa-folder me-2"></i>Generated Artifacts
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        {% if artifacts %}
+                            <div class="row g-3">
+                                {% for artifact in artifacts %}
+                                <div class="col-md-4 col-lg-3">
+                                    <div class="card artifact-card">
+                                        <div class="card-body text-center">
+                                            {% if artifact.endswith('.png') or artifact.endswith('.jpg') or artifact.endswith('.jpeg') %}
+                                                <i class="fas fa-image fa-2x text-primary mb-2"></i>
+                                            {% elif artifact.endswith('.json') %}
+                                                <i class="fas fa-file-code fa-2x text-success mb-2"></i>
+                                            {% elif artifact.endswith('.pkl') %}
+                                                <i class="fas fa-database fa-2x text-info mb-2"></i>
+                                            {% elif artifact.endswith('.py') %}
+                                                <i class="fas fa-code fa-2x text-warning mb-2"></i>
+                                            {% else %}
+                                                <i class="fas fa-file fa-2x text-secondary mb-2"></i>
+                                            {% endif %}
+                                            <h6 class="card-title">{{ artifact }}</h6>
+                                            <a href="/artifacts/projects/{{ project_id }}/runs/{{ run_id }}/{{ artifact }}" 
+                                               class="btn btn-outline-primary btn-sm" target="_blank">
+                                                <i class="fas fa-download me-1"></i>Download
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <div class="text-center py-4">
+                                <i class="fas fa-folder-open fa-3x text-muted mb-3"></i>
+                                <h5 class="text-muted">No artifacts generated yet</h5>
+                                <p class="text-muted">Artifacts will appear here once the analysis is complete</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Analysis Results -->
+        {% if progress.status == 'completed' %}
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="fas fa-chart-bar me-2"></i>Analysis Results
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="alert alert-success">
+                            <i class="fas fa-check-circle me-2"></i>
+                            <strong>Analysis completed successfully!</strong> Your results are ready for download.
+                        </div>
+                        
+                        <!-- Display images if available -->
+                        {% for artifact in artifacts %}
+                            {% if artifact.endswith('.png') or artifact.endswith('.jpg') or artifact.endswith('.jpeg') %}
+                            <div class="mb-4">
+                                <h6>{{ artifact.replace('.png', '').replace('.jpg', '').replace('.jpeg', '').replace('_', ' ').title() }}</h6>
+                                <img src="/artifacts/projects/{{ project_id }}/runs/{{ run_id }}/{{ artifact }}" 
+                                     class="img-fluid rounded border" 
+                                     alt="{{ artifact }}">
+                            </div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% elif progress.status == 'running' %}
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="fas fa-spinner fa-spin me-2"></i>Analysis in Progress
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            <strong>Analysis is running...</strong> {{ progress.message }}
+                        </div>
+                        <div class="progress mb-3">
+                            <div class="progress-bar" role="progressbar" style="width: {{ progress.progress }}%">
+                                {{ progress.progress }}%
+                            </div>
+                        </div>
+                        <p class="text-muted">This page will automatically refresh when the analysis is complete.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% elif progress.status == 'failed' %}
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="fas fa-exclamation-triangle me-2"></i>Analysis Failed
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="alert alert-danger">
+                            <i class="fas fa-times-circle me-2"></i>
+                            <strong>Analysis failed:</strong> {{ progress.message }}
+                        </div>
+                        <p>Please check your data format and try again. Common issues include:</p>
+                        <ul>
+                            <li>Incorrect CSV format</li>
+                            <li>Missing required columns</li>
+                            <li>Invalid data types</li>
+                            <li>Insufficient data</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Next Steps -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="fas fa-lightbulb me-2"></i>Next Steps
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <h6><i class="fas fa-download me-2"></i>Download Results</h6>
+                                <p class="small text-muted">Download all generated artifacts and models for offline use.</p>
+                            </div>
+                            <div class="col-md-4">
+                                <h6><i class="fas fa-code me-2"></i>Use Inference Scripts</h6>
+                                <p class="small text-muted">Run the generated Python scripts to make predictions on new data.</p>
+                            </div>
+                            <div class="col-md-4">
+                                <h6><i class="fas fa-plus me-2"></i>Create New Analysis</h6>
+                                <p class="small text-muted">Start a new analysis with different parameters or datasets.</p>
+                            </div>
+                        </div>
+                        <div class="mt-3 no-print">
+                            <a href="/projects/{{ project_id }}" class="btn btn-primary me-2">
+                                <i class="fas fa-arrow-left me-2"></i>Back to Project
+                            </a>
+                            <button class="btn btn-success" onclick="window.print()">
+                                <i class="fas fa-print me-2"></i>Print Report
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Auto-refresh if analysis is running
+        {% if progress.status == 'running' %}
+        setTimeout(function() {
+            location.reload();
+        }, 5000); // Refresh every 5 seconds
+        {% endif %}
+    </script>
+</body>
+</html>

@@ -1,0 +1,49 @@
+{
+  "project_id": "ca476813d8fd42e581bc544b4d06b4b0",
+  "title": "Data Analysis Project",
+  "level": 1,
+  "created_at": "2025-10-27T10:16:24.146566",
+  "datasets": [
+    {
+      "filename": "original.csv",
+      "path": "dataset/original.csv",
+      "uploaded_at": "2025-10-27T10:16:24.147046"
+    }
+  ],
+  "cleaned_versions": [],
+  "runs": [
+    {
+      "run_id": "3749911fea0b417ab943aae5b03b80c6",
+      "type": "summary",
+      "artifacts": [
+        "summary.json"
+      ],
+      "created_at": "2025-10-27T10:20:50.394218"
+    },
+    {
+      "run_id": "007455d1021a4dda851184e9ff63655e",
+      "type": "summary",
+      "artifacts": [
+        "summary.json"
+      ],
+      "created_at": "2025-10-27T10:31:28.916942"
+    },
+    {
+      "run_id": "53aa2a78f1fe440cbfc278a5e68af04a",
+      "type": "summary",
+      "artifacts": [
+        "summary.json"
+      ],
+      "created_at": "2025-10-27T10:31:30.914702"
+    },
+    {
+      "run_id": "0e079ee0e2964326bd029bb56601fe1a",
+      "type": "summary",
+      "artifacts": [
+        "summary.json"
+      ],
+      "created_at": "2025-10-27T10:31:54.482458"
+    }
+  ],
+  "reports": []
+}

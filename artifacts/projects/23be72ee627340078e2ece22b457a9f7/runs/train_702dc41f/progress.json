@@ -1,0 +1,1 @@
+{"status": "completed", "progress": 100, "epoch": 10, "loss": null, "logs": [], "model_path": "artifacts/projects/23be72ee627340078e2ece22b457a9f7/runs/train_702dc41f/weights/best.pt", "metrics": {"mAP50": 0.124375, "mAP50-95": 0.06218749999999999}}

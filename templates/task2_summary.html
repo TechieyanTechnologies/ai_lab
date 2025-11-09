@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task 2: Summary Statistics</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .task-header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 2rem 0; }
+        .learning-objective { background: #f8f9fa; padding: 1rem; border-left: 4px solid #667eea; }
+        .stats-card { border: 1px solid #dee2e6; border-radius: 0.5rem; padding: 1rem; margin: 0.5rem 0; }
+    </style>
+</head>
+<body>
+    <div class="task-header">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1><i class="fas fa-calculator me-3"></i>Task 2: Summary Statistics</h1>
+                    <p class="lead mb-0">Understand your data through descriptive statistics</p>
+                </div>
+                <div class="text-end">
+                    <span class="badge bg-light text-dark me-2" style="font-size: 0.9rem;">
+                        <i class="fas fa-clock me-1"></i>20 minutes
+                    </span>
+                    <a href="/level/1/task/2/document" target="_blank" class="btn btn-light btn-sm">
+                        <i class="fas fa-book me-2"></i>Document
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container py-4">
+        <!-- Learning Objective -->
+        <div class="learning-objective mb-4">
+            <h4><i class="fas fa-bullseye me-2"></i>Learning Objective</h4>
+            <p class="mb-0">
+                By the end of this task, you will understand how to compute and interpret
+                descriptive statistics: mean, median, mode, standard deviation, and more.
+                You'll learn when to use each statistic and how they help describe your data.
+            </p>
+        </div>
+
+        <!-- Dataset Selection -->
+        <div class="card mb-4">
+            <div class="card-header bg-secondary text-white">
+                <h4><i class="fas fa-database me-2"></i>Select Your Dataset</h4>
+            </div>
+            <div class="card-body">
+                <p>Choose a dataset to work with:</p>
+                <div class="btn-group" role="group">
+                    <button type="button" class="btn btn-outline-primary" onclick="loadSample('student_marks')">
+                        <i class="fas fa-file-csv me-2"></i>Student Marks
+                    </button>
+                    <button type="button" class="btn btn-outline-primary" onclick="loadSample('weather_week')">
+                        <i class="fas fa-cloud me-2"></i>Weather Data
+                    </button>
+                    <button type="button" class="btn btn-outline-primary" onclick="loadSample('sales_small')">
+                        <i class="fas fa-chart-line me-2"></i>Sales Data
+                    </button>
+                    <button type="button" class="btn btn-outline-primary" onclick="loadSample('survey_small')">
+                        <i class="fas fa-clipboard-check me-2"></i>Survey Data
+                    </button>
+                </div>
+                <div id="datasetStatus" class="mt-3"></div>
+            </div>
+        </div>
+
+        <!-- Statistical Concepts Visual Guide -->
+        <div class="card mb-4" id="conceptsCard" style="display: none;">
+            <div class="card-header bg-info text-white">
+                <h4><i class="fas fa-graduation-cap me-2"></i>Understanding Statistical Concepts</h4>
+            </div>
+            <div class="card-body">
+                <p>Click on each concept to learn and practice!</p>
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <div class="card h-100">
+                            <div class="card-body text-center">
+                                <i class="fas fa-balance-scale fa-3x text-primary mb-2"></i>
+                                <h6>Mean (Average)</h6>
+                                <button class="btn btn-outline-primary btn-sm" onclick="showConcept('mean')">
+                                    Learn More
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card h-100">
+                            <div class="card-body text-center">
+                                <i class="fas fa-sort-numeric-down fa-3x text-success mb-2"></i>
+                                <h6>Median (Middle)</h6>
+                                <button class="btn btn-outline-success btn-sm" onclick="showConcept('median')">
+                                    Learn More
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card h-100">
+                            <div class="card-body text-center">
+                                <i class="fas fa-chart-bar fa-3x text-warning mb-2"></i>
+                                <h6>Mode (Most Common)</h6>
+                                <button class="btn btn-outline-warning btn-sm" onclick="showConcept('mode')">
+                                    Learn More
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card h-100">
+                            <div class="card-body text-center">
+                                <i class="fas fa-chart-line fa-3x text-danger mb-2"></i>
+                                <h6>Standard Deviation</h6>
+                                <button class="btn btn-outline-danger btn-sm" onclick="showConcept('std')">
+                                    Learn More
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card h-100">
+                            <div class="card-body text-center">
+                                <i class="fas fa-arrows-alt-v fa-3x text-info mb-2"></i>
+                                <h6>Range</h6>
+                                <button class="btn btn-outline-info btn-sm" onclick="showConcept('range')">
+                                    Learn More
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card h-100">
+                            <div class="card-body text-center">
+                                <i class="fas fa-chart-area fa-3x text-dark mb-2"></i>
+                                <h6>Quartiles</h6>
+                                <button class="btn btn-outline-dark btn-sm" onclick="showConcept('quartiles')">
+                                    Learn More
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="conceptExplanation" class="mt-4"></div>
+            </div>
+        </div>
+
+        <!-- Interactive Activities -->
+        <div class="card mb-4" id="activitiesCard" style="display: none;">
+            <div class="card-header bg-primary text-white">
+                <h4><i class="fas fa-tasks me-2"></i>Interactive Activities</h4>
+            </div>
+            <div class="card-body">
+                <p>Practice your statistical skills with these activities:</p>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-body text-center">
+                                <i class="fas fa-calculator fa-3x text-primary mb-2"></i>
+                                <h6>Compute All Statistics</h6>
+                                <button class="btn btn-outline-primary btn-sm" onclick="computeAllStats()">
+                                    Calculate
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-body text-center">
+                                <i class="fas fa-chart-bar fa-3x text-success mb-2"></i>
+                                <h6>Visualize Distributions</h6>
+                                <button class="btn btn-outline-success btn-sm" onclick="visualizeDistributions()">
+                                    Create Graphs
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-body text-center">
+                                <i class="fas fa-question-circle fa-3x text-warning mb-2"></i>
+                                <h6>Statistics Quiz</h6>
+                                <button class="btn btn-outline-warning btn-sm" onclick="startQuiz()">
+                                    Take Quiz
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-body text-center">
+                                <i class="fas fa-project-diagram fa-3x text-info mb-2"></i>
+                                <h6>Compare Columns</h6>
+                                <button class="btn btn-outline-info btn-sm" onclick="compareColumns()">
+                                    Compare
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="activityResult" class="mt-4"></div>
+            </div>
+        </div>
+
+        <!-- What are Summary Statistics -->
+        <div class="card mb-4">
+            <div class="card-header bg-info text-white">
+                <h4><i class="fas fa-info-circle me-2"></i>What are Summary Statistics?</h4>
+            </div>
+            <div class="card-body">
+                <p>Summary statistics are numbers that describe key features of your data:</p>
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>For Numeric Data:</h6>
+                        <ul>
+                            <li><strong>Mean:</strong> Average of all values</li>
+                            <li><strong>Median:</strong> Middle value when sorted</li>
+                            <li><strong>Mode:</strong> Most frequent value</li>
+                            <li><strong>Standard Deviation:</strong> How spread out values are</li>
+                            <li><strong>Min/Max:</strong> Smallest and largest values</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>For Categorical Data:</h6>
+                        <ul>
+                            <li><strong>Count:</strong> Total number of values</li>
+                            <li><strong>Unique:</strong> Number of unique categories</li>
+                            <li><strong>Mode:</strong> Most common category</li>
+                            <li><strong>Frequency:</strong> Count of each category</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Compute Statistics -->
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h4><i class="fas fa-chart-line me-2"></i>Compute Statistics</h4>
+            </div>
+            <div class="card-body">
+                <p>Click the button below to compute summary statistics for all columns in your dataset.</p>
+                <button class="btn btn-primary btn-lg" onclick="computeStats()">
+                    <i class="fas fa-calculator me-2"></i>Calculate Summary Statistics
+                </button>
+                <div id="statsResult" class="mt-4"></div>
+            </div>
+        </div>
+
+        <!-- Understanding Statistics -->
+        <div class="card mb-4" id="understandingCard" style="display: none;">
+            <div class="card-header bg-success text-white">
+                <h4><i class="fas fa-lightbulb me-2"></i>Understanding Your Results</h4>
+            </div>
+            <div class="card-body">
+                <div id="interpretation"></div>
+            </div>
+        </div>
+
+        <!-- Key Takeaways -->
+        <div class="card mb-4">
+            <div class="card-header bg-warning text-dark">
+                <h4><i class="fas fa-book me-2"></i>Key Takeaways</h4>
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled">
+                    <li class="mb-2">
+                        <i class="fas fa-check-circle text-success me-2"></i>
+                        <strong>Mean vs Median:</strong> Use mean for symmetric data, median for skewed data
+                    </li>
+                    <li class="mb-2">
+                        <i class="fas fa-check-circle text-success me-2"></i>
+                        <strong>Standard Deviation:</strong> Higher values = more spread out data
+                    </li>
+                    <li class="mb-2">
+                        <i class="fas fa-check-circle text-success me-2"></i>
+                        <strong>Range:</strong> Difference between min and max shows data spread
+                    </li>
+                    <li class="mb-2">
+                        <i class="fas fa-check-circle text-success me-2"></i>
+                        <strong>Missing Values:</strong> Check count to identify incomplete data
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <div class="card">
+            <div class="card-body text-center">
+                <a href="/level/1" class="btn btn-outline-secondary me-2">
+                    <i class="fas fa-arrow-left me-2"></i>Back to Tasks
+                </a>
+                <button class="btn btn-primary" onclick="window.location.href='/level/1/task/3'">
+                    Next Task <i class="fas fa-arrow-right ms-2"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let datasetInfo = null;
+        let currentProjectId = localStorage.getItem('currentProjectId');
+
+        async function loadSample(filename) {
+            try {
+                const response = await fetch(`/level/1/load-sample/${filename}`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'}
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    currentProjectId = data.project_id;
+                    localStorage.setItem('currentProjectId', currentProjectId);
+                    
+                    document.getElementById('datasetStatus').innerHTML = 
+                        '<div class="alert alert-success"><i class="fas fa-check-circle me-2"></i>Dataset loaded successfully!</div>';
+                    
+                    document.getElementById('conceptsCard').style.display = 'block';
+                    document.getElementById('activitiesCard').style.display = 'block';
+                    
+                    // Load dataset info
+                    const previewResponse = await fetch(`/projects/${currentProjectId}/dataset/preview`);
+                    datasetInfo = await previewResponse.json();
+                }
+            } catch (error) {
+                alert('Error loading sample: ' + error);
+            }
+        }
+
+        function showConcept(concept) {
+            if (!datasetInfo) {
+                alert('Please load a dataset first!');
+                return;
+            }
+
+            // Find a numeric column to show real examples
+            const numericCols = Object.keys(datasetInfo.dtypes).filter(col => 
+                datasetInfo.dtypes[col].includes('int') || datasetInfo.dtypes[col].includes('float')
+            );
+
+            if (numericCols.length === 0) {
+                alert('No numeric columns found in dataset for examples');
+                return;
+            }
+
+            // Pick a column for demonstration
+            const demoCol = numericCols[0];
+            const values = datasetInfo.head.map(row => parseFloat(row[demoCol])).filter(v => !isNaN(v) && v !== null && v !== undefined);
+            
+            if (values.length === 0) {
+                alert('No numeric values found for examples');
+                return;
+            }
+
+            const explanations = {
+                'mean': {
+                    title: 'Mean (Average)',
+                    formula: 'Sum of all values ÷ Number of values',
+                    example: `Dataset example: [${values.slice(0, 5).join(', ')}...] → Mean = ${(values.reduce((a,b) => a+b, 0) / values.length).toFixed(2)}`,
+                    when: 'Use when: Data is balanced, no extreme outliers',
+                    visual: `<p>📊 The mean is the "center of balance" of your data</p>
+                            <p><strong>From your "${demoCol}" column:</strong> Mean = ${(values.reduce((a,b) => a+b, 0) / values.length).toFixed(2)}</p>`
+                },
+                'median': {
+                    title: 'Median (Middle Value)',
+                    formula: 'Middle value when sorted',
+                    example: `Dataset example: Sorted values from "${demoCol}" → Median = ${values.sort((a,b) => a-b)[Math.floor(values.length/2)].toFixed(2)}`,
+                    when: 'Use when: Data has outliers or is skewed',
+                    visual: `<p>📊 The median divides your data in half</p>
+                            <p><strong>From your "${demoCol}" column:</strong> Median = ${values.sort((a,b) => a-b)[Math.floor(values.length/2)].toFixed(2)}</p>`
+                },
+                'mode': {
+                    title: 'Mode (Most Frequent)',
+                    formula: 'Value that appears most often',
+                    example: 'Count occurrences in your data to find most common value',
+                    when: 'Use when: Finding the most common value',
+                    visual: `<p>📊 The mode shows the "peak" of your data</p>
+                            <p><strong>Try it:</strong> Count how often each value appears in "${demoCol}"</p>`
+                },
+                'std': {
+                    title: 'Standard Deviation',
+                    formula: 'Measure of how spread out values are',
+                    example: 'Calculate average distance from mean to understand spread',
+                    when: 'Use when: Understanding variability in data',
+                    visual: `<p>📊 Low std dev = consistent data, High std dev = varied data</p>
+                            <p><strong>From your "${demoCol}" column:</strong> Values range from ${Math.min(...values).toFixed(2)} to ${Math.max(...values).toFixed(2)}</p>`
+                },
+                'range': {
+                    title: 'Range',
+                    formula: 'Maximum - Minimum',
+                    example: `Dataset example: Min=${Math.min(...values).toFixed(2)}, Max=${Math.max(...values).toFixed(2)} → Range = ${(Math.max(...values) - Math.min(...values)).toFixed(2)}`,
+                    when: 'Use when: Quick measure of spread',
+                    visual: `<p>📊 The range shows the span of your data</p>
+                            <p><strong>From your "${demoCol}" column:</strong> Range = ${(Math.max(...values) - Math.min(...values)).toFixed(2)}</p>`
+                },
+                'quartiles': {
+                    title: 'Quartiles (Q1, Q2, Q3)',
+                    formula: 'Q1: 25%, Q2 (Median): 50%, Q3: 75%',
+                    example: 'Divides your sorted data into four equal parts',
+                    when: 'Use when: Understanding data distribution',
+                    visual: `<p>📊 Quartiles show where data clusters</p>
+                            <p><strong>From your "${demoCol}" column:</strong> Lower quartile ≈ ${values.sort((a,b) => a-b)[Math.floor(values.length*0.25)].toFixed(2)}, Upper quartile ≈ ${values.sort((a,b) => a-b)[Math.floor(values.length*0.75)].toFixed(2)}</p>`
+                }
+            };
+
+            const exp = explanations[concept];
+            const html = `
+                <div class="card border-primary">
+                    <div class="card-header bg-primary text-white">
+                        <h5>${exp.title}</h5>
+                    </div>
+                    <div class="card-body">
+                        <p><strong>Formula:</strong> ${exp.formula}</p>
+                        <p><strong>Example from YOUR data:</strong> ${exp.example}</p>
+                        <p><strong>When to use:</strong> ${exp.when}</p>
+                        ${exp.visual}
+                        <div class="alert alert-info mt-3">
+                            <i class="fas fa-lightbulb me-2"></i>
+                            <strong>Try it yourself:</strong> Calculate this statistic for other columns in your dataset using the activities below!
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('conceptExplanation').innerHTML = html;
+        }
+
+        async function computeAllStats() {
+            if (!currentProjectId) {
+                alert('Please load a dataset first!');
+                return;
+            }
+
+            try {
+                const response = await fetch(`/projects/${currentProjectId}/summary`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'}
+                });
+                const data = await response.json();
+                
+                displayStats(data);
+            } catch (error) {
+                alert('Error computing statistics: ' + error);
+            }
+        }
+
+        function displayStats(stats) {
+            let html = '<h6>📊 Complete Statistics for Your Dataset</h6>';
+            html += '<p class="alert alert-info"><i class="fas fa-info-circle me-2"></i>These statistics are calculated from YOUR actual data values:</p>';
+            
+            html += '<div class="table-responsive"><table class="table table-striped">';
+            html += '<thead class="table-dark"><tr>';
+            html += '<th>Column</th><th>Type</th><th>Statistics</th>';
+            html += '</tr></thead><tbody>';
+            
+            let numericCount = 0;
+            let categoricalCount = 0;
+            
+            Object.keys(stats).forEach(col => {
+                const stat = stats[col];
+                html += '<tr>';
+                html += `<td><strong>${col}</strong></td>`;
+                html += `<td><span class="badge bg-${stat.type === 'numeric' ? 'primary' : 'info'}">${stat.type}</span></td>`;
+                html += '<td>';
+                
+                if (stat.type === 'numeric') {
+                    numericCount++;
+                    html += `<div class="stats-card">`;
+                    html += `<p><strong>Mean:</strong> ${stat.mean.toFixed(2)} <small class="text-muted">(average of all values)</small></p>`;
+                    html += `<p><strong>Median:</strong> ${stat.median.toFixed(2)} <small class="text-muted">(middle value)</small></p>`;
+                    html += `<p><strong>Std Dev:</strong> ${stat.std.toFixed(2)} <small class="text-muted">(how spread out)</small></p>`;
+                    html += `<p><strong>Range:</strong> ${stat.min.toFixed(2)} - ${stat.max.toFixed(2)}</p>`;
+                    html += `</div>`;
+                } else {
+                    categoricalCount++;
+                    html += `<div class="stats-card">`;
+                    html += `<p><strong>Unique:</strong> ${stat.unique} <small class="text-muted">(different categories)</small></p>`;
+                    html += `<p><strong>Mode:</strong> ${stat.mode} <small class="text-muted">(most common)</small></p>`;
+                    html += `</div>`;
+                }
+                
+                html += '</td></tr>';
+            });
+            
+            html += '</tbody></table></div>';
+            
+            // Add summary
+            html += '<div class="alert alert-success mt-3">';
+            html += '<h6>📋 Summary of Your Dataset:</h6>';
+            html += `<p><strong>Total columns:</strong> ${Object.keys(stats).length}</p>`;
+            html += `<p><strong>Numeric columns:</strong> ${numericCount}</p>`;
+            html += `<p><strong>Categorical columns:</strong> ${categoricalCount}</p>`;
+            
+            if (numericCount > 0) {
+                html += '<p class="text-info"><i class="fas fa-info-circle me-2"></i>Numeric columns can be used for calculations, charts, and statistical analysis</p>';
+            }
+            
+            if (categoricalCount > 0) {
+                html += '<p class="text-info"><i class="fas fa-info-circle me-2"></i>Categorical columns show categories, groups, or classifications</p>';
+            }
+            
+            html += '</div>';
+            
+            document.getElementById('activityResult').innerHTML = html;
+        }
+
+        function visualizeDistributions() {
+            if (!datasetInfo) {
+                alert('Please load a dataset first!');
+                return;
+            }
+
+            if (!currentProjectId) {
+                alert('Please select a dataset first!');
+                return;
+            }
+
+            const numericCols = Object.keys(datasetInfo.dtypes).filter(col => 
+                datasetInfo.dtypes[col].includes('int') || datasetInfo.dtypes[col].includes('float')
+            );
+
+            if (numericCols.length === 0) {
+                document.getElementById('activityResult').innerHTML = 
+                    '<div class="alert alert-warning">No numeric columns found for visualization</div>';
+                return;
+            }
+
+            let html = '<h6>📊 Distribution Visualizations</h6>';
+            html += '<p class="alert alert-info"><i class="fas fa-info-circle me-2"></i>Click on any column below to create a histogram showing the distribution of values in YOUR data:</p>';
+            
+            numericCols.forEach(col => {
+                html += `<button class="btn btn-outline-primary me-2 mb-2" onclick="createHistogram('${col}')">${col}</button>`;
+            });
+            
+            html += '<div id="chartDisplay" class="mt-3"></div>';
+            
+            document.getElementById('activityResult').innerHTML = html;
+        }
+
+        async function createHistogram(column) {
+            if (!currentProjectId) {
+                alert('Please select a dataset first!');
+                return;
+            }
+
+            const chartDisplayDiv = document.getElementById('chartDisplay');
+            chartDisplayDiv.innerHTML = '<div class="alert alert-info">Generating histogram... <i class="fas fa-spinner fa-spin"></i></div>';
+
+            try {
+                const response = await fetch(`/projects/${currentProjectId}/visualize`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        chart_type: 'histogram',
+                        params: {
+                            column: column,
+                            x_column: column,
+                            title: `${column} Distribution`
+                        }
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success && data.plot_filename) {
+                    // Correct path: plot is saved in runs/ subdirectory
+                    const imageUrl = `/artifacts/projects/${currentProjectId}/runs/${data.plot_filename}`;
+                    
+                    chartDisplayDiv.innerHTML = 
+                        `<div class="alert alert-success">
+                            <h6>📊 Histogram for "${column}"</h6>
+                            <p class="small">This shows how values are distributed in your ${column} column:</p>
+                            <img src="${imageUrl}" class="img-fluid border rounded shadow" onerror="this.parentElement.innerHTML='<div class=\\'alert alert-danger\\'>Error loading image. Please try again.</div>'">
+                            <div class="mt-2">
+                                <p class="small text-muted"><i class="fas fa-lightbulb me-1"></i>Interpretation: The height of each bar shows how many data points fall into that range.</p>
+                            </div>
+                        </div>`;
+                } else {
+                    throw new Error(data.error || 'Chart generation failed');
+                }
+            } catch (error) {
+                console.error('Error creating histogram:', error);
+                chartDisplayDiv.innerHTML = 
+                    `<div class="alert alert-danger">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        Error creating histogram: ${error.message}. 
+                        Please make sure you have a dataset loaded and try again.
+                    </div>`;
+            }
+        }
+
+        function startQuiz() {
+            if (!datasetInfo) {
+                alert('Please load a dataset first!');
+                return;
+            }
+
+            const quiz = {
+                q1: {
+                    question: 'What is the difference between mean and median?',
+                    options: [
+                        'Mean is the average, median is the middle value',
+                        'They are the same',
+                        'Mean always equals median',
+                        'Median is always higher than mean'
+                    ],
+                    correct: 0
+                },
+                q2: {
+                    question: 'When should you use median instead of mean?',
+                    options: [
+                        'When you have outliers in your data',
+                        'When you want the average',
+                        'Only for small datasets',
+                        'Never'
+                    ],
+                    correct: 0
+                },
+                q3: {
+                    question: 'What does a high standard deviation indicate?',
+                    options: [
+                        'Data is very spread out',
+                        'Data is clustered together',
+                        'All values are the same',
+                        'Standard deviation is always low'
+                    ],
+                    correct: 0
+                }
+            };
+
+            let html = '<h6>📝 Statistics Quiz</h6>';
+            html += '<p>Answer these questions about statistical concepts:</p>';
+            
+            let questionNum = 1;
+            Object.keys(quiz).forEach(key => {
+                const q = quiz[key];
+                html += `<div class="card mb-3">`;
+                html += `<div class="card-header"><strong>Question ${questionNum}:</strong> ${q.question}</div>`;
+                html += `<div class="card-body">`;
+                q.options.forEach((opt, idx) => {
+                    html += `<div class="form-check">`;
+                    html += `<input class="form-check-input" type="radio" name="quiz${questionNum}" id="opt${questionNum}_${idx}" value="${idx}">`;
+                    html += `<label class="form-check-label" for="opt${questionNum}_${idx}">${opt}</label>`;
+                    html += `</div>`;
+                });
+                html += `</div></div>`;
+                questionNum++;
+            });
+
+            html += '<button class="btn btn-primary" onclick="checkQuizAnswers(' + JSON.stringify(quiz).replace(/"/g, '&quot;') + ')">Submit Answers</button>';
+            html += '<div id="quizResult" class="mt-3"></div>';
+
+            document.getElementById('activityResult').innerHTML = html;
+        }
+
+        function checkQuizAnswers(quiz) {
+            let score = 0;
+            let total = Object.keys(quiz).length;
+            let feedback = [];
+
+            Object.keys(quiz).forEach((key, idx) => {
+                const q = quiz[key];
+                const selected = document.querySelector(`input[name="quiz${idx+1}"]:checked`);
+                if (selected && parseInt(selected.value) === q.correct) {
+                    score++;
+                    feedback.push(`Question ${idx+1}: ✓ Correct!`);
+                } else {
+                    feedback.push(`Question ${idx+1}: ✗ Wrong. Correct answer: ${q.options[q.correct]}`);
+                }
+            });
+
+            let html = '<div class="alert alert-info">';
+            html += `<h6>Quiz Results</h6>`;
+            html += `<p><strong>Score: ${score}/${total}</strong></p>`;
+            feedback.forEach(f => {
+                html += `<p>${f}</p>`;
+            });
+            html += '</div>';
+
+            document.getElementById('quizResult').innerHTML = html;
+        }
+
+        function compareColumns() {
+            if (!datasetInfo) {
+                alert('Please load a dataset first!');
+                return;
+            }
+
+            const numericCols = Object.keys(datasetInfo.dtypes).filter(col => 
+                datasetInfo.dtypes[col].includes('int') || datasetInfo.dtypes[col].includes('float')
+            );
+
+            if (numericCols.length < 2) {
+                document.getElementById('activityResult').innerHTML = 
+                    '<div class="alert alert-warning">Need at least 2 numeric columns to compare</div>';
+                return;
+            }
+
+            let html = '<h6>📊 Comparing Statistics Across Your Data</h6>';
+            html += '<p class="alert alert-info"><i class="fas fa-info-circle me-2"></i>Compare the statistics between different columns in your dataset:</p>';
+            html += '<div class="row">';
+            
+            const comparisons = [];
+            
+            numericCols.forEach(col => {
+                const values = datasetInfo.head.map(row => parseFloat(row[col])).filter(v => !isNaN(v));
+                const mean = values.reduce((a, b) => a + b, 0) / values.length;
+                const sorted = values.sort((a, b) => a - b);
+                const median = sorted[Math.floor(sorted.length / 2)];
+                const range = Math.max(...values) - Math.min(...values);
+                
+                comparisons.push({col, mean, median, min: Math.min(...values), max: Math.max(...values), range});
+                
+                html += `<div class="col-md-6 mb-3">`;
+                html += `<div class="card">`;
+                html += `<div class="card-header bg-info text-white"><h6>${col}</h6></div>`;
+                html += `<div class="card-body">`;
+                html += `<p><strong>Mean:</strong> ${mean.toFixed(2)}</p>`;
+                html += `<p><strong>Median:</strong> ${median.toFixed(2)}</p>`;
+                html += `<p><strong>Range:</strong> ${Math.min(...values).toFixed(2)} - ${Math.max(...values).toFixed(2)} (${range.toFixed(2)})</p>`;
+                html += `</div></div></div>`;
+            });
+            
+            html += '</div>';
+            
+            // Add insights
+            html += '<div class="alert alert-success mt-3">';
+            html += '<h6>💡 Insights from Your Data:</h6>';
+            html += '<ul>';
+            
+            const highestMean = comparisons.reduce((a, b) => a.mean > b.mean ? a : b);
+            const lowestMean = comparisons.reduce((a, b) => a.mean < b.mean ? a : b);
+            
+            html += `<li>The <strong>${highestMean.col}</strong> column has the highest mean (${highestMean.mean.toFixed(2)})</li>`;
+            html += `<li>The <strong>${lowestMean.col}</strong> column has the lowest mean (${lowestMean.mean.toFixed(2)})</li>`;
+            
+            const highestRange = comparisons.reduce((a, b) => a.range > b.range ? a : b);
+            const lowestRange = comparisons.reduce((a, b) => a.range < b.range ? a : b);
+            
+            html += `<li>The <strong>${highestRange.col}</strong> column has the most variation (range: ${highestRange.range.toFixed(2)})</li>`;
+            html += `<li>The <strong>${lowestRange.col}</strong> column is most consistent (range: ${lowestRange.range.toFixed(2)})</li>`;
+            
+            html += '</ul>';
+            html += '</div>';
+            
+            document.getElementById('activityResult').innerHTML = html;
+        }
+
+        // Load dataset if available
+        if (currentProjectId) {
+            fetch(`/projects/${currentProjectId}/dataset/preview`)
+            .then(r => r.json())
+            .then(data => {
+                if (!data.error) {
+                    datasetInfo = data;
+                    document.getElementById('conceptsCard').style.display = 'block';
+                    document.getElementById('activitiesCard').style.display = 'block';
+                    document.getElementById('datasetStatus').innerHTML = 
+                        '<div class="alert alert-success"><i class="fas fa-check-circle me-2"></i>Dataset loaded from previous task</div>';
+                }
+            });
+        }
+    </script>
+</body>
+</html>

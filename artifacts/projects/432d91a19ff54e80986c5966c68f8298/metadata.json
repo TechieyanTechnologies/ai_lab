@@ -1,0 +1,16 @@
+{
+  "project_id": "432d91a19ff54e80986c5966c68f8298",
+  "title": "My Data Project",
+  "level": 1,
+  "created_at": "2025-10-27T09:48:59.384200",
+  "datasets": [
+    {
+      "filename": "original.csv",
+      "path": "dataset/original.csv",
+      "uploaded_at": "2025-10-27T09:49:03.494714"
+    }
+  ],
+  "cleaned_versions": [],
+  "runs": [],
+  "reports": []
+}

@@ -1,0 +1,59 @@
+{
+  "student_id": {
+    "type": "numeric",
+    "count": 30,
+    "mean": 15.5,
+    "median": 15.5,
+    "std": 8.803408430829505,
+    "min": 1.0,
+    "max": 30.0
+  },
+  "name": {
+    "type": "categorical",
+    "count": 30,
+    "unique": 20,
+    "mode": "Alice Johnson"
+  },
+  "math": {
+    "type": "numeric",
+    "count": 29,
+    "mean": 85.96551724137932,
+    "median": 87.0,
+    "std": 6.538254237402091,
+    "min": 74.0,
+    "max": 97.0
+  },
+  "science": {
+    "type": "numeric",
+    "count": 29,
+    "mean": 86.86206896551724,
+    "median": 88.0,
+    "std": 5.370050132321422,
+    "min": 76.0,
+    "max": 94.0
+  },
+  "english": {
+    "type": "numeric",
+    "count": 29,
+    "mean": 86.48275862068965,
+    "median": 87.0,
+    "std": 4.388464502494598,
+    "min": 77.0,
+    "max": 94.0
+  },
+  "attendance": {
+    "type": "numeric",
+    "count": 29,
+    "mean": 90.41379310344827,
+    "median": 91.0,
+    "std": 3.5306539396235515,
+    "min": 83.0,
+    "max": 96.0
+  },
+  "date": {
+    "type": "categorical",
+    "count": 30,
+    "unique": 2,
+    "mode": "2024-01-15"
+  }
+}

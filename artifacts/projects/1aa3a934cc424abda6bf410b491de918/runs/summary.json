@@ -1,0 +1,26 @@
+{
+  "date": {
+    "type": "categorical",
+    "count": 14,
+    "unique": 14,
+    "mode": "2024-01-15"
+  },
+  "temp": {
+    "type": "numeric",
+    "count": 14,
+    "mean": 21.457142857142856,
+    "median": 21.4,
+    "std": 4.628958062809896,
+    "min": 14.5,
+    "max": 28.3
+  },
+  "rainfall": {
+    "type": "numeric",
+    "count": 14,
+    "mean": 2.0142857142857142,
+    "median": 0.25,
+    "std": 2.8016086430854306,
+    "min": 0.0,
+    "max": 8.1
+  }
+}

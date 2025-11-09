@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+
+{% block title %}{{ config.school_name }} - Welcome{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="text-center mb-5">
+                <h1 class="display-4 text-primary mb-4">
+                    <i class="fas fa-chart-bar me-3"></i>
+                    Data Handling & Visualization Lab
+                </h1>
+                <p class="lead text-muted">
+                    Learn data literacy through hands-on CSV data handling, cleaning, exploration and visualization
+                </p>
+                <p class="text-muted">
+                    Designed for Class-8 students • Offline • Teacher-friendly • No coding required
+                </p>
+            </div>
+            
+            <div class="row g-4 mb-5">
+                <div class="col-md-4">
+                    <div class="card h-100 text-center">
+                        <div class="card-body">
+                            <i class="fas fa-upload fa-3x text-primary mb-3"></i>
+                            <h5 class="card-title">Upload & Explore</h5>
+                            <p class="card-text">Upload CSV files and explore your data with interactive previews and statistics.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card h-100 text-center">
+                        <div class="card-body">
+                            <i class="fas fa-broom fa-3x text-primary mb-3"></i>
+                            <h5 class="card-title">Clean & Prepare</h5>
+                            <p class="card-text">Clean your data by handling missing values, converting types, and removing duplicates.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card h-100 text-center">
+                        <div class="card-body">
+                            <i class="fas fa-chart-pie fa-3x text-primary mb-3"></i>
+                            <h5 class="card-title">Visualize & Report</h5>
+                            <p class="card-text">Create beautiful charts and generate professional reports with your findings.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="text-center">
+                <a href="{{ url_for('login') }}" class="btn btn-primary btn-lg me-3">
+                    <i class="fas fa-sign-in-alt me-2"></i>Login
+                </a>
+                <a href="#features" class="btn btn-outline-primary btn-lg">
+                    <i class="fas fa-info-circle me-2"></i>Learn More
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <div id="features" class="row mt-5">
+        <div class="col-12">
+            <h2 class="text-center mb-5">Key Features</h2>
+            <div class="row g-4">
+                <div class="col-md-6">
+                    <div class="d-flex">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-shield-alt fa-2x text-primary"></i>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h5>Offline & Secure</h5>
+                            <p class="text-muted">Runs completely offline with local data storage. No internet required after setup.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="d-flex">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-graduation-cap fa-2x text-primary"></i>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h5>Teacher-Friendly</h5>
+                            <p class="text-muted">Simple interface designed for non-technical teachers with guided lesson plans.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="d-flex">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-users fa-2x text-primary"></i>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h5>Multi-User Support</h5>
+                            <p class="text-muted">Admin, teacher, and student roles with appropriate permissions and features.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="d-flex">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-certificate fa-2x text-primary"></i>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h5>Certificates & Reports</h5>
+                            <p class="text-muted">Generate professional PDF reports and certificates for student achievements.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row mt-5">
+        <div class="col-12">
+            <div class="help-section">
+                <h4><i class="fas fa-lightbulb me-2"></i>Getting Started</h4>
+                <p class="mb-0">
+                    <strong>For Teachers:</strong> Login with admin credentials (admin/admin123) and set up your school branding, create classes, and import students.
+                    <br><strong>For Students:</strong> Your teacher will provide login credentials. Start by uploading a CSV file and exploring the guided labs.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

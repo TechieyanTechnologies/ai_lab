@@ -1,0 +1,21 @@
+Student_Name,Class,Subject,Mark,Grade,Date
+Alice Johnson,8A,Mathematics,85,A,2024-01-15
+Bob Smith,8A,Mathematics,92,A+,2024-01-15
+Charlie Brown,8A,Mathematics,78,B+,2024-01-15
+Diana Prince,8A,Mathematics,88,A,2024-01-15
+Eve Wilson,8A,Mathematics,95,A+,2024-01-15
+Alice Johnson,8A,Science,82,A,2024-01-16
+Bob Smith,8A,Science,89,A,2024-01-16
+Charlie Brown,8A,Science,75,B,2024-01-16
+Diana Prince,8A,Science,91,A+,2024-01-16
+Eve Wilson,8A,Science,87,A,2024-01-16
+Alice Johnson,8A,English,90,A,2024-01-17
+Bob Smith,8A,English,85,A,2024-01-17
+Charlie Brown,8A,English,80,A,2024-01-17
+Diana Prince,8A,English,88,A,2024-01-17
+Eve Wilson,8A,English,93,A+,2024-01-17
+Frank Miller,8B,Mathematics,76,B,2024-01-15
+Grace Lee,8B,Mathematics,84,A,2024-01-15
+Henry Davis,8B,Mathematics,91,A+,2024-01-15
+Ivy Chen,8B,Mathematics,79,B+,2024-01-15
+Jack Wilson,8B,Mathematics,87,A,2024-01-15

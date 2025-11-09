@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task 4.3: Vectorization</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .task-header { background: linear-gradient(135deg, #36d1dc 0%, #5b86e5 100%); color: white; padding: 2rem 0; }
+        .learning-objective { background: #f8f9fa; padding: 1rem; border-left: 4px solid #5b86e5; }
+        .token { display:inline-block; background:#eef6ff; border:1px solid #cfe2ff; border-radius:3px; padding:.1rem .3rem; margin:.1rem; }
+        .bar { background:#5b86e5; height:14px; border-radius:4px; }
+    </style>
+</head>
+<body>
+    <div class="task-header">
+        <div class="container d-flex justify-content-between align-items-center">
+            <div>
+                <h1><i class="fas fa-shapes me-3"></i>Task 4.3: Vectorization</h1>
+                <p class="lead mb-0">Explore Bag-of-Words and TF-IDF with your dataset</p>
+            </div>
+            <a href="/level/4" class="btn btn-light">← Back to Level 4</a>
+        </div>
+    </div>
+
+    <div class="container py-4">
+        <div class="learning-objective mb-4">
+            <h4><i class="fas fa-bullseye me-2"></i>Learning Objective</h4>
+            <p class="mb-0">Understand how text becomes numbers: tokenization, Bag-of-Words, TF-IDF; see top terms by frequency/weight.</p>
+        </div>
+
+        <!-- Activity 1: Select Column and Inspect Tokens -->
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5><i class="fas fa-table me-2"></i>Activity 1: Choose Column</h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3 align-items-end">
+                    <div class="col-md-8">
+                        <label class="form-label">Text Column</label>
+                        <select id="textCol" class="form-select"></select>
+                    </div>
+                    <div class="col-md-4 text-end">
+                        <button class="btn btn-outline-primary" onclick="previewTokens()"><i class="fas fa-eye me-2"></i>Preview Tokens</button>
+                    </div>
+                </div>
+                <div id="tokenPreview" class="mt-3"></div>
+            </div>
+        </div>
+
+        <!-- Activity 2: Bag-of-Words (Top Words) -->
+        <div class="card mb-4">
+            <div class="card-header bg-info text-white">
+                <h5><i class="fas fa-list-ol me-2"></i>Activity 2: Bag-of-Words Top Terms</h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3 align-items-end">
+                    <div class="col-md-4">
+                        <label class="form-label">Min Token Length</label>
+                        <input type="number" id="bowMinLen" class="form-control" value="2" min="1" max="10">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Top N</label>
+                        <input type="number" id="bowTopN" class="form-control" value="15" min="5" max="50">
+                    </div>
+                    <div class="col-md-4 text-end">
+                        <button class="btn btn-outline-secondary" onclick="computeBoW()"><i class="fas fa-calculator me-2"></i>Compute</button>
+                    </div>
+                </div>
+                <div id="bowView" class="mt-3"></div>
+            </div>
+        </div>
+
+        <!-- Activity 3: TF-IDF (Top Weights) -->
+        <div class="card mb-4">
+            <div class="card-header bg-warning">
+                <h5 class="mb-0"><i class="fas fa-weight-hanging me-2"></i>Activity 3: TF-IDF Top Terms</h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3 align-items-end">
+                    <div class="col-md-4">
+                        <label class="form-label">Top N</label>
+                        <input type="number" id="tfidfTopN" class="form-control" value="15" min="5" max="50">
+                    </div>
+                    <div class="col-md-8 text-end">
+                        <button class="btn btn-outline-dark" onclick="computeTfIdf()"><i class="fas fa-superscript me-2"></i>Compute</button>
+                    </div>
+                </div>
+                <div id="tfidfView" class="mt-3"></div>
+            </div>
+        </div>
+
+        <!-- Activity 4: 2D Visualization (PCA over TF-IDF) -->
+        <div class="card mb-4">
+            <div class="card-header bg-secondary text-white">
+                <h5><i class="fas fa-chart-scatter me-2"></i>Activity 4: Visualize in 2D</h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3 align-items-end">
+                    <div class="col-md-4">
+                        <label class="form-label">Label Column (optional)</label>
+                        <select id="labelCol" class="form-select"></select>
+                        <div class="form-text">Used for coloring groups</div>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Max Rows</label>
+                        <input type="number" id="maxRows" class="form-control" value="200" min="50" max="500">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Max Features</label>
+                        <input type="number" id="maxFeat" class="form-control" value="1000" min="200" max="5000">
+                    </div>
+                    <div class="col-md-2 text-end">
+                        <button class="btn btn-outline-dark" onclick="plotPCA()"><i class="fas fa-play me-2"></i>Plot</button>
+                    </div>
+                </div>
+                <div class="mt-3">
+                    <canvas id="pcaCanvas" width="800" height="420" class="w-100 border"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-body text-center">
+                <a href="/level/4/task/4" class="btn btn-primary">Next: Text Classification <i class="fas fa-arrow-right ms-2"></i></a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentProjectId=null, preview=null;
+        window.addEventListener('DOMContentLoaded', async()=>{
+            currentProjectId=localStorage.getItem('level3_project_id')||localStorage.getItem('level4_project_id');
+            await loadPreview();
+            await populateColumns();
+        });
+        async function loadPreview(){ try{ const res=await fetch(`/projects/${currentProjectId}/dataset/preview`); preview=await res.json(); }catch(e){} }
+        async function populateColumns(){ try{ const res=await fetch(`/projects/${currentProjectId}/columns`); const d=await res.json(); const cols=d.columns||[]; const sel=document.getElementById('textCol'); const lab=document.getElementById('labelCol'); sel.innerHTML=''; lab.innerHTML='<option value="">(none)</option>'; cols.forEach(c=>{const o=document.createElement('option');o.value=c;o.textContent=c;sel.appendChild(o); const o2=document.createElement('option'); o2.value=c; o2.textContent=c; lab.appendChild(o2);}); }catch(e){} }
+        function tokensOfRow(row){ return String(row).toLowerCase().replace(/[^\w\s]/g,' ').split(/\s+/).filter(Boolean); }
+        function previewTokens(){ if(!preview||!preview.head) return; const col=document.getElementById('textCol').value; const rows=preview.head.slice(0,3).map(r=>String(r[col]||'')); let html=''; rows.forEach((r,i)=>{ html+=`<div class='mb-2'><strong>Row ${i+1}:</strong><br>`; tokensOfRow(r).forEach(t=>{ html+=`<span class='token'>${t}</span>`; }); html+='</div>'; }); document.getElementById('tokenPreview').innerHTML=html; }
+        function computeBoW(){ if(!preview||!preview.head) return; const col=document.getElementById('textCol').value; const minLen=parseInt(document.getElementById('bowMinLen').value||'2'); const topN=parseInt(document.getElementById('bowTopN').value||'15'); const freq={}; preview.head.forEach(r=>{ tokensOfRow(r[col]).forEach(t=>{ if(t.length>=minLen){ freq[t]=(freq[t]||0)+1; } }); }); const entries=Object.entries(freq).sort((a,b)=>b[1]-a[1]).slice(0,topN); const max=entries.length?entries[0][1]:0; let html=''; entries.forEach(([w,c])=>{ const pct=max?Math.round((c/max)*100):0; html+=`<div class='d-flex align-items-center mb-2'><div style='width:140px' class='text-truncate' title='${w}'>${w}</div><div class='flex-grow-1 mx-2'><div class='bar' style='width:${pct}%'></div></div><div style='width:60px' class='text-end'>${c}</div></div>`; }); document.getElementById('bowView').innerHTML=html||'<div class="text-muted">No tokens</div>'; }
+        function computeTfIdf(){ if(!preview||!preview.head) return; const col=document.getElementById('textCol').value; const docs=preview.head.map(r=>tokensOfRow(r[col])); const dfMap=new Map(); docs.forEach(doc=>{ const seen=new Set(doc); seen.forEach(t=> dfMap.set(t, (dfMap.get(t)||0)+1)); }); const N=docs.length; const tfidf={}; docs.forEach(doc=>{ const tf={}; doc.forEach(t=> tf[t]=(tf[t]||0)+1); Object.keys(tf).forEach(t=>{ const tfv=tf[t]/doc.length; const idf=Math.log((N+1)/((dfMap.get(t)||1)+1))+1; tfidf[t]=(tfidf[t]||0)+tfv*idf; }); }); const topN=parseInt(document.getElementById('tfidfTopN').value||'15'); const entries=Object.entries(tfidf).sort((a,b)=>b[1]-a[1]).slice(0,topN); const max=entries.length?entries[0][1]:0; let html=''; entries.forEach(([w,weight])=>{ const pct=max?Math.round((weight/max)*100):0; html+=`<div class='d-flex align-items-center mb-2'><div style='width:140px' class='text-truncate' title='${w}'>${w}</div><div class='flex-grow-1 mx-2'><div class='bar' style='width:${pct}%'></div></div><div style='width:80px' class='text-end'>${weight.toFixed(3)}</div></div>`; }); document.getElementById('tfidfView').innerHTML=html||'<div class="text-muted">No tokens</div>'; }
+
+        async function plotPCA(){
+            const textCol=document.getElementById('textCol').value;
+            const labelCol=document.getElementById('labelCol').value;
+            const maxRows=parseInt(document.getElementById('maxRows').value||'200');
+            const maxFeatures=parseInt(document.getElementById('maxFeat').value||'1000');
+            try{
+                const res=await fetch(`/level/4/projects/${currentProjectId}/vectorize-pca`,{ method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ text_column:textCol, label_column: labelCol||undefined, max_rows:maxRows, max_features:maxFeatures }) });
+                const data=await res.json(); 
+                if(!data.success) throw new Error(data.error||'Failed');
+                if(data.note) {
+                    alert(data.note + '. Install scikit-learn for accurate PCA visualization: pip install scikit-learn');
+                }
+                drawScatter(data.points||[]);
+            }catch(e){ alert('Error: ' + e.message); }
+        }
+        function drawScatter(points){
+            const cvs=document.getElementById('pcaCanvas'); const ctx=cvs.getContext('2d');
+            ctx.clearRect(0,0,cvs.width,cvs.height);
+            if(points.length===0){ ctx.fillStyle='#adb5bd'; ctx.fillText('No points to plot', 10, 20); return; }
+            const xs=points.map(p=>p.x), ys=points.map(p=>p.y);
+            const minX=Math.min(...xs), maxX=Math.max(...xs), minY=Math.min(...ys), maxY=Math.max(...ys);
+            const pad=30; const W=cvs.width-pad*2, H=cvs.height-pad*2;
+            const uniqLabels=[...new Set(points.map(p=>p.label).filter(Boolean))];
+            const pal=['#5b86e5','#36d1dc','#20c997','#ff6b6b','#fd7e14','#845ef7','#12b886','#f06595'];
+            const colorOf=(lab)=>{ if(!lab) return '#5b86e566'; const idx=uniqLabels.indexOf(lab); return pal[idx%pal.length]; };
+            points.forEach(p=>{
+                const nx=(p.x-minX)/(maxX-minX||1); const ny=(p.y-minY)/(maxY-minY||1);
+                const x=pad+nx*W; const y=pad+(1-ny)*H;
+                ctx.fillStyle=colorOf(p.label); ctx.beginPath(); ctx.arc(x,y,3,0,Math.PI*2); ctx.fill();
+            });
+            if(uniqLabels.length){
+                let lx=pad, ly=pad-10; ctx.font='12px system-ui';
+                uniqLabels.forEach((lab,i)=>{ ctx.fillStyle=pal[i%pal.length]; ctx.fillRect(lx,ly,10,10); ctx.fillStyle='#495057'; ctx.fillText(' '+lab, lx+12, ly+10); lx+=90; });
+            }
+        }
+    </script>
+</body>
+</html>
+
+

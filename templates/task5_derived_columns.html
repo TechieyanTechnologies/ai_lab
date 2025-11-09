@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task 5: Create Derived Columns</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .task-header { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); color: white; padding: 2rem 0; }
+        .learning-objective { background: #f8f9fa; padding: 1rem; border-left: 4px solid #38f9d7; }
+        .derivation-card { transition: transform 0.2s; cursor: pointer; }
+        .derivation-card:hover { transform: translateY(-5px); }
+        .activity-card { border: 2px solid #38f9d7; }
+        .formula-box { background: #e7f9f9; padding: 1rem; border-radius: 8px; border-left: 4px solid #38f9d7; margin: 1rem 0; }
+    </style>
+</head>
+<body>
+    <div class="task-header">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1><i class="fas fa-plus-circle me-3"></i>Task 5: Create Derived Columns</h1>
+                    <p class="lead mb-0">Learn to create new columns from existing data</p>
+                </div>
+                <div class="text-end">
+                    <a href="/level/1" class="btn btn-light me-2">← Back to Level 1</a>
+                    <span class="badge bg-light text-dark me-2" style="font-size: 0.9rem;">
+                        <i class="fas fa-clock me-1"></i>25 minutes
+                    </span>
+                    <a href="/level/1/task/5/document" target="_blank" class="btn btn-light btn-sm">
+                        <i class="fas fa-book me-2"></i>Document
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container py-4">
+        <!-- Dataset Selection -->
+        <div class="card mb-4">
+            <div class="card-header bg-secondary text-white">
+                <h4><i class="fas fa-database me-2"></i>Select Your Dataset</h4>
+            </div>
+            <div class="card-body">
+                <p>Choose a dataset to work with for this task:</p>
+                
+                <!-- Upload Your Own Dataset -->
+                <div class="mb-3">
+                    <label class="form-label"><i class="fas fa-upload me-2"></i>Upload Your Own Dataset</label>
+                    <div class="input-group">
+                        <input type="file" class="form-control" id="csvFileInput" accept=".csv" onchange="handleFileUpload(event)">
+                        <button class="btn btn-primary" onclick="document.getElementById('csvFileInput').click()">
+                            <i class="fas fa-folder-open me-2"></i>Browse CSV Files
+                        </button>
+                    </div>
+                    <small class="text-muted">Upload a CSV file to practice with your own data</small>
+                </div>
+                
+                <hr class="my-4">
+                
+                <p class="mb-2">Or choose from sample datasets:</p>
+                <div class="btn-group" role="group">
+                    <button type="button" class="btn btn-outline-primary" onclick="loadSample('student_marks')">
+                        <i class="fas fa-file-csv me-2"></i>Student Marks
+                    </button>
+                    <button type="button" class="btn btn-outline-primary" onclick="loadSample('weather_week')">
+                        <i class="fas fa-file-csv me-2"></i>Weather Data
+                    </button>
+                    <button type="button" class="btn btn-outline-primary" onclick="loadSample('sales_small')">
+                        <i class="fas fa-file-csv me-2"></i>Sales Data
+                    </button>
+                    <button type="button" class="btn btn-outline-primary" onclick="loadSample('survey_small')">
+                        <i class="fas fa-file-csv me-2"></i>Survey Data
+                    </button>
+                </div>
+                <div id="datasetStatus" class="mt-3"></div>
+            </div>
+        </div>
+
+        <!-- Learning Objective -->
+        <div class="learning-objective mb-4">
+            <h4><i class="fas fa-bullseye me-2"></i>Learning Objective</h4>
+            <p class="mb-0">You'll learn to <strong>create new columns</strong> by combining, calculating, or transforming existing data — like calculating totals, averages, percentages, ratios, and more to uncover insights!</p>
+        </div>
+
+        <!-- Derived Column Types -->
+        <div class="card mb-4" id="typesCard" style="display: none;">
+            <div class="card-header bg-info text-white">
+                <h4><i class="fas fa-graduation-cap me-2"></i>Types of Derived Columns</h4>
+            </div>
+            <div class="card-body">
+                <p>Click on each type to learn how to create derived columns:</p>
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <div class="card derivation-card h-100" onclick="showDerivation('sum')">
+                            <div class="card-body text-center">
+                                <i class="fas fa-plus fa-3x text-primary mb-3"></i>
+                                <h6>Sum/Average</h6>
+                                <p class="small">Combining columns</p>
+                                <button class="btn btn-sm btn-primary">Learn More</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card derivation-card h-100" onclick="showDerivation('percentage')">
+                            <div class="card-body text-center">
+                                <i class="fas fa-percentage fa-3x text-success mb-3"></i>
+                                <h6>Percentage</h6>
+                                <p class="small">Calculating ratios</p>
+                                <button class="btn btn-sm btn-success">Learn More</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card derivation-card h-100" onclick="showDerivation('difference')">
+                            <div class="card-body text-center">
+                                <i class="fas fa-minus fa-3x text-danger mb-3"></i>
+                                <h6>Difference</h6>
+                                <p class="small">Comparing values</p>
+                                <button class="btn btn-sm btn-danger">Learn More</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card derivation-card h-100" onclick="showDerivation('concatenate')">
+                            <div class="card-body text-center">
+                                <i class="fas fa-link fa-3x text-info mb-3"></i>
+                                <h6>Combine Text</h6>
+                                <p class="small">Merging columns</p>
+                                <button class="btn btn-sm btn-info">Learn More</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card derivation-card h-100" onclick="showDerivation('conditional')">
+                            <div class="card-body text-center">
+                                <i class="fas fa-code fa-3x text-warning mb-3"></i>
+                                <h6>Conditional</h6>
+                                <p class="small">If-then logic</p>
+                                <button class="btn btn-sm btn-warning">Learn More</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card derivation-card h-100" onclick="showDerivation('dateparts')">
+                            <div class="card-body text-center">
+                                <i class="fas fa-calendar-alt fa-3x text-secondary mb-3"></i>
+                                <h6>Extract Dates</h6>
+                                <p class="small">From datetime</p>
+                                <button class="btn btn-sm btn-secondary">Learn More</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="derivationExplanation" class="mt-4"></div>
+            </div>
+        </div>
+
+        <!-- Interactive Activities -->
+        <div class="card mb-4" id="activitiesCard" style="display: none;">
+            <div class="card-header bg-primary text-white">
+                <h4><i class="fas fa-tasks me-2"></i>Interactive Activities</h4>
+            </div>
+            <div class="card-body">
+                <p>Practice creating derived columns with these activities:</p>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="card activity-card h-100">
+                            <div class="card-body">
+                                <h5><i class="fas fa-sitemap me-2"></i>Column Inspector</h5>
+                                <p>See what columns you can combine</p>
+                                <button class="btn btn-primary" onclick="inspectColumns()">
+                                    <i class="fas fa-play me-2"></i>Start Activity
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card activity-card h-100">
+                            <div class="card-body">
+                                <h5><i class="fas fa-wand-magic-sparkles me-2"></i>Create Column</h5>
+                                <p>Build a new column step-by-step</p>
+                                <button class="btn btn-success" onclick="createColumn()">
+                                    <i class="fas fa-play me-2"></i>Start Activity
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card activity-card h-100">
+                            <div class="card-body">
+                                <h5><i class="fas fa-lightbulb me-2"></i>Formula Builder</h5>
+                                <p>Build formulas for derived columns</p>
+                                <button class="btn btn-warning" onclick="formulaBuilder()">
+                                    <i class="fas fa-play me-2"></i>Start Activity
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card activity-card h-100">
+                            <div class="card-body">
+                                <h5><i class="fas fa-chart-line me-2"></i>Impact Checker</h5>
+                                <p>See how new columns help analysis</p>
+                                <button class="btn btn-info" onclick="impactChecker()">
+                                    <i class="fas fa-play me-2"></i>Start Activity
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card activity-card h-100">
+                            <div class="card-body">
+                                <h5><i class="fas fa-layer-group me-2"></i>Multiple Columns</h5>
+                                <p>Create several columns at once</p>
+                                <button class="btn btn-danger" onclick="multipleColumns()">
+                                    <i class="fas fa-play me-2"></i>Start Activity
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card activity-card h-100">
+                            <div class="card-body">
+                                <h5><i class="fas fa-gamepad me-2"></i>Creative Challenge</h5>
+                                <p>Create derived columns from your data</p>
+                                <button class="btn btn-dark" onclick="creativeChallenge()">
+                                    <i class="fas fa-play me-2"></i>Start Activity
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="activityResult" class="mt-4"></div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-body text-center">
+                <a href="/level/1/task/4" class="btn btn-outline-secondary">← Previous Task</a>
+                <a href="/level/1" class="btn btn-outline-secondary">Back to Level 1</a>
+                <a href="/level/1/task/6" class="btn btn-primary">Next Task →</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let currentProjectId = localStorage.getItem('currentProjectId');
+        let datasetInfo = null;
+
+        async function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            if (!file.name.endsWith('.csv')) {
+                alert('Please upload a CSV file');
+                return;
+            }
+
+            document.getElementById('datasetStatus').innerHTML = 
+                '<div class="alert alert-info">📤 Uploading your dataset... <i class="fas fa-spinner fa-spin"></i></div>';
+
+            try {
+                const formData = new FormData();
+                formData.append('file', file);
+
+                const response = await fetch('/level/1/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(errorText || 'Upload failed');
+                }
+
+                const data = await response.json();
+                
+                if (data.project_id) {
+                    currentProjectId = data.project_id;
+                    localStorage.setItem('currentProjectId', currentProjectId);
+                    
+                    document.getElementById('datasetStatus').innerHTML = 
+                        `<div class="alert alert-success">
+                            <i class="fas fa-check-circle me-2"></i>Dataset uploaded successfully!
+                            <br>Project ID: ${currentProjectId}
+                            <br>File: ${file.name}
+                        </div>`;
+                    
+                    document.getElementById('typesCard').style.display = 'block';
+                    document.getElementById('activitiesCard').style.display = 'block';
+                    
+                    try {
+                        const previewResponse = await fetch(`/projects/${currentProjectId}/dataset/preview`);
+                        datasetInfo = await previewResponse.json();
+                    } catch (previewError) {
+                        console.error('Error loading preview:', previewError);
+                    }
+                } else {
+                    throw new Error('Failed to upload dataset: No project ID returned');
+                }
+            } catch (error) {
+                console.error('Upload error:', error);
+                document.getElementById('datasetStatus').innerHTML = 
+                    '<div class="alert alert-danger">❌ Error uploading file: ' + error.message + '</div>';
+            }
+        }
+
+        async function loadSample(filename) {
+            try {
+                const response = await fetch(`/level/1/load-sample/${filename}`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'}
+                });
+                
+                if (!response.ok) throw new Error('Failed to load sample');
+                
+                const data = await response.json();
+                currentProjectId = data.project_id;
+                localStorage.setItem('currentProjectId', currentProjectId);
+                
+                document.getElementById('datasetStatus').innerHTML = 
+                    `<div class="alert alert-success">
+                        <i class="fas fa-check-circle me-2"></i>Dataset loaded successfully! Project ID: ${currentProjectId}
+                    </div>`;
+                
+                document.getElementById('typesCard').style.display = 'block';
+                document.getElementById('activitiesCard').style.display = 'block';
+                
+                const previewResponse = await fetch(`/projects/${currentProjectId}/dataset/preview`);
+                datasetInfo = await previewResponse.json();
+            } catch (error) {
+                alert('Error loading sample: ' + error);
+            }
+        }
+
+        function showDerivation(type) {
+            if (!datasetInfo) {
+                alert('Please load a dataset first!');
+                return;
+            }
+
+            const explanations = {
+                'sum': {
+                    title: 'Sum/Average Columns',
+                    description: 'Add, subtract, or average multiple columns.',
+                    formula: 'new_column = col1 + col2 + col3',
+                    example: 'total_score = math + science + english',
+                    when: 'Combine related numeric columns'
+                },
+                'percentage': {
+                    title: 'Percentage Columns',
+                    description: 'Calculate percentages and ratios.',
+                    formula: 'new_column = (part / total) × 100',
+                    example: 'attendance_rate = (attended / total_days) × 100',
+                    when: 'Express parts as percentages of wholes'
+                },
+                'difference': {
+                    title: 'Difference Columns',
+                    description: 'Find the difference between two columns.',
+                    formula: 'new_column = col1 - col2',
+                    example: 'score_improvement = final_score - initial_score',
+                    when: 'Track changes or comparisons'
+                },
+                'concatenate': {
+                    title: 'Combine Text Columns',
+                    description: 'Merge text from multiple columns.',
+                    formula: 'new_column = col1 + " " + col2',
+                    example: 'full_name = first_name + " " + last_name',
+                    when: 'Creating composite text fields'
+                },
+                'conditional': {
+                    title: 'Conditional Columns',
+                    description: 'Create columns based on conditions.',
+                    formula: 'if condition then value_a else value_b',
+                    example: 'grade_level = if age > 13 then "high" else "middle"',
+                    when: 'Adding categories based on logic'
+                },
+                'dateparts': {
+                    title: 'Extract from Dates',
+                    description: 'Extract parts from date columns.',
+                    formula: 'extract month, year, day from date',
+                    example: 'birth_year = extract_year(birth_date)',
+                    when: 'Analyzing temporal patterns'
+                }
+            };
+
+            const exp = explanations[type];
+            const html = `
+                <div class="card border-primary">
+                    <div class="card-header bg-primary text-white">
+                        <h5>${exp.title}</h5>
+                    </div>
+                    <div class="card-body">
+                        <p><strong>Description:</strong> ${exp.description}</p>
+                        <div class="formula-box">
+                            <strong>Formula:</strong> <code>${exp.formula}</code>
+                        </div>
+                        <p><strong>Example:</strong> ${exp.example}</p>
+                        <p><strong>When to use:</strong> ${exp.when}</p>
+                        <div class="alert alert-info mt-3">
+                            <i class="fas fa-hand-pointer me-2"></i>
+                            <strong>Try it:</strong> Use the activities below to create derived columns in your data!
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('derivationExplanation').innerHTML = html;
+        }
+
+        async function inspectColumns() {
+            if (!currentProjectId) {
+                alert('Please load a dataset first!');
+                return;
+            }
+
+            try {
+                const response = await fetch(`/projects/${currentProjectId}/columns`);
+                const data = await response.json();
+                
+                let html = '<h6>🎯 Task: Choose Your Derivation Strategy</h6>';
+                html += '<p class="alert alert-info"><i class="fas fa-info-circle me-2"></i><strong>Your task:</strong> Pick 3 columns and suggest what derived column you would create!</p>';
+                html += '<div class="table-responsive"><table class="table table-striped">';
+                html += '<thead class="table-dark"><tr><th></th><th>Column</th><th>Type</th><th>Sample Values</th><th>My Derivation Idea</th></tr></thead><tbody>';
+                
+                let selectedCount = 0;
+                data.columns.forEach((col, idx) => {
+                    const isNumeric = data.numeric_columns.includes(col);
+                    const dtype = data.dtypes[col];
+                    const values = datasetInfo.head.map(row => row[col]).slice(0, 2);
+                    
+                    html += '<tr>';
+                    html += `<td><input type="checkbox" id="colCheck${idx}" onchange="checkColumn('${col}', this.checked)"></td>`;
+                    html += `<td><strong>${col}</strong></td>`;
+                    html += `<td><span class="badge bg-${isNumeric ? 'primary' : 'info'}">${dtype}</span></td>`;
+                    html += `<td class="small text-muted">${values.join(', ')}</td>`;
+                    html += `<td><input type="text" class="form-control form-control-sm" placeholder="e.g., total or ratio" id="idea${idx}" onchange="addIdea('${col}', this.value)"></td>`;
+                    html += '</tr>';
+                });
+                
+                html += '</tbody></table></div>';
+                html += '<div class="alert alert-warning mt-3">';
+                html += '<h6>✏️ Your Challenge:</h6>';
+                html += '<p id="selectedColumns"></p>';
+                html += '<button class="btn btn-success" onclick="submitDerivations()" id="submitBtn" disabled>Submit My Derivation Ideas</button>';
+                html += '</div>';
+                html += '<div id="derivationFeedback" class="mt-3"></div>';
+                
+                document.getElementById('activityResult').innerHTML = html;
+            } catch (error) {
+                console.error('Error inspecting columns:', error);
+                document.getElementById('activityResult').innerHTML = 
+                    '<div class="alert alert-danger">Error: ' + error.message + '</div>';
+            }
+        }
+
+        let selectedColumns = [];
+        let derivationIdeas = {};
+
+        function checkColumn(col, isChecked) {
+            if (isChecked) {
+                selectedColumns.push(col);
+            } else {
+                selectedColumns = selectedColumns.filter(c => c !== col);
+            }
+            updateSelectedDisplay();
+        }
+
+        function addIdea(col, idea) {
+            if (idea.trim()) {
+                derivationIdeas[col] = idea;
+            }
+            updateSelectedDisplay();
+        }
+
+        function updateSelectedDisplay() {
+            const display = document.getElementById('selectedColumns');
+            const submitBtn = document.getElementById('submitBtn');
+            
+            if (display) {
+                if (selectedColumns.length > 0) {
+                    display.innerHTML = `<p><strong>Selected columns:</strong> ${selectedColumns.join(', ')}</p>`;
+                    submitBtn.disabled = false;
+                } else {
+                    display.innerHTML = '<p>Select columns and add your derivation ideas!</p>';
+                    submitBtn.disabled = true;
+                }
+            }
+        }
+
+        function submitDerivations() {
+            let html = '<div class="alert alert-success">';
+            html += '<h6>✅ Your Submitted Ideas:</h6>';
+            selectedColumns.forEach(col => {
+                const idea = derivationIdeas[col] || 'No idea specified';
+                html += `<p><strong>${col}:</strong> ${idea}</p>`;
+            });
+            html += '</div>';
+            html += '<div class="alert alert-info mt-3">';
+            html += '<h6>💡 Feedback:</h6>';
+            html += '<p>Great thinking! Try implementing these derivations in your next activity.</p>';
+            html += '</div>';
+            
+            document.getElementById('derivationFeedback').innerHTML = html;
+        }
+
+        async function createColumn() {
+            if (!currentProjectId) {
+                alert('Please load a dataset first!');
+                return;
+            }
+
+            try {
+                const response = await fetch(`/projects/${currentProjectId}/columns`);
+                const data = await response.json();
+                
+                let html = '<h6>✨ Hands-On Task: Build Your First Derived Column</h6>';
+                html += '<p class="alert alert-warning"><i class="fas fa-exclamation-triangle me-2"></i><strong>Your task:</strong> Complete the form below to create a derived column formula!</p>';
+                
+                html += '<div class="row mb-3">';
+                html += '<div class="col-md-12 mb-3">';
+                html += '<label class="form-label"><strong>Step 1: Name Your Column</strong></label>';
+                html += '<input type="text" class="form-control" id="newColumnName" placeholder="e.g., total_score, percentage, full_name">';
+                html += '<small class="text-muted">Give it a meaningful name!</small>';
+                html += '</div>';
+                html += '</div>';
+                
+                html += '<div class="row">';
+                html += '<div class="col-md-5 mb-3">';
+                html += '<label class="form-label"><strong>Step 2: First Column</strong></label>';
+                html += '<select class="form-select" id="col1Select">';
+                html += '<option value="">Choose column...</option>';
+                data.columns.forEach(col => {
+                    html += `<option value="${col}">${col}</option>`;
+                });
+                html += '</select>';
+                html += '</div>';
+                html += '<div class="col-md-2 mb-3">';
+                html += '<label class="form-label"><strong>Step 3: Operation</strong></label>';
+                html += '<select class="form-select" id="operationSelect">';
+                html += '<option value="+">Add (+)</option>';
+                html += '<option value="-">Subtract (-)</option>';
+                html += '<option value="*">Multiply (*)</option>';
+                html += '<option value="/">Divide (/)</option>';
+                html += '<option value="concat">Combine text</option>';
+                html += '</select>';
+                html += '</div>';
+                html += '<div class="col-md-5 mb-3">';
+                html += '<label class="form-label"><strong>Step 4: Second Column (optional)</strong></label>';
+                html += '<select class="form-select" id="col2Select">';
+                html += '<option value="">Choose column...</option>';
+                data.columns.forEach(col => {
+                    html += `<option value="${col}">${col}</option>`;
+                });
+                html += '</select>';
+                html += '</div>';
+                html += '</div>';
+                
+                html += '<button class="btn btn-primary btn-lg" onclick="buildFormula()">Build My Formula!</button>';
+                html += '<div id="formulaWorkbench" class="mt-4"></div>';
+                html += '<div id="calculatePreview" class="mt-3"></div>';
+                
+                document.getElementById('activityResult').innerHTML = html;
+            } catch (error) {
+                console.error('Error creating column:', error);
+                document.getElementById('activityResult').innerHTML = 
+                    '<div class="alert alert-danger">Error: ' + error.message + '</div>';
+            }
+        }
+
+        function buildFormula() {
+            const name = document.getElementById('newColumnName').value;
+            const col1 = document.getElementById('col1Select').value;
+            const col2 = document.getElementById('col2Select').value;
+            const op = document.getElementById('operationSelect').value;
+            
+            if (!name) {
+                alert('Please enter a column name!');
+                return;
+            }
+            if (!col1) {
+                alert('Please select the first column!');
+                return;
+            }
+            
+            const workbench = document.getElementById('formulaWorkbench');
+            const calculateDiv = document.getElementById('calculatePreview');
+            
+            // Build formula string
+            let formula = '';
+            const symbols = { '+': '+', '-': '-', '*': '×', '/': '÷', 'concat': ' + " " + ' };
+            const symbol = symbols[op] || '+';
+            
+            if (col2) {
+                formula = name + ' = ' + col1 + ' ' + symbol + ' ' + col2;
+            } else {
+                formula = name + ' = ' + col1;
+            }
+            
+            workbench.innerHTML = `
+                <div class="card border-success">
+                    <div class="card-header bg-success text-white">
+                        <h6>✅ Your Formula is Ready!</h6>
+                    </div>
+                    <div class="card-body">
+                        <p class="lead"><code>${formula}</code></p>
+                        <div class="alert alert-info">
+                            <h6>📊 What this formula does:</h6>
+                            <ul>
+                                <li>Takes values from <strong>${col1}</strong></li>
+                                ${col2 ? `<li>${op === 'concat' ? 'Combines with' : 'Uses'} values from <strong>${col2}</strong></li>` : ''}
+                                <li>Creates new column: <strong>${name}</strong></li>
+                            </ul>
+                        </div>
+                        <button class="btn btn-success" onclick="calculateExample('${col1}', '${col2}', '${op}')">
+                            <i class="fas fa-calculator me-2"></i>Calculate Example Values
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function calculateExample(col1, col2, op) {
+            const values1 = datasetInfo.head.map(row => row[col1]).slice(0, 3);
+            const values2 = col2 ? datasetInfo.head.map(row => row[col2]).slice(0, 3) : [];
+            
+            let results = [];
+            for (let i = 0; i < Math.min(values1.length, values2.length || values1.length); i++) {
+                const v1 = parseFloat(values1[i]) || values1[i];
+                const v2 = col2 ? (parseFloat(values2[i]) || values2[i]) : 0;
+                
+                let result;
+                if (op === '+') result = v1 + v2;
+                else if (op === '-') result = v1 - v2;
+                else if (op === '*') result = v1 * v2;
+                else if (op === '/') result = v1 / v2;
+                else if (op === 'concat') result = v1 + ' ' + v2;
+                else result = v1;
+                
+                results.push(result);
+            }
+            
+            const calculateDiv = document.getElementById('calculatePreview');
+            calculateDiv.innerHTML = `
+                <div class="alert alert-success">
+                    <h6>📈 Example Calculations:</h6>
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead><tr><th>${col1}</th>${col2 ? `<th>${col2}</th>` : ''}<th>Result</th></tr></thead>
+                            <tbody>
+                                ${values1.map((v1, i) => `<tr><td>${v1}</td>${col2 ? `<td>${values2[i]}</td>` : ''}<td><strong>${results[i]}</strong></td></tr>`).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+        }
+
+        async function formulaBuilder() {
+            if (!currentProjectId) {
+                alert('Please load a dataset first!');
+                return;
+            }
+
+            const formulas = [
+                { name: 'Total', desc: 'Sum multiple columns', example: 'total = col1 + col2 + col3' },
+                { name: 'Average', desc: 'Average of columns', example: 'avg = (col1 + col2) / 2' },
+                { name: 'Percentage', desc: 'Calculate percentage', example: 'percent = (part / total) × 100' },
+                { name: 'Difference', desc: 'Find difference', example: 'diff = col1 - col2' },
+                { name: 'Ratio', desc: 'Calculate ratio', example: 'ratio = col1 / col2' }
+            ];
+
+            let html = '<h6>🧮 Formula Builder</h6>';
+            html += '<p class="alert alert-info"><i class="fas fa-info-circle me-2"></i>Explore common formulas for derived columns:</p>';
+            html += '<div class="row">';
+            
+            formulas.forEach((formula, idx) => {
+                html += '<div class="col-md-6 mb-3">';
+                html += '<div class="card">';
+                html += '<div class="card-body">';
+                html += `<h6>${formula.name}</h6>`;
+                html += `<p class="small mb-2">${formula.desc}</p>`;
+                html += `<code class="d-block">${formula.example}</code>`;
+                html += '</div></div></div>';
+            });
+            
+            html += '</div>';
+            html += '<div class="alert alert-success mt-3">';
+            html += '<p>💡 <strong>Try it:</strong> Use these formulas to create derived columns in your dataset!</p>';
+            html += '</div>';
+            
+            document.getElementById('activityResult').innerHTML = html;
+        }
+
+        async function impactChecker() {
+            if (!currentProjectId) {
+                alert('Please load a dataset first!');
+                return;
+            }
+
+            let html = '<h6>📊 Impact of Derived Columns</h6>';
+            html += '<p class="alert alert-info"><i class="fas fa-info-circle me-2"></i>How derived columns help your analysis:</p>';
+            html += '<div class="row">';
+            html += '<div class="col-md-6"><div class="alert alert-light">';
+            html += '<h6>Before:</h6>';
+            html += '<ul>';
+            html += '<li>Individual subject scores only</li>';
+            html += '<li>Can\'t see overall performance</li>';
+            html += '<li>Hard to compare students</li>';
+            html += '</ul></div></div>';
+            html += '<div class="col-md-6"><div class="alert alert-success">';
+            html += '<h6>After creating "total_score":</h6>';
+            html += '<ul>';
+            html += '<li>See total performance at a glance</li>';
+            html += '<li>Easy to rank and compare</li>';
+            html += '<li>Ready for analysis & visualization</li>';
+            html += '</ul></div></div>';
+            html += '</div>';
+            
+            html += '<div class="alert alert-warning mt-3">';
+            html += '<h6>💡 Key Benefits:</h6>';
+            html += '<ul>';
+            html += '<li><strong>Better Analysis:</strong> New columns reveal hidden patterns</li>';
+            html += '<li><strong>Easier Comparison:</strong> Combined metrics simplify comparisons</li>';
+            html += '<li><strong>Rich Visualizations:</strong> Derived columns enable better charts</li>';
+            html += '</ul>';
+            html += '</div>';
+            
+            document.getElementById('activityResult').innerHTML = html;
+        }
+
+        async function multipleColumns() {
+            if (!currentProjectId) {
+                alert('Please load a dataset first!');
+                return;
+            }
+
+            let html = '<h6>📦 Create Multiple Derived Columns</h6>';
+            html += '<p class="alert alert-info"><i class="fas fa-info-circle me-2"></i>You can create several derived columns at once:</p>';
+            
+            const suggestions = [
+                'total_score = math + science + english',
+                'average_score = total_score / 3',
+                'percentage = (total_score / 300) × 100',
+                'performance = if average_score > 85 then "excellent" else "good"'
+            ];
+            
+            html += '<div class="card">';
+            html += '<div class="card-header"><h6>Suggested Derived Columns:</h6></div>';
+            html += '<div class="card-body">';
+            suggestions.forEach((sug, idx) => {
+                html += `<div class="mb-2"><code>${idx + 1}. ${sug}</code></div>`;
+            });
+            html += '</div></div>';
+            
+            html += '<div class="alert alert-success mt-3">';
+            html += '<p>💡 <strong>Tip:</strong> Create multiple related columns to build a comprehensive analysis!</p>';
+            html += '</div>';
+            
+            document.getElementById('activityResult').innerHTML = html;
+        }
+
+        async function creativeChallenge() {
+            if (!currentProjectId) {
+                alert('Please load a dataset first!');
+                return;
+            }
+
+            let html = '<h6>🎯 Creative Challenge: Design Your Own!</h6>';
+            html += '<p class="alert alert-success"><i class="fas fa-trophy me-2"></i>Now it\'s your turn to be creative! Design 3 derived columns for your dataset:</p>';
+            
+            html += '<div class="row">';
+            for (let i = 1; i <= 3; i++) {
+                html += '<div class="col-md-4 mb-3">';
+                html += `<div class="card"><div class="card-body">`;
+                html += `<h6>Column ${i}:</h6>`;
+                html += `<input type="text" class="form-control mb-2" placeholder="Column name">`;
+                html += `<input type="text" class="form-control mb-2" placeholder="Formula or description">`;
+                html += `<button class="btn btn-sm btn-outline-primary">Save Idea</button>`;
+                html += '</div></div></div>';
+            }
+            html += '</div>';
+            
+            html += '<div class="alert alert-info mt-3">';
+            html += '<p>💡 <strong>Challenge:</strong> Think of derived columns that would help answer interesting questions about your data!</p>';
+            html += '</div>';
+            
+            document.getElementById('activityResult').innerHTML = html;
+        }
+
+        // Load dataset if available
+        if (currentProjectId) {
+            fetch(`/projects/${currentProjectId}/dataset/preview`)
+            .then(r => r.json())
+            .then(data => {
+                datasetInfo = data;
+                document.getElementById('typesCard').style.display = 'block';
+                document.getElementById('activitiesCard').style.display = 'block';
+                document.getElementById('datasetStatus').innerHTML = 
+                    '<div class="alert alert-success">Dataset already loaded!</div>';
+            });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task 4.5: Feature Engineering</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .task-header { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; padding: 2rem 0; }
+        .learning-objective { background: #f8f9fa; padding: 1rem; border-left: 4px solid #f5576c; }
+        .feature-card { border-left: 4px solid #f5576c; }
+    </style>
+</head>
+<body>
+    <div class="task-header">
+        <div class="container d-flex justify-content-between align-items-center">
+            <div>
+                <h1><i class="fas fa-wrench me-3"></i>Task 4.5: Feature Engineering</h1>
+                <p class="lead mb-0">Create custom features to improve model performance</p>
+            </div>
+            <a href="/level/4" class="btn btn-light">← Back to Level 4</a>
+        </div>
+    </div>
+
+    <div class="container py-4">
+        <div class="learning-objective mb-4">
+            <h4><i class="fas fa-bullseye me-2"></i>Learning Objective</h4>
+            <p class="mb-0">Learn to engineer features from text data: length features, word counts, sentiment hints, domain-specific features, and combine them with vectorized text.</p>
+        </div>
+
+        <!-- Activity 1: Text Length Features -->
+        <div class="card mb-4 feature-card">
+            <div class="card-header bg-primary text-white">
+                <h5><i class="fas fa-ruler me-2"></i>Activity 1: Text Length Features</h5>
+            </div>
+            <div class="card-body">
+                <p class="text-muted small">Create features from text length: character count, word count, sentence count, average word length.</p>
+                <div class="row g-3 align-items-end">
+                    <div class="col-md-6">
+                        <label class="form-label">Text Column</label>
+                        <select id="textCol1" class="form-select"></select>
+                    </div>
+                    <div class="col-md-6">
+                        <button class="btn btn-primary" onclick="createLengthFeatures()"><i class="fas fa-magic me-2"></i>Generate Length Features</button>
+                    </div>
+                </div>
+                <div id="lengthFeatures" class="mt-3" style="display:none"></div>
+            </div>
+        </div>
+
+        <!-- Activity 2: Word Frequency Features -->
+        <div class="card mb-4 feature-card">
+            <div class="card-header bg-info text-white">
+                <h5><i class="fas fa-chart-bar me-2"></i>Activity 2: Word Frequency Features</h5>
+            </div>
+            <div class="card-body">
+                <p class="text-muted small">Count specific keywords, rare words, or domain-specific terms.</p>
+                <div class="row g-3 align-items-end">
+                    <div class="col-md-4">
+                        <label class="form-label">Text Column</label>
+                        <select id="textCol2" class="form-select"></select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Keywords (comma-separated)</label>
+                        <input type="text" id="keywords" class="form-control" placeholder="e.g., good, bad, excellent, terrible">
+                    </div>
+                    <div class="col-md-2">
+                        <button class="btn btn-info" onclick="createFrequencyFeatures()"><i class="fas fa-search me-2"></i>Count</button>
+                    </div>
+                </div>
+                <div id="freqFeatures" class="mt-3" style="display:none"></div>
+            </div>
+        </div>
+
+        <!-- Activity 3: Sentiment Hints -->
+        <div class="card mb-4 feature-card">
+            <div class="card-header bg-success text-white">
+                <h5><i class="fas fa-smile me-2"></i>Activity 3: Sentiment Indicator Features</h5>
+            </div>
+            <div class="card-body">
+                <p class="text-muted small">Create features from sentiment indicators: positive/negative word counts, exclamation marks, question marks, capitalization.</p>
+                <div class="row g-3 align-items-end">
+                    <div class="col-md-6">
+                        <label class="form-label">Text Column</label>
+                        <select id="textCol3" class="form-select"></select>
+                    </div>
+                    <div class="col-md-6">
+                        <button class="btn btn-success" onclick="createSentimentFeatures()"><i class="fas fa-heart me-2"></i>Generate Sentiment Features</button>
+                    </div>
+                </div>
+                <div id="sentimentFeatures" class="mt-3" style="display:none"></div>
+            </div>
+        </div>
+
+        <!-- Activity 4: Domain-Specific Features -->
+        <div class="card mb-4 feature-card">
+            <div class="card-header bg-warning">
+                <h5><i class="fas fa-cogs me-2"></i>Activity 4: Domain-Specific Feature Builder</h5>
+            </div>
+            <div class="card-body">
+                <p class="text-muted small">Create custom features based on your domain knowledge: URL count, email count, number count, hashtag count, etc.</p>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Text Column</label>
+                        <select id="textCol4" class="form-select"></select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Feature Types</label>
+                        <div class="form-check"><input type="checkbox" id="featUrl" class="form-check-input" checked><label class="form-check-label">URL Count</label></div>
+                        <div class="form-check"><input type="checkbox" id="featEmail" class="form-check-input" checked><label class="form-check-label">Email Count</label></div>
+                        <div class="form-check"><input type="checkbox" id="featNumber" class="form-check-input" checked><label class="form-check-label">Number Count</label></div>
+                        <div class="form-check"><input type="checkbox" id="featHashtag" class="form-check-input"><label class="form-check-label">Hashtag Count</label></div>
+                    </div>
+                </div>
+                <div class="text-end mt-3">
+                    <button class="btn btn-warning" onclick="createDomainFeatures()"><i class="fas fa-tools me-2"></i>Generate Domain Features</button>
+                </div>
+                <div id="domainFeatures" class="mt-3" style="display:none"></div>
+            </div>
+        </div>
+
+        <!-- Activity 5: Feature Combination -->
+        <div class="card mb-4 feature-card">
+            <div class="card-header bg-secondary text-white">
+                <h5><i class="fas fa-layer-group me-2"></i>Activity 5: Combine Features with Vectorized Text</h5>
+            </div>
+            <div class="card-body">
+                <p class="text-muted small">Combine your engineered features with TF-IDF vectors for richer input to the classifier.</p>
+                <div class="alert alert-info">
+                    <strong>Tip:</strong> After creating features above, you can combine them with vectorized text by concatenating feature arrays. This is done automatically when you train a model in Task 4.4 with "Include Length Features" option.
+                </div>
+                <button class="btn btn-secondary" onclick="showCombinationExample()"><i class="fas fa-info-circle me-2"></i>Show Example</button>
+                <div id="combinationExample" class="mt-3" style="display:none"></div>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <div class="card">
+            <div class="card-body text-center">
+                <a href="/level/4" class="btn btn-outline-secondary me-2">Back to Level 4</a>
+                <a href="/level/4/task/4" class="btn btn-outline-primary me-2">← Previous: Classification</a>
+                <a href="/level/4/task/6" class="btn btn-primary">Next: Model Evaluation <i class="fas fa-arrow-right ms-2"></i></a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentProjectId = null;
+        let preview = null;
+
+        window.addEventListener('DOMContentLoaded', async () => {
+            currentProjectId = localStorage.getItem('level3_project_id') || localStorage.getItem('level4_project_id');
+            if (!currentProjectId) { alert('No project found'); return; }
+            await loadPreview();
+            await populateColumns();
+        });
+
+        async function loadPreview() {
+            try {
+                const res = await fetch(`/projects/${currentProjectId}/dataset/preview`);
+                preview = await res.json();
+            } catch(e) {}
+        }
+
+        async function populateColumns() {
+            try {
+                const res = await fetch(`/projects/${currentProjectId}/columns`);
+                const data = await res.json();
+                const cols = data.columns || [];
+                ['textCol1', 'textCol2', 'textCol3', 'textCol4'].forEach(id => {
+                    const sel = document.getElementById(id);
+                    sel.innerHTML = '<option value="">Select...</option>' + cols.map(c => `<option value="${c}">${c}</option>`).join('');
+                });
+            } catch(e) {}
+        }
+
+        function createLengthFeatures() {
+            const col = document.getElementById('textCol1').value;
+            if (!col || !preview || !preview.head) { alert('Select column and ensure data loaded'); return; }
+            const samples = preview.head.slice(0, 5);
+            let html = '<div class="alert alert-success"><h6>Generated Length Features (sample):</h6><table class="table table-sm"><thead><tr><th>Text</th><th>Chars</th><th>Words</th><th>Sentences</th><th>Avg Word Len</th></tr></thead><tbody>';
+            samples.forEach(row => {
+                const text = String(row[col] || '');
+                const chars = text.length;
+                const words = text.split(/\s+/).filter(Boolean);
+                const sentences = text.split(/[.!?]+/).filter(Boolean);
+                const avgWordLen = words.length > 0 ? (chars / words.length).toFixed(1) : 0;
+                html += `<tr><td>${text.substring(0,50)}...</td><td>${chars}</td><td>${words.length}</td><td>${sentences.length}</td><td>${avgWordLen}</td></tr>`;
+            });
+            html += '</tbody></table><div class="mt-2"><strong>These features can be added as numeric columns to your dataset!</strong></div></div>';
+            document.getElementById('lengthFeatures').innerHTML = html;
+            document.getElementById('lengthFeatures').style.display = 'block';
+        }
+
+        function createFrequencyFeatures() {
+            const col = document.getElementById('textCol2').value;
+            const keywords = document.getElementById('keywords').value.split(',').map(k => k.trim().toLowerCase()).filter(Boolean);
+            if (!col || keywords.length === 0 || !preview || !preview.head) { alert('Fill all fields'); return; }
+            const samples = preview.head.slice(0, 5);
+            let html = '<div class="alert alert-info"><h6>Keyword Frequency Features (sample):</h6><table class="table table-sm"><thead><tr><th>Text</th>' + keywords.map(k => `<th>${k}</th>`).join('') + '</tr></thead><tbody>';
+            samples.forEach(row => {
+                const text = String(row[col] || '').toLowerCase();
+                html += `<tr><td>${text.substring(0,40)}...</td>`;
+                keywords.forEach(kw => {
+                    const count = (text.match(new RegExp(kw, 'g')) || []).length;
+                    html += `<td>${count}</td>`;
+                });
+                html += '</tr>';
+            });
+            html += '</tbody></table></div>';
+            document.getElementById('freqFeatures').innerHTML = html;
+            document.getElementById('freqFeatures').style.display = 'block';
+        }
+
+        function createSentimentFeatures() {
+            const col = document.getElementById('textCol3').value;
+            if (!col || !preview || !preview.head) { alert('Select column'); return; }
+            const posWords = ['good', 'great', 'excellent', 'amazing', 'wonderful', 'love', 'like', 'happy', 'positive'];
+            const negWords = ['bad', 'terrible', 'awful', 'hate', 'dislike', 'sad', 'negative', 'worst', 'horrible'];
+            const samples = preview.head.slice(0, 5);
+            let html = '<div class="alert alert-success"><h6>Sentiment Features (sample):</h6><table class="table table-sm"><thead><tr><th>Text</th><th>Pos Words</th><th>Neg Words</th><th>Exclam!</th><th>Questions?</th><th>CAPS</th></tr></thead><tbody>';
+            samples.forEach(row => {
+                const text = String(row[col] || '');
+                const textLower = text.toLowerCase();
+                const posCount = posWords.reduce((sum, w) => sum + (textLower.match(new RegExp(w, 'g')) || []).length, 0);
+                const negCount = negWords.reduce((sum, w) => sum + (textLower.match(new RegExp(w, 'g')) || []).length, 0);
+                const exclam = (text.match(/!/g) || []).length;
+                const questions = (text.match(/\?/g) || []).length;
+                const caps = (text.match(/[A-Z]/g) || []).length;
+                html += `<tr><td>${text.substring(0,40)}...</td><td>${posCount}</td><td>${negCount}</td><td>${exclam}</td><td>${questions}</td><td>${caps}</td></tr>`;
+            });
+            html += '</tbody></table></div>';
+            document.getElementById('sentimentFeatures').innerHTML = html;
+            document.getElementById('sentimentFeatures').style.display = 'block';
+        }
+
+        function createDomainFeatures() {
+            const col = document.getElementById('textCol4').value;
+            if (!col || !preview || !preview.head) { alert('Select column'); return; }
+            const featUrl = document.getElementById('featUrl').checked;
+            const featEmail = document.getElementById('featEmail').checked;
+            const featNumber = document.getElementById('featNumber').checked;
+            const featHashtag = document.getElementById('featHashtag').checked;
+            const samples = preview.head.slice(0, 5);
+            const headers = ['Text', ...(featUrl ? ['URLs'] : []), ...(featEmail ? ['Emails'] : []), ...(featNumber ? ['Numbers'] : []), ...(featHashtag ? ['Hashtags'] : [])];
+            let html = '<div class="alert alert-warning"><h6>Domain Features (sample):</h6><table class="table table-sm"><thead><tr>' + headers.map(h => `<th>${h}</th>`).join('') + '</tr></thead><tbody>';
+            samples.forEach(row => {
+                const text = String(row[col] || '');
+                html += `<tr><td>${text.substring(0,40)}...</td>`;
+                if (featUrl) html += `<td>${(text.match(/https?:\/\/[^\s]+/gi) || []).length}</td>`;
+                if (featEmail) html += `<td>${(text.match(/[\w\.-]+@[\w\.-]+/gi) || []).length}</td>`;
+                if (featNumber) html += `<td>${(text.match(/\d+/g) || []).length}</td>`;
+                if (featHashtag) html += `<td>${(text.match(/#\w+/g) || []).length}</td>`;
+                html += '</tr>';
+            });
+            html += '</tbody></table></div>';
+            document.getElementById('domainFeatures').innerHTML = html;
+            document.getElementById('domainFeatures').style.display = 'block';
+        }
+
+        function showCombinationExample() {
+            const html = '<div class="alert alert-secondary"><h6>Feature Combination Example:</h6><pre class="bg-light p-3">Original: TF-IDF vector (1000 dimensions)\n+ Length features: [chars, words, sentences, avg_len]\n+ Sentiment: [pos_words, neg_words, exclam]\n+ Domain: [urls, emails, numbers]\n= Combined feature vector (1007 dimensions)\n\nThis richer representation can improve model accuracy!</pre></div>';
+            document.getElementById('combinationExample').innerHTML = html;
+            document.getElementById('combinationExample').style.display = 'block';
+        }
+    </script>
+</body>
+</html>
+

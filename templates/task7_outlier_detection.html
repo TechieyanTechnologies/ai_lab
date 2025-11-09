@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task 7: Detect Outliers</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .task-header { background: linear-gradient(135deg, #ff6b6b 0%, #ffd93d 100%); color: white; padding: 2rem 0; }
+        .learning-objective { background: #f8f9fa; padding: 1rem; border-left: 4px solid #ff6b6b; }
+        .outlier-card { transition: transform 0.2s; cursor: pointer; }
+        .outlier-card:hover { transform: translateY(-5px); }
+        .activity-card { border: 2px solid #ff6b6b; }
+        .outlier-box { background: #fff5f5; padding: 0.5rem; border-radius: 4px; border-left: 3px solid #ff6b6b; margin: 0.5rem 0; }
+    </style>
+</head>
+<body>
+    <div class="task-header">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+            <h1><i class="fas fa-exclamation-triangle me-3"></i>Task 7: Detect Outliers</h1>
+                    <p class="lead mb-0">Learn to identify unusual data points in your dataset</p>
+                </div>
+                <div class="text-end">
+                    <a href="/level/1" class="btn btn-light me-2">← Back to Level 1</a>
+                    <span class="badge bg-light text-dark me-2" style="font-size: 0.9rem;">
+                        <i class="fas fa-clock me-1"></i>25 minutes
+                    </span>
+                    <a href="/level/1/task/7/document" target="_blank" class="btn btn-light btn-sm">
+                        <i class="fas fa-book me-2"></i>Document
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container py-4">
+        <!-- Dataset Selection -->
+        <div class="card mb-4">
+            <div class="card-header bg-secondary text-white">
+                <h4><i class="fas fa-database me-2"></i>Select Your Dataset</h4>
+            </div>
+            <div class="card-body">
+                <p>Choose a dataset to work with for this task:</p>
+                
+                <!-- Upload Your Own Dataset -->
+                <div class="mb-3">
+                    <label class="form-label"><i class="fas fa-upload me-2"></i>Upload Your Own Dataset</label>
+                    <div class="input-group">
+                        <input type="file" class="form-control" id="csvFileInput" accept=".csv" onchange="handleFileUpload(event)">
+                        <button class="btn btn-primary" onclick="document.getElementById('csvFileInput').click()">
+                            <i class="fas fa-folder-open me-2"></i>Browse CSV Files
+                        </button>
+                    </div>
+                    <small class="text-muted">Upload a CSV file to practice with your own data</small>
+                </div>
+                
+                <hr class="my-4">
+                
+                <p class="mb-2">Or choose from sample datasets:</p>
+                <div class="btn-group" role="group">
+                    <button type="button" class="btn btn-outline-primary" onclick="loadSample('student_marks')">
+                        <i class="fas fa-file-csv me-2"></i>Student Marks
+                    </button>
+                    <button type="button" class="btn btn-outline-primary" onclick="loadSample('weather_week')">
+                        <i class="fas fa-file-csv me-2"></i>Weather Data
+                    </button>
+                    <button type="button" class="btn btn-outline-primary" onclick="loadSample('sales_small')">
+                        <i class="fas fa-file-csv me-2"></i>Sales Data
+                    </button>
+                    <button type="button" class="btn btn-outline-primary" onclick="loadSample('survey_small')">
+                        <i class="fas fa-file-csv me-2"></i>Survey Data
+                    </button>
+                </div>
+                <div id="datasetStatus" class="mt-3"></div>
+            </div>
+        </div>
+
+        <!-- Learning Objective -->
+        <div class="learning-objective mb-4">
+            <h4><i class="fas fa-bullseye me-2"></i>Learning Objective</h4>
+            <p class="mb-0">You'll learn to <strong>identify outliers</strong> — data points that are unusually far from the rest — and decide whether to keep, remove, or investigate them!</p>
+        </div>
+
+        <!-- Outlier Detection Methods -->
+        <div class="card mb-4" id="methodsCard" style="display: none;">
+            <div class="card-header bg-info text-white">
+                <h4><i class="fas fa-graduation-cap me-2"></i>Understanding Outlier Detection Methods</h4>
+            </div>
+            <div class="card-body">
+                <p>Click on each method to learn how to detect outliers:</p>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="card outlier-card h-100" onclick="showMethod('iqr')">
+                            <div class="card-body text-center">
+                                <i class="fas fa-chart-boxes fa-3x text-primary mb-3"></i>
+                                <h6>IQR Method</h6>
+                                <p class="small">Using quartiles</p>
+                                <button class="btn btn-sm btn-primary">Learn More</button>
+                            </div>
+                    </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card outlier-card h-100" onclick="showMethod('zscore')">
+                            <div class="card-body text-center">
+                                <i class="fas fa-chart-line fa-3x text-success mb-3"></i>
+                                <h6>Z-Score Method</h6>
+                                <p class="small">Using standard deviation</p>
+                                <button class="btn btn-sm btn-success">Learn More</button>
+                    </div>
+                    </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card outlier-card h-100" onclick="showMethod('isolation')">
+                            <div class="card-body text-center">
+                                <i class="fas fa-ban fa-3x text-danger mb-3"></i>
+                                <h6>Visual Detection</h6>
+                                <p class="small">Using charts</p>
+                                <button class="btn btn-sm btn-danger">Learn More</button>
+                    </div>
+                    </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card outlier-card h-100" onclick="showMethod('domain')">
+                            <div class="card-body text-center">
+                                <i class="fas fa-lightbulb fa-3x text-warning mb-3"></i>
+                                <h6>Domain Knowledge</h6>
+                                <p class="small">Using expertise</p>
+                                <button class="btn btn-sm btn-warning">Learn More</button>
+                    </div>
+                    </div>
+                    </div>
+                </div>
+                <div id="methodExplanation" class="mt-4"></div>
+            </div>
+        </div>
+
+        <!-- Interactive Activities -->
+        <div class="card mb-4" id="activitiesCard" style="display: none;">
+            <div class="card-header bg-primary text-white">
+                <h4><i class="fas fa-tasks me-2"></i>Interactive Activities</h4>
+            </div>
+            <div class="card-body">
+                <p>Practice detecting outliers with these hands-on activities:</p>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="card activity-card h-100">
+                            <div class="card-body">
+                                <h5><i class="fas fa-search me-2"></i>Spot the Outlier</h5>
+                                <p>Identify outliers in visual data</p>
+                                <button class="btn btn-primary" onclick="spotOutlier()">
+                                    <i class="fas fa-play me-2"></i>Start Activity
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card activity-card h-100">
+                            <div class="card-body">
+                                <h5><i class="fas fa-calculator me-2"></i>Calculate IQR</h5>
+                                <p>Compute interquartile range</p>
+                                <button class="btn btn-success" onclick="calculateIQR()">
+                                    <i class="fas fa-play me-2"></i>Start Activity
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card activity-card h-100">
+                            <div class="card-body">
+                                <h5><i class="fas fa-flag me-2"></i>Mark Outliers</h5>
+                                <p>Flag outliers in your dataset</p>
+                                <button class="btn btn-warning" onclick="markOutliers()">
+                                    <i class="fas fa-play me-2"></i>Start Activity
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card activity-card h-100">
+                            <div class="card-body">
+                                <h5><i class="fas fa-table me-2"></i>Outlier Table</h5>
+                                <p>See all outliers at once</p>
+                                <button class="btn btn-info" onclick="showOutlierTable()">
+                                    <i class="fas fa-play me-2"></i>Start Activity
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card activity-card h-100">
+                            <div class="card-body">
+                                <h5><i class="fas fa-balance-scale me-2"></i>Decide Actions</h5>
+                                <p>Decide what to do with outliers</p>
+                                <button class="btn btn-danger" onclick="decideActions()">
+                                    <i class="fas fa-play me-2"></i>Start Activity
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card activity-card h-100">
+                            <div class="card-body">
+                                <h5><i class="fas fa-chart-box fa-2x text-primary mb-2"></i>Box Plot View</h5>
+                                <p>Visualize outliers in box plot</p>
+                                <button class="btn btn-dark" onclick="visualizeOutliers()">
+                                    <i class="fas fa-play me-2"></i>Start Activity
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="activityResult" class="mt-4"></div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-body text-center">
+                <a href="/level/1/task/6" class="btn btn-outline-secondary">← Previous Task</a>
+                <a href="/level/1" class="btn btn-outline-secondary">Back to Level 1</a>
+                <a href="/level/1/task/8" class="btn btn-primary">Next Task →</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let currentProjectId = localStorage.getItem('currentProjectId');
+        let datasetInfo = null;
+
+        async function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            if (!file.name.endsWith('.csv')) {
+                alert('Please upload a CSV file');
+                return;
+            }
+
+            document.getElementById('datasetStatus').innerHTML = 
+                '<div class="alert alert-info">📤 Uploading your dataset... <i class="fas fa-spinner fa-spin"></i></div>';
+
+            try {
+                const formData = new FormData();
+                formData.append('file', file);
+
+                const response = await fetch('/level/1/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(errorText || 'Upload failed');
+                }
+
+                const data = await response.json();
+                
+                if (data.project_id) {
+                    currentProjectId = data.project_id;
+                    localStorage.setItem('currentProjectId', currentProjectId);
+                    
+                    document.getElementById('datasetStatus').innerHTML = 
+                        `<div class="alert alert-success">
+                            <i class="fas fa-check-circle me-2"></i>Dataset uploaded successfully!
+                            <br>Project ID: ${currentProjectId}
+                            <br>File: ${file.name}
+                        </div>`;
+                    
+                    document.getElementById('methodsCard').style.display = 'block';
+                    document.getElementById('activitiesCard').style.display = 'block';
+                    
+                    try {
+                        const previewResponse = await fetch(`/projects/${currentProjectId}/dataset/preview`);
+                        datasetInfo = await previewResponse.json();
+                    } catch (previewError) {
+                        console.error('Error loading preview:', previewError);
+                    }
+                } else {
+                    throw new Error('Failed to upload dataset: No project ID returned');
+                }
+            } catch (error) {
+                console.error('Upload error:', error);
+                document.getElementById('datasetStatus').innerHTML = 
+                    '<div class="alert alert-danger">❌ Error uploading file: ' + error.message + '</div>';
+            }
+        }
+
+        async function loadSample(filename) {
+            try {
+                const response = await fetch(`/level/1/load-sample/${filename}`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'}
+                });
+                
+                if (!response.ok) throw new Error('Failed to load sample');
+                
+                const data = await response.json();
+                currentProjectId = data.project_id;
+                localStorage.setItem('currentProjectId', currentProjectId);
+                
+                document.getElementById('datasetStatus').innerHTML = 
+                    `<div class="alert alert-success">
+                        <i class="fas fa-check-circle me-2"></i>Dataset loaded successfully! Project ID: ${currentProjectId}
+                    </div>`;
+                
+                document.getElementById('methodsCard').style.display = 'block';
+                document.getElementById('activitiesCard').style.display = 'block';
+                
+                const previewResponse = await fetch(`/projects/${currentProjectId}/dataset/preview`);
+                datasetInfo = await previewResponse.json();
+            } catch (error) {
+                alert('Error loading sample: ' + error);
+            }
+        }
+
+        function showMethod(method) {
+            if (!datasetInfo) {
+                alert('Please load a dataset first!');
+                return;
+            }
+
+            const explanations = {
+                'iqr': {
+                    title: 'IQR Method (Interquartile Range)',
+                    description: 'Identifies outliers using quartiles. Any value outside Q1-1.5×IQR and Q3+1.5×IQR is an outlier.',
+                    formula: 'Outlier if: value < Q1 - 1.5×IQR OR value > Q3 + 1.5×IQR',
+                    when: 'Best for: General purpose, robust to distribution shape'
+                },
+                'zscore': {
+                    title: 'Z-Score Method',
+                    description: 'Uses standard deviation. Values with |z-score| > 3 are considered outliers.',
+                    formula: 'z = (value - mean) / std_dev, Outlier if |z| > 3',
+                    when: 'Best for: Normal distributions, when you want statistical precision'
+                },
+                'isolation': {
+                    title: 'Visual Detection',
+                    description: 'Plot data and visually identify points that stand out from the pattern.',
+                    formula: 'Look for points far from the main cluster',
+                    when: 'Best for: Initial exploration, understanding data patterns'
+                },
+                'domain': {
+                    title: 'Domain Knowledge',
+                    description: 'Use your understanding of the data to identify unrealistic values.',
+                    formula: 'Question values that don\'t make sense for the context',
+                    when: 'Best for: When you understand what values are reasonable'
+                }
+            };
+
+            const exp = explanations[method];
+            const html = `
+                <div class="card border-primary">
+                    <div class="card-header bg-primary text-white">
+                        <h5>${exp.title}</h5>
+                    </div>
+                    <div class="card-body">
+                        <p><strong>Description:</strong> ${exp.description}</p>
+                        <div class="alert alert-secondary">
+                            <strong>Formula:</strong> ${exp.formula}
+                        </div>
+                        <p><strong>When to use:</strong> ${exp.when}</p>
+                        <div class="alert alert-info mt-3">
+                            <i class="fas fa-hand-pointer me-2"></i>
+                            <strong>Try it:</strong> Use the activities below to detect outliers in your data!
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('methodExplanation').innerHTML = html;
+        }
+
+        async function spotOutlier() {
+            if (!currentProjectId) {
+                alert('Please load a dataset first!');
+                return;
+            }
+
+            try {
+                const response = await fetch(`/projects/${currentProjectId}/columns`);
+                const data = await response.json();
+                
+                const col = data.numeric_columns[0];
+                if (!col) {
+                    alert('No numeric columns in your dataset');
+                    return;
+                }
+                
+                const values = datasetInfo.head.map(row => parseFloat(row[col])).filter(v => !isNaN(v));
+                const sorted = [...values].sort((a, b) => a - b);
+                
+                // Create example values with obvious outlier
+                const exampleValues = [10, 12, 15, 14, 13, 16, 18, 200]; // 200 is the outlier
+                
+                let html = '<h6>🎯 Challenge: Spot the Outlier!</h6>';
+                html += `<p class="alert alert-warning"><i class="fas fa-exclamation-triangle me-2"></i><strong>Your task:</strong> Look at these values and identify the outlier!</p>`;
+                html += '<div class="row">';
+                html += '<div class="col-md-8">';
+                html += '<h6>Values:</h6>';
+                html += '<div class="d-flex flex-wrap gap-2 mb-3">';
+                exampleValues.forEach((v, idx) => {
+                    html += `<button class="btn btn-lg ${v === 200 ? 'btn-danger' : 'btn-outline-primary'}" onclick="selectOutlier(${idx}, ${v})" id="valBtn${idx}">${v}</button>`;
+                });
+                html += '</div>';
+                html += '</div>';
+                html += '<div class="col-md-4">';
+                html += '<h6>Your Selection:</h6>';
+                html += '<div id="outlierSelection" class="alert alert-info">Click on the value you think is the outlier!</div>';
+                html += '</div>';
+                html += '</div>';
+                html += '<div id="outlierFeedback"></div>';
+                
+                document.getElementById('activityResult').innerHTML = html;
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('activityResult').innerHTML = 
+                    '<div class="alert alert-danger">Error: ' + error.message + '</div>';
+            }
+        }
+
+        function selectOutlier(idx, value) {
+            const feedbackDiv = document.getElementById('outlierFeedback');
+            
+            if (value === 200) {
+                feedbackDiv.innerHTML = '<div class="alert alert-success"><h6>🎉 Correct!</h6><p>200 is definitely an outlier - it\'s way higher than the other values (10-18 range).</p></div>';
+            } else {
+                feedbackDiv.innerHTML = '<div class="alert alert-danger"><h6>❌ Not quite!</h6><p>Look for the value that is way different from the rest!</p></div>';
+            }
+        }
+
+        async function calculateIQR() {
+            if (!currentProjectId) {
+                alert('Please load a dataset first!');
+                return;
+            }
+
+            try {
+                const response = await fetch(`/projects/${currentProjectId}/columns`);
+                const data = await response.json();
+                
+                const col = data.numeric_columns[0];
+                if (!col) {
+                    alert('No numeric columns in your dataset');
+                    return;
+                }
+                
+                const values = datasetInfo.head.map(row => parseFloat(row[col])).filter(v => !isNaN(v));
+                const sorted = [...values].sort((a, b) => a - b);
+                
+                const q1 = sorted[Math.floor(sorted.length * 0.25)];
+                const q2 = sorted[Math.floor(sorted.length * 0.5)];
+                const q3 = sorted[Math.floor(sorted.length * 0.75)];
+                const iqr = q3 - q1;
+                const lowerBound = q1 - 1.5 * iqr;
+                const upperBound = q3 + 1.5 * iqr;
+                
+                let html = '<h6>📊 Task: Calculate IQR for Outlier Detection</h6>';
+                html += `<p class="alert alert-info"><i class="fas fa-info-circle me-2"></i>Column: <strong>${col}</strong></p>`;
+                html += '<div class="card mb-3">';
+                html += '<div class="card-header"><h6>Step-by-Step IQR Calculation:</h6></div>';
+                html += '<div class="card-body">';
+                html += '<div class="row">';
+                html += '<div class="col-md-6">';
+                html += '<p><strong>Step 1: Find Quartiles</strong></p>';
+                html += `<p>Q1 (25th percentile): <code>${q1.toFixed(2)}</code></p>`;
+                html += `<p>Q2 (50th percentile): <code>${q2.toFixed(2)}</code></p>`;
+                html += `<p>Q3 (75th percentile): <code>${q3.toFixed(2)}</code></p>`;
+                html += '</div>';
+                html += '<div class="col-md-6">';
+                html += '<p><strong>Step 2: Calculate IQR</strong></p>';
+                html += `<p>IQR = Q3 - Q1 = ${q3.toFixed(2)} - ${q1.toFixed(2)} = <code>${iqr.toFixed(2)}</code></p>`;
+                html += '</div>';
+                html += '</div>';
+                html += '<div class="row mt-3">';
+                html += '<div class="col-md-6">';
+                html += '<p><strong>Step 3: Calculate Bounds</strong></p>';
+                html += `<p>Lower bound = Q1 - 1.5×IQR = <code>${lowerBound.toFixed(2)}</code></p>`;
+                html += `<p>Upper bound = Q3 + 1.5×IQR = <code>${upperBound.toFixed(2)}</code></p>`;
+                html += '</div>';
+                html += '<div class="col-md-6">';
+                html += '<p><strong>Step 4: Identify Outliers</strong></p>';
+                html += `<p>Values outside [${lowerBound.toFixed(2)}, ${upperBound.toFixed(2)}] are outliers</p>`;
+                html += '</div>';
+                html += '</div>';
+                html += '</div></div>';
+                
+                document.getElementById('activityResult').innerHTML = html;
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('activityResult').innerHTML = 
+                    '<div class="alert alert-danger">Error: ' + error.message + '</div>';
+            }
+        }
+
+        async function markOutliers() {
+            if (!currentProjectId) {
+                alert('Please load a dataset first!');
+                return;
+            }
+
+            try {
+                const response = await fetch(`/projects/${currentProjectId}/columns`);
+                const data = await response.json();
+                
+                const col = data.numeric_columns[0];
+                if (!col) {
+                    alert('No numeric columns in your dataset');
+                    return;
+                }
+                
+                const values = datasetInfo.head.map(row => parseFloat(row[col])).filter(v => !isNaN(v));
+                const sorted = [...values].sort((a, b) => a - b);
+                const q1 = sorted[Math.floor(sorted.length * 0.25)];
+                const q3 = sorted[Math.floor(sorted.length * 0.75)];
+                const iqr = q3 - q1;
+                const lowerBound = q1 - 1.5 * iqr;
+                const upperBound = q3 + 1.5 * iqr;
+                
+                let html = '<h6>🚩 Task: Mark Outliers in Your Data</h6>';
+                html += `<p class="alert alert-warning"><i class="fas fa-exclamation-triangle me-2"></i><strong>Your task:</strong> Click values that are outliers (outside bounds [${lowerBound.toFixed(1)}, ${upperBound.toFixed(1)}])!</p>`;
+                html += '<div class="d-flex flex-wrap gap-2 mb-3">';
+                
+                values.forEach((v, idx) => {
+                    const isOutlier = v < lowerBound || v > upperBound;
+                    const bgClass = isOutlier ? 'btn-danger' : 'btn-outline-primary';
+                    html += `<button class="btn btn-sm ${bgClass} p-2" onclick="toggleOutlierMark(${idx}, ${v}, ${isOutlier})" id="valBtn${idx}">${v.toFixed(1)}</button>`;
+                });
+                
+                html += '</div>';
+                html += '<div id="markingResults" class="alert alert-info mt-3"></div>';
+                
+                document.getElementById('activityResult').innerHTML = html;
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('activityResult').innerHTML = 
+                    '<div class="alert alert-danger">Error: ' + error.message + '</div>';
+            }
+        }
+
+        let markedOutliers = {};
+
+        function toggleOutlierMark(idx, value, isActualOutlier) {
+            const btn = document.getElementById('valBtn' + idx);
+            const resultsDiv = document.getElementById('markingResults');
+            
+            if (btn.classList.contains('btn-danger') && !isActualOutlier) {
+                btn.classList.remove('btn-danger');
+                btn.classList.add('btn-outline-danger');
+            } else if (btn.classList.contains('btn-outline-primary')) {
+                btn.classList.remove('btn-outline-primary');
+                btn.classList.add('btn-danger');
+            }
+            
+            if (resultsDiv) {
+                if (isActualOutlier) {
+                    resultsDiv.innerHTML = '<h6>✅ Correct!</h6><p>You identified an outlier!</p>';
+                } else {
+                    resultsDiv.innerHTML = '<h6>❌ Not an outlier</h6><p>This value is within normal range.</p>';
+                }
+            }
+        }
+
+        async function showOutlierTable() {
+            if (!currentProjectId) {
+                alert('Please load a dataset first!');
+                return;
+            }
+
+            try {
+                const response = await fetch(`/projects/${currentProjectId}/columns`);
+                const data = await response.json();
+                
+                let html = '<h6>📋 All Detected Outliers</h6>';
+                html += '<p class="alert alert-info"><i class="fas fa-info-circle me-2"></i>Here are all outliers found in your dataset:</p>';
+                html += '<div class="table-responsive"><table class="table table-striped">';
+                html += '<thead class="table-dark"><tr><th>Column</th><th>Value</th><th>Status</th></tr></thead>';
+                html += '<tbody>';
+                
+                let outlierCount = 0;
+                data.numeric_columns.forEach(col => {
+                    const values = datasetInfo.head.map(row => parseFloat(row[col])).filter(v => !isNaN(v));
+                    const sorted = [...values].sort((a, b) => a - b);
+                    const q1 = sorted[Math.floor(sorted.length * 0.25)];
+                    const q3 = sorted[Math.floor(sorted.length * 0.75)];
+                    const iqr = q3 - q1;
+                    const lowerBound = q1 - 1.5 * iqr;
+                    const upperBound = q3 + 1.5 * iqr;
+                    
+                    values.forEach(v => {
+                        if (v < lowerBound || v > upperBound) {
+                            outlierCount++;
+                            html += '<tr>';
+                            html += `<td>${col}</td>`;
+                            html += `<td><strong>${v}</strong></td>`;
+                            html += `<td><span class="badge bg-danger">Outlier</span></td>`;
+                            html += '</tr>';
+                        }
+                    });
+                });
+                
+                html += '</tbody></table></div>';
+                
+                if (outlierCount === 0) {
+                    html += '<div class="alert alert-success mt-3">';
+                    html += '<h6>✅ No Outliers Found!</h6>';
+                    html += '<p>Your dataset looks clean - all values are within expected ranges.</p>';
+                    html += '</div>';
+                } else {
+                    html += `<div class="alert alert-warning mt-3">`;
+                    html += `<h6>⚠️ Summary</h6>`;
+                    html += `<p>Found <strong>${outlierCount}</strong> outliers in your dataset.</p>`;
+                    html += '<p>💡 Decide what to do with these unusual values!</p>';
+                    html += '</div>';
+                }
+                
+                document.getElementById('activityResult').innerHTML = html;
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('activityResult').innerHTML = 
+                    '<div class="alert alert-danger">Error: ' + error.message + '</div>';
+            }
+        }
+
+        async function decideActions() {
+            const actions = [
+                { name: 'Keep', icon: '✓', color: 'success', desc: 'Keep the outliers if they are valid data' },
+                { name: 'Remove', icon: '✗', color: 'danger', desc: 'Remove outliers that are errors or noise' },
+                { name: 'Investigate', icon: '?', color: 'warning', desc: 'Investigate to understand why they exist' },
+                { name: 'Transform', icon: '↻', color: 'info', desc: 'Apply log or square root transformation' }
+            ];
+            
+            let html = '<h6>🤔 Task: Decide What to Do with Outliers</h6>';
+            html += '<p class="alert alert-info"><i class="fas fa-info-circle me-2"></i>Choose the best action for each scenario:</p>';
+            
+            actions.forEach((action, idx) => {
+                html += '<div class="card mb-3">';
+                html += '<div class="card-body">';
+                html += `<h6>Option ${idx + 1}: ${action.name} Outliers</h6>`;
+                html += `<p>${action.desc}</p>`;
+                html += `<button class="btn btn-${action.color}" onclick="selectAction('${action.name}')"><i class="fas fa-${action.icon} me-2"></i>Choose This</button>`;
+                html += '</div></div>';
+            });
+            
+            html += '<div id="actionFeedback" class="mt-3"></div>';
+            
+            document.getElementById('activityResult').innerHTML = html;
+        }
+
+        function selectAction(action) {
+            const feedbackDiv = document.getElementById('actionFeedback');
+            const feedbackMessages = {
+                'Keep': '✅ Good choice if the outliers represent real, valid data that should be included in your analysis!',
+                'Remove': '✅ Good choice if the outliers are clearly errors or measurement mistakes!',
+                'Investigate': '✅ Best approach! Understanding why outliers exist helps make better decisions!',
+                'Transform': '✅ Good choice for skewed data - helps normalize the distribution!'
+            };
+            
+            feedbackDiv.innerHTML = `<div class="alert alert-success">${feedbackMessages[action]}</div>`;
+        }
+
+        async function visualizeOutliers() {
+            if (!currentProjectId) {
+                alert('Please load a dataset first!');
+                return;
+            }
+
+            try {
+                const response = await fetch(`/projects/${currentProjectId}/columns`);
+                const data = await response.json();
+                
+                const col = data.numeric_columns[0];
+                if (!col) {
+                    alert('No numeric columns in your dataset');
+                    return;
+                }
+                
+                // Call backend to generate box plot
+                const outlierResponse = await fetch(`/projects/${currentProjectId}/outliers`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        column: col,
+                        method: 'iqr'
+                    })
+                });
+                
+                const result = await outlierResponse.json();
+                
+                let html = '<h6>📊 Visualize Outliers with Box Plot</h6>';
+                
+                if (result.count > 0) {
+                    html += `<p class="alert alert-warning"><i class="fas fa-exclamation-triangle me-2"></i>Found <strong>${result.count}</strong> outliers in the "${col}" column!</p>`;
+                } else {
+                    html += `<p class="alert alert-success"><i class="fas fa-check-circle me-2"></i>No outliers found in the "${col}" column!</p>`;
+                }
+                
+                if (result.plot_filename) {
+                    const imageUrl = `/artifacts/projects/${currentProjectId}/runs/${result.plot_filename}`;
+                    html += `<div class="mt-3">`;
+                    html += `<img src="${imageUrl}" class="img-fluid border rounded shadow" alt="Box plot showing outliers" onerror="this.parentElement.innerHTML='<div class=\\'alert alert-danger\\'>Image could not be loaded. Please try again.</div>'">`;
+                    html += '</div>';
+                    html += `<div class="alert alert-info mt-3">`;
+                    html += '<h6>📈 Understanding Box Plots:</h6>';
+                    html += '<ul>';
+                    html += '<li>Box shows Q1 to Q3 (middle 50% of data)</li>';
+                    html += '<li>Line in box is the median</li>';
+                    html += '<li>Whiskers extend to min/max within 1.5×IQR</li>';
+                    html += '<li>Points beyond whiskers are outliers</li>';
+                    html += '</ul>';
+                    html += '</div>';
+                } else {
+                    html += '<div class="alert alert-warning">Plot could not be generated.</div>';
+                }
+                
+                document.getElementById('activityResult').innerHTML = html;
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('activityResult').innerHTML = 
+                    '<div class="alert alert-danger">Error: ' + error.message + '</div>';
+            }
+        }
+
+        // Load dataset if available
+        if (currentProjectId) {
+            fetch(`/projects/${currentProjectId}/dataset/preview`)
+            .then(r => r.json())
+            .then(data => {
+                datasetInfo = data;
+                document.getElementById('methodsCard').style.display = 'block';
+                document.getElementById('activitiesCard').style.display = 'block';
+                document.getElementById('datasetStatus').innerHTML = 
+                    '<div class="alert alert-success">Dataset already loaded!</div>';
+            });
+        }
+    </script>
+</body>
+</html>

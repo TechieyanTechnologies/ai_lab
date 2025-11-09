@@ -1,0 +1,250 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - {{ config.school_name }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h3 mb-0">
+                    <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                </h1>
+                <div>
+                    <span class="badge bg-primary fs-6">
+                        {{ user_role.title() }}
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    {% if user_role == 'admin' %}
+    <!-- Admin Dashboard -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-3">
+            <div class="card stats-card">
+                <div class="card-body text-center">
+                    <i class="fas fa-chalkboard-teacher fa-2x mb-2"></i>
+                    <h3 class="mb-0">{{ stats.teachers }}</h3>
+                    <p class="mb-0">Teachers</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card stats-card">
+                <div class="card-body text-center">
+                    <i class="fas fa-user-graduate fa-2x mb-2"></i>
+                    <h3 class="mb-0">{{ stats.students }}</h3>
+                    <p class="mb-0">Students</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card stats-card">
+                <div class="card-body text-center">
+                    <i class="fas fa-folder fa-2x mb-2"></i>
+                    <h3 class="mb-0">{{ stats.projects }}</h3>
+                    <p class="mb-0">Projects</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card stats-card">
+                <div class="card-body text-center">
+                    <i class="fas fa-users fa-2x mb-2"></i>
+                    <h3 class="mb-0">{{ stats.classes }}</h3>
+                    <p class="mb-0">Classes</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-cog me-2"></i>Quick Actions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{{ url_for('admin') }}" class="btn btn-outline-primary">
+                            <i class="fas fa-cog me-2"></i>System Settings
+                        </a>
+                        <a href="{{ url_for('create_teacher') }}" class="btn btn-outline-primary">
+                            <i class="fas fa-user-plus me-2"></i>Add Teacher
+                        </a>
+                        <a href="{{ url_for('bulk_import_students') }}" class="btn btn-outline-primary">
+                            <i class="fas fa-upload me-2"></i>Import Students
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>System Status</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span>Class-8 Module</span>
+                        <span class="badge bg-success">Enabled</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span>Database</span>
+                        <span class="badge bg-success">Connected</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span>Storage</span>
+                        <span class="badge bg-info">Local</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    {% elif user_role == 'teacher' %}
+    <!-- Teacher Dashboard -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-4">
+            <div class="card stats-card">
+                <div class="card-body text-center">
+                    <i class="fas fa-users fa-2x mb-2"></i>
+                    <h3 class="mb-0">{{ stats.classes }}</h3>
+                    <p class="mb-0">Classes</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card stats-card">
+                <div class="card-body text-center">
+                    <i class="fas fa-user-graduate fa-2x mb-2"></i>
+                    <h3 class="mb-0">{{ stats.students }}</h3>
+                    <p class="mb-0">Students</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card stats-card">
+                <div class="card-body text-center">
+                    <i class="fas fa-folder fa-2x mb-2"></i>
+                    <h3 class="mb-0">{{ stats.projects }}</h3>
+                    <p class="mb-0">Projects</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-tasks me-2"></i>Quick Actions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{{ url_for('create_class') }}" class="btn btn-outline-primary">
+                            <i class="fas fa-plus me-2"></i>Create Class
+                        </a>
+                        <a href="{{ url_for('create_project') }}" class="btn btn-outline-primary">
+                            <i class="fas fa-folder-plus me-2"></i>Create Project
+                        </a>
+                        <a href="{{ url_for('bulk_import_students') }}" class="btn btn-outline-primary">
+                            <i class="fas fa-upload me-2"></i>Import Students
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-chart-line me-2"></i>Recent Activity</h5>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted">No recent activity to display.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    {% else %}
+    <!-- Student Dashboard -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-6">
+            <div class="card stats-card">
+                <div class="card-body text-center">
+                    <i class="fas fa-folder fa-2x mb-2"></i>
+                    <h3 class="mb-0">{{ stats.projects }}</h3>
+                    <p class="mb-0">My Projects</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card stats-card">
+                <div class="card-body text-center">
+                    <i class="fas fa-database fa-2x mb-2"></i>
+                    <h3 class="mb-0">{{ stats.datasets }}</h3>
+                    <p class="mb-0">Datasets</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-rocket me-2"></i>Get Started</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{{ url_for('create_project') }}" class="btn btn-outline-primary">
+                            <i class="fas fa-plus me-2"></i>Create New Project
+                        </a>
+                        <a href="{{ url_for('labs') }}" class="btn btn-outline-primary">
+                            <i class="fas fa-flask me-2"></i>Explore Labs
+                        </a>
+                        <a href="{{ url_for('projects') }}" class="btn btn-outline-primary">
+                            <i class="fas fa-folder me-2"></i>View My Projects
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-lightbulb me-2"></i>Learning Path</h5>
+                </div>
+                <div class="card-body">
+                    <div class="progress mb-2">
+                        <div class="progress-bar" role="progressbar" style="width: 25%"></div>
+                    </div>
+                    <p class="text-muted small mb-0">Complete your first data project to unlock more features!</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- Help Section -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="help-section">
+                <h4><i class="fas fa-question-circle me-2"></i>Need Help?</h4>
+                <p class="mb-0">
+                    {% if user_role == 'admin' %}
+                        <strong>Admin:</strong> Configure school settings, manage users, and monitor system activity.
+                    {% elif user_role == 'teacher' %}
+                        <strong>Teacher:</strong> Create classes, assign projects, and track student progress.
+                    {% else %}
+                        <strong>Student:</strong> Upload data, explore with guided labs, and create visualizations.
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

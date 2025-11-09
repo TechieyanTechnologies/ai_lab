@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block title %}Create Student - {{ config.school_name }}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0">
+                        <i class="fas fa-user-plus me-2"></i>Create Student Account
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <form method="POST">
+                        <div class="mb-3">
+                            <label for="username" class="form-label">Username *</label>
+                            <input type="text" class="form-control" id="username" name="username" required
+                                   placeholder="e.g., student001">
+                            <div class="form-text">Choose a unique username for the student</div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="fullname" class="form-label">Full Name *</label>
+                            <input type="text" class="form-control" id="fullname" name="fullname" required
+                                   placeholder="e.g., John Smith">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Password *</label>
+                            <input type="password" class="form-control" id="password" name="password" required
+                                   placeholder="Enter password">
+                            <div class="form-text">Choose a secure password for the student</div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="class_id" class="form-label">Assign to Class</label>
+                            <select class="form-select" id="class_id" name="class_id">
+                                <option value="none">No class assignment</option>
+                                {% for class in classes %}
+                                <option value="{{ class[0] }}">{{ class[1] }}</option>
+                                {% endfor %}
+                            </select>
+                            <div class="form-text">Optional: Assign student to a specific class</div>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between">
+                            <a href="{{ url_for('admin') }}" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>Back to Admin
+                            </a>
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-save me-2"></i>Create Student
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Help Section -->
+            <div class="help-section mt-4">
+                <h4><i class="fas fa-lightbulb me-2"></i>Student Account Creation</h4>
+                <p class="mb-0">
+                    <strong>Username:</strong> Must be unique across all users
+                    <br><strong>Password:</strong> Will be used by student to login
+                    <br><strong>Class Assignment:</strong> Optional, can be assigned later
+                    <br><strong>Bulk Import:</strong> Use "Import Students" for multiple accounts
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

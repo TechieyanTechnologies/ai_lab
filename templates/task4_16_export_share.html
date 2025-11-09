@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task 4.8: Export & Share</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .task-header { background: linear-gradient(135deg, #36d1dc 0%, #5b86e5 100%); color: white; padding: 2rem 0; }
+        .learning-objective { background: #f8f9fa; padding: 1rem; border-left: 4px solid #5b86e5; }
+    </style>
+</head>
+<body>
+    <div class="task-header">
+        <div class="container d-flex justify-content-between align-items-center">
+            <div>
+                <h1><i class="fas fa-share-square me-3"></i>Task 4.8: Export & Share</h1>
+                <p class="lead mb-0">Download cleaned data, trained models, metrics, and chatbot index</p>
+            </div>
+            <a href="/level/4" class="btn btn-light">← Back to Level 4</a>
+        </div>
+    </div>
+
+    <div class="container py-4">
+        <div class="learning-objective mb-4">
+            <h4><i class="fas fa-bullseye me-2"></i>Learning Objective</h4>
+            <p class="mb-0">Collect and export artifacts from your NLP project to share or reuse.</p>
+        </div>
+
+        <!-- Cleaned Data -->
+        <div class="card mb-3">
+            <div class="card-header bg-primary text-white"><h5><i class="fas fa-table me-2"></i>Cleaned Dataset</h5></div>
+            <div class="card-body" id="cleanedLinks">Looking for cleaned CSV...</div>
+        </div>
+
+        <!-- Classifier Artifacts -->
+        <div class="card mb-3">
+            <div class="card-header bg-info text-white"><h5><i class="fas fa-brain me-2"></i>Classifier Artifacts</h5></div>
+            <div class="card-body" id="classifierLinks">Looking for classifier runs...</div>
+        </div>
+
+        <!-- Chatbot Artifacts -->
+        <div class="card mb-3">
+            <div class="card-header bg-warning"><h5 class="mb-0"><i class="fas fa-robot me-2"></i>Chatbot Artifacts</h5></div>
+            <div class="card-body" id="chatbotLinks">Looking for chatbot files...</div>
+        </div>
+
+        <!-- Report -->
+        <div class="card">
+            <div class="card-header bg-secondary text-white"><h5><i class="fas fa-file-export me-2"></i>Quick HTML Report</h5></div>
+            <div class="card-body">
+                <button class="btn btn-outline-secondary me-2" onclick="downloadReport()"><i class="fas fa-download me-2"></i>Download Report.html</button>
+                <button class="btn btn-outline-secondary" onclick="showChecklist()"><i class="fas fa-list-check me-2"></i>Artifact Checklist</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentProjectId=null;
+        window.addEventListener('DOMContentLoaded', async()=>{
+            currentProjectId=localStorage.getItem('level3_project_id')||localStorage.getItem('level4_project_id');
+            await populateCleaned();
+            await populateClassifier();
+            await populateChatbot();
+        });
+        async function populateCleaned(){
+            const url=`/artifacts/projects/${currentProjectId}/dataset/clean_text.csv`;
+            // optimistic check by embedding link
+            document.getElementById('cleanedLinks').innerHTML = `
+                <a class='btn btn-sm btn-outline-primary' href='${url}' target='_blank'><i class='fas fa-download me-1'></i>clean_text.csv</a>
+                <div class='small text-muted mt-2'>If link fails, run cleaning in Task 4.1.</div>`;
+        }
+        async function populateClassifier(){
+            try{
+                const res=await fetch(`/level/4/projects/${currentProjectId}/classifier-runs`);
+                const data=await res.json();
+                if(!data.success||!data.runs||data.runs.length===0){ document.getElementById('classifierLinks').innerHTML='<div class="text-muted">No classifier runs. Train in Task 4.4.</div>'; return; }
+                const r=data.runs[0];
+                document.getElementById('classifierLinks').innerHTML=`
+                    <a class='btn btn-sm btn-outline-primary me-2' href='${r.artifacts.model}' target='_blank'><i class='fas fa-download me-1'></i>model.pkl</a>
+                    <a class='btn btn-sm btn-outline-secondary me-2' href='${r.artifacts.vectorizer}' target='_blank'><i class='fas fa-download me-1'></i>vectorizer.pkl</a>
+                    <a class='btn btn-sm btn-outline-info' href='${r.artifacts.metrics}' target='_blank'><i class='fas fa-code me-1'></i>metrics.json</a>
+                    <div class='small text-muted mt-2'>Showing latest run <code>${r.run_id}</code></div>`;
+            }catch(e){ document.getElementById('classifierLinks').innerHTML='<div class="text-danger">Failed to load</div>'; }
+        }
+        async function populateChatbot(){
+            const base=`/artifacts/projects/${currentProjectId}/nlp/chatbot/`;
+            document.getElementById('chatbotLinks').innerHTML=`
+                <a class='btn btn-sm btn-outline-secondary me-2' href='${base}vectorizer.pkl' target='_blank'><i class='fas fa-download me-1'></i>vectorizer.pkl</a>
+                <a class='btn btn-sm btn-outline-secondary me-2' href='${base}faq_tfidf.npz' target='_blank'><i class='fas fa-download me-1'></i>faq_tfidf.npz</a>
+                <a class='btn btn-sm btn-outline-secondary' href='${base}faqs.json' target='_blank'><i class='fas fa-download me-1'></i>faqs.json</a>
+                <div class='small text-muted mt-2'>If links fail, build the chatbot in Task 4.6.</div>`;
+        }
+        function downloadReport(){
+            const html=`<!doctype html><html><head><meta charset='utf-8'><title>NLP Report</title></head><body>
+                <h1>NLP Project Report</h1>
+                <h2>Artifacts</h2>
+                <ul>
+                    <li>Cleaned CSV: artifacts/projects/${currentProjectId}/dataset/clean_text.csv</li>
+                    <li>Classifier: model.pkl, vectorizer.pkl, metrics.json</li>
+                    <li>Chatbot: vectorizer.pkl, faq_tfidf.npz, faqs.json</li>
+                </ul>
+                <p>Generated locally by AI Lab.</p>
+            </body></html>`;
+            const blob=new Blob([html],{type:'text/html'});
+            const a=document.createElement('a');
+            a.href=URL.createObjectURL(blob);
+            a.download='nlp_report.html';
+            a.click();
+            URL.revokeObjectURL(a.href);
+        }
+        function showChecklist(){
+            const items=[
+                'Dataset uploaded (Task 4.1)',
+                'Text cleaned and saved (Task 4.1/4.2)',
+                'Vectorization explored (Task 4.3)',
+                'Classifier trained (Task 4.4)',
+                'Metrics reviewed (Task 4.5)',
+                'FAQ chatbot built (Task 4.6)',
+                'Chat tested (Task 4.7)'
+            ];
+            alert('Checklist:\n- '+items.join('\n- '));
+        }
+    </script>
+</body>
+</html>
+
+

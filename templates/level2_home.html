@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Level 2: Machine Learning</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .level-header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 3rem 0; }
+        .task-card { border: 2px solid #667eea; border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem; transition: all 0.3s; }
+        .task-card:hover { transform: translateY(-5px); box-shadow: 0 10px 25px rgba(102, 126, 234, 0.2); }
+        .task-card h5 { color: #667eea; font-weight: bold; }
+        .difficulty-badge { font-size: 0.8rem; }
+        .learning-objective { background: #f8f9fa; padding: 2rem; border-left: 4px solid #667eea; margin: 2rem 0; }
+        .stats-card { background: linear-gradient(135deg, #667eea, #764ba2); color: white; border-radius: 12px; padding: 1.5rem; }
+        .ml-icon { font-size: 3rem; color: #667eea; }
+    </style>
+</head>
+<body>
+    <div class="level-header">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h1><i class="fas fa-brain me-3"></i>Level 2: Machine Learning</h1>
+                    <p class="lead mb-0">Learn regression, classification, and model development through hands-on projects</p>
+                </div>
+                <div class="col-md-4 text-end">
+                    <a href="/" class="btn btn-light btn-lg">
+                        <i class="fas fa-home me-2"></i>Back to Home
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container py-5">
+        <!-- Learning Objective -->
+        <div class="learning-objective">
+            <h3><i class="fas fa-bullseye me-2"></i>Learning Objectives</h3>
+            <div class="row">
+                <div class="col-md-6">
+                    <ul>
+                        <li>Understand regression and classification problems</li>
+                        <li>Learn to prepare data for machine learning</li>
+                        <li>Train and evaluate ML models</li>
+                        <li>Compare different algorithms</li>
+                    </ul>
+                </div>
+                <div class="col-md-6">
+                    <ul>
+                        <li>Perform feature engineering</li>
+                        <li>Tune hyperparameters</li>
+                        <li>Deploy models for predictions</li>
+                        <li>Build complete ML projects</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Level Stats -->
+        <div class="row mb-5">
+            <div class="col-md-3">
+                <div class="stats-card text-center">
+                    <i class="fas fa-tasks mb-3" style="font-size: 2rem;"></i>
+                    <h4>10 Tasks</h4>
+                    <p class="mb-0">Comprehensive ML Journey</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-card text-center">
+                    <i class="fas fa-chart-line mb-3" style="font-size: 2rem;"></i>
+                    <h4>2 Algorithms</h4>
+                    <p class="mb-0">Regression & Classification</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-card text-center">
+                    <i class="fas fa-database mb-3" style="font-size: 2rem;"></i>
+                    <h4>2 Datasets</h4>
+                    <p class="mb-0">Housing & Student Performance</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-card text-center">
+                    <i class="fas fa-cogs mb-3" style="font-size: 2rem;"></i>
+                    <h4>Hands-on</h4>
+                    <p class="mb-0">Learn by Doing</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tasks Grid -->
+        <div class="row">
+            <!-- Task 1 -->
+            <div class="col-md-6">
+                <div class="task-card">
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="fas fa-database ml-icon me-3"></i>
+                        <div>
+                            <h5>Task 1: Data Preparation</h5>
+                            <span class="badge bg-success difficulty-badge">Beginner</span>
+                        </div>
+                    </div>
+                    <p class="small">Prepare your dataset for machine learning by handling missing values, encoding categorical variables, and splitting data.</p>
+                    <a href="/level/2/task/1" class="btn btn-primary btn-sm">Start Task</a>
+                </div>
+            </div>
+
+            <!-- Task 2 -->
+            <div class="col-md-6">
+                <div class="task-card">
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="fas fa-chart-line ml-icon me-3"></i>
+                        <div>
+                            <h5>Task 2: Regression Basics</h5>
+                            <span class="badge bg-info difficulty-badge">Beginner</span>
+                        </div>
+                    </div>
+                    <p class="small">Learn linear regression fundamentals and understand how to predict continuous values like house prices.</p>
+                    <a href="/level/2/task/2" class="btn btn-primary btn-sm">Start Task</a>
+                </div>
+            </div>
+
+            <!-- Task 3 -->
+            <div class="col-md-6">
+                <div class="task-card">
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="fas fa-sitemap ml-icon me-3"></i>
+                        <div>
+                            <h5>Task 3: Classification Basics</h5>
+                            <span class="badge bg-info difficulty-badge">Beginner</span>
+                        </div>
+                    </div>
+                    <p class="small">Master logistic regression and learn to classify data into categories like pass/fail predictions.</p>
+                    <a href="/level/2/task/3" class="btn btn-primary btn-sm">Start Task</a>
+                </div>
+            </div>
+
+            <!-- Task 4 -->
+            <div class="col-md-6">
+                <div class="task-card">
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="fas fa-cogs ml-icon me-3"></i>
+                        <div>
+                            <h5>Task 4: Model Training</h5>
+                            <span class="badge bg-warning difficulty-badge">Intermediate</span>
+                        </div>
+                    </div>
+                    <p class="small">Train your first machine learning models and understand the training process step by step.</p>
+                    <a href="/level/2/task/4" class="btn btn-primary btn-sm">Start Task</a>
+                </div>
+            </div>
+
+            <!-- Task 5 -->
+            <div class="col-md-6">
+                <div class="task-card">
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="fas fa-chart-bar ml-icon me-3"></i>
+                        <div>
+                            <h5>Task 5: Model Evaluation</h5>
+                            <span class="badge bg-warning difficulty-badge">Intermediate</span>
+                        </div>
+                    </div>
+                    <p class="small">Learn to evaluate model performance using metrics like accuracy, R², and confusion matrices.</p>
+                    <a href="/level/2/task/5" class="btn btn-primary btn-sm">Start Task</a>
+                </div>
+            </div>
+
+            <!-- Task 6 -->
+            <div class="col-md-6">
+                <div class="task-card">
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="fas fa-tools ml-icon me-3"></i>
+                        <div>
+                            <h5>Task 6: Feature Engineering</h5>
+                            <span class="badge bg-warning difficulty-badge">Intermediate</span>
+                        </div>
+                    </div>
+                    <p class="small">Create new features and transform existing ones to improve model performance.</p>
+                    <a href="/level/2/task/6" class="btn btn-primary btn-sm">Start Task</a>
+                </div>
+            </div>
+
+            <!-- Task 7 -->
+            <div class="col-md-6">
+                <div class="task-card">
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="fas fa-balance-scale ml-icon me-3"></i>
+                        <div>
+                            <h5>Task 7: Model Comparison</h5>
+                            <span class="badge bg-danger difficulty-badge">Advanced</span>
+                        </div>
+                    </div>
+                    <p class="small">Compare different algorithms and choose the best performing model for your data.</p>
+                    <a href="/level/2/task/7" class="btn btn-primary btn-sm">Start Task</a>
+                </div>
+            </div>
+
+            <!-- Task 8 -->
+            <div class="col-md-6">
+                <div class="task-card">
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="fas fa-sliders-h ml-icon me-3"></i>
+                        <div>
+                            <h5>Task 8: Hyperparameter Tuning</h5>
+                            <span class="badge bg-danger difficulty-badge">Advanced</span>
+                        </div>
+                    </div>
+                    <p class="small">Optimize model parameters to achieve the best possible performance.</p>
+                    <a href="/level/2/task/8" class="btn btn-primary btn-sm">Start Task</a>
+                </div>
+            </div>
+
+            <!-- Task 9 -->
+            <div class="col-md-6">
+                <div class="task-card">
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="fas fa-rocket ml-icon me-3"></i>
+                        <div>
+                            <h5>Task 9: Model Deployment</h5>
+                            <span class="badge bg-danger difficulty-badge">Advanced</span>
+                        </div>
+                    </div>
+                    <p class="small">Deploy your trained model and create a simple prediction interface.</p>
+                    <a href="/level/2/task/9" class="btn btn-primary btn-sm">Start Task</a>
+                </div>
+            </div>
+
+            <!-- Task 10 -->
+            <div class="col-md-6">
+                <div class="task-card">
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="fas fa-project-diagram ml-icon me-3"></i>
+                        <div>
+                            <h5>Task 10: Complete ML Project</h5>
+                            <span class="badge bg-dark difficulty-badge">Expert</span>
+                        </div>
+                    </div>
+                    <p class="small">Build a complete machine learning project from data preparation to deployment.</p>
+                    <a href="/level/2/task/10" class="btn btn-primary btn-sm">Start Task</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sample Datasets -->
+        <div class="card mt-5">
+            <div class="card-header bg-primary text-white">
+                <h4><i class="fas fa-database me-2"></i>Sample Datasets</h4>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6><i class="fas fa-home me-2"></i>Housing Dataset</h6>
+                        <p class="small">Predict house prices using square footage, bedrooms, and age. Perfect for learning regression.</p>
+                        <ul class="small">
+                            <li>50 rows of housing data</li>
+                            <li>Features: sqft, bedrooms, age</li>
+                            <li>Target: price</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h6><i class="fas fa-graduation-cap me-2"></i>Student Performance Dataset</h6>
+                        <p class="small">Predict student pass/fail using study hours, attendance, and grades. Ideal for classification.</p>
+                        <ul class="small">
+                            <li>50 rows of student data</li>
+                            <li>Features: study_hours, attendance, homework_completed</li>
+                            <li>Target: pass_fail</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <div class="text-center mt-5">
+            <a href="/level/1" class="btn btn-outline-secondary me-3">
+                <i class="fas fa-arrow-left me-2"></i>Level 1: Data Analysis
+            </a>
+            <a href="/level/2/task/1" class="btn btn-primary btn-lg">
+                Start Level 2 <i class="fas fa-arrow-right ms-2"></i>
+            </a>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

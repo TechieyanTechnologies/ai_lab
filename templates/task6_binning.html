@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task 6: Binning & Bucketing</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .task-header { background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); color: white; padding: 2rem 0; }
+        .learning-objective { background: #f8f9fa; padding: 1rem; border-left: 4px solid #fa709a; }
+        .binning-card { transition: transform 0.2s; cursor: pointer; }
+        .binning-card:hover { transform: translateY(-5px); }
+        .activity-card { border: 2px solid #fa709a; }
+        .bin-box { background: #fff3f8; padding: 0.5rem; border-radius: 4px; border: 1px solid #fa709a; margin: 0.5rem 0; }
+    </style>
+</head>
+<body>
+    <div class="task-header">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1><i class="fas fa-layer-group me-3"></i>Task 6: Binning & Bucketing</h1>
+                    <p class="lead mb-0">Learn to convert numeric values into categories</p>
+                </div>
+                <div class="text-end">
+                    <a href="/level/1" class="btn btn-light me-2">← Back to Level 1</a>
+                    <span class="badge bg-light text-dark me-2" style="font-size: 0.9rem;">
+                        <i class="fas fa-clock me-1"></i>20 minutes
+                    </span>
+                    <a href="/level/1/task/6/document" target="_blank" class="btn btn-light btn-sm">
+                        <i class="fas fa-book me-2"></i>Document
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container py-4">
+        <!-- Dataset Selection -->
+        <div class="card mb-4">
+            <div class="card-header bg-secondary text-white">
+                <h4><i class="fas fa-database me-2"></i>Select Your Dataset</h4>
+            </div>
+            <div class="card-body">
+                <p>Choose a dataset to work with for this task:</p>
+                
+                <!-- Upload Your Own Dataset -->
+                <div class="mb-3">
+                    <label class="form-label"><i class="fas fa-upload me-2"></i>Upload Your Own Dataset</label>
+                    <div class="input-group">
+                        <input type="file" class="form-control" id="csvFileInput" accept=".csv" onchange="handleFileUpload(event)">
+                        <button class="btn btn-primary" onclick="document.getElementById('csvFileInput').click()">
+                            <i class="fas fa-folder-open me-2"></i>Browse CSV Files
+                        </button>
+                    </div>
+                    <small class="text-muted">Upload a CSV file to practice with your own data</small>
+                </div>
+                
+                <hr class="my-4">
+                
+                <p class="mb-2">Or choose from sample datasets:</p>
+                <div class="btn-group" role="group">
+                    <button type="button" class="btn btn-outline-primary" onclick="loadSample('student_marks')">
+                        <i class="fas fa-file-csv me-2"></i>Student Marks
+                    </button>
+                    <button type="button" class="btn btn-outline-primary" onclick="loadSample('weather_week')">
+                        <i class="fas fa-file-csv me-2"></i>Weather Data
+                    </button>
+                    <button type="button" class="btn btn-outline-primary" onclick="loadSample('sales_small')">
+                        <i class="fas fa-file-csv me-2"></i>Sales Data
+                    </button>
+                    <button type="button" class="btn btn-outline-primary" onclick="loadSample('survey_small')">
+                        <i class="fas fa-file-csv me-2"></i>Survey Data
+                    </button>
+                </div>
+                <div id="datasetStatus" class="mt-3"></div>
+            </div>
+        </div>
+
+        <!-- Learning Objective -->
+        <div class="learning-objective mb-4">
+            <h4><i class="fas fa-bullseye me-2"></i>Learning Objective</h4>
+            <p class="mb-0">You'll learn to <strong>group numeric values into bins</strong> — like creating grade categories (A, B, C), age groups, income brackets — to simplify analysis and make patterns easier to see!</p>
+        </div>
+
+        <!-- Binning Concepts -->
+        <div class="card mb-4" id="conceptsCard" style="display: none;">
+            <div class="card-header bg-info text-white">
+                <h4><i class="fas fa-graduation-cap me-2"></i>Understanding Binning</h4>
+            </div>
+            <div class="card-body">
+                <p>Click on each binning strategy to learn when and how to use it:</p>
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <div class="card binning-card h-100" onclick="showBinningMethod('equal')">
+                            <div class="card-body text-center">
+                                <i class="fas fa-equals fa-3x text-primary mb-3"></i>
+                                <h6>Equal Width</h6>
+                                <p class="small">Same size ranges</p>
+                                <button class="btn btn-sm btn-primary">Learn More</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card binning-card h-100" onclick="showBinningMethod('quantile')">
+                            <div class="card-body text-center">
+                                <i class="fas fa-chart-bar fa-3x text-success mb-3"></i>
+                                <h6>Quantile Bins</h6>
+                                <p class="small">Same number in each bin</p>
+                                <button class="btn btn-sm btn-success">Learn More</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card binning-card h-100" onclick="showBinningMethod('custom')">
+                            <div class="card-body text-center">
+                                <i class="fas fa-sliders-h fa-3x text-warning mb-3"></i>
+                                <h6>Custom Ranges</h6>
+                                <p class="small">Define your own bins</p>
+                                <button class="btn btn-sm btn-warning">Learn More</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="binningExplanation" class="mt-4"></div>
+            </div>
+        </div>
+
+        <!-- Interactive Activities -->
+        <div class="card mb-4" id="activitiesCard" style="display: none;">
+            <div class="card-header bg-primary text-white">
+                <h4><i class="fas fa-tasks me-2"></i>Interactive Activities</h4>
+            </div>
+            <div class="card-body">
+                <p>Practice binning with these hands-on activities:</p>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="card activity-card h-100">
+                            <div class="card-body">
+                                <h5><i class="fas fa-keyboard me-2"></i>Bin Design Challenge</h5>
+                                <p>Design bins for your numeric columns</p>
+                                <button class="btn btn-primary" onclick="binDesignChallenge()">
+                                    <i class="fas fa-play me-2"></i>Start Activity
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card activity-card h-100">
+                            <div class="card-body">
+                                <h5><i class="fas fa-magic me-2"></i>Auto Binning Demo</h5>
+                                <p>See auto binning with different strategies</p>
+                                <button class="btn btn-success" onclick="autoBinningDemo()">
+                                    <i class="fas fa-play me-2"></i>Start Activity
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card activity-card h-100">
+                            <div class="card-body">
+                                <h5><i class="fas fa-edit me-2"></i>Manual Binning</h5>
+                                <p>Create custom bins interactively</p>
+                                <button class="btn btn-warning" onclick="manualBinning()">
+                                    <i class="fas fa-play me-2"></i>Start Activity
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card activity-card h-100">
+                            <div class="card-body">
+                                <h5><i class="fas fa-check-circle me-2"></i>Bin the Values</h5>
+                                <p>Practice assigning values to bins</p>
+                                <button class="btn btn-info" onclick="binTheValues()">
+                                    <i class="fas fa-play me-2"></i>Start Activity
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card activity-card h-100">
+                            <div class="card-body">
+                                <h5><i class="fas fa-chart-pie me-2"></i>Compare Binnings</h5>
+                                <p>Compare different binning strategies</p>
+                                <button class="btn btn-danger" onclick="compareBinnings()">
+                                    <i class="fas fa-play me-2"></i>Start Activity
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card activity-card h-100">
+                            <div class="card-body">
+                                <h5><i class="fas fa-question-circle me-2"></i>Binning Quiz</h5>
+                                <p>Test your binning knowledge</p>
+                                <button class="btn btn-dark" onclick="binningQuiz()">
+                                    <i class="fas fa-play me-2"></i>Start Activity
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="activityResult" class="mt-4"></div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-body text-center">
+                <a href="/level/1/task/5" class="btn btn-outline-secondary">← Previous Task</a>
+                <a href="/level/1" class="btn btn-outline-secondary">Back to Level 1</a>
+                <a href="/level/1/task/7" class="btn btn-primary">Next Task →</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let currentProjectId = localStorage.getItem('currentProjectId');
+        let datasetInfo = null;
+
+        async function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            if (!file.name.endsWith('.csv')) {
+                alert('Please upload a CSV file');
+                return;
+            }
+
+            document.getElementById('datasetStatus').innerHTML = 
+                '<div class="alert alert-info">📤 Uploading your dataset... <i class="fas fa-spinner fa-spin"></i></div>';
+
+            try {
+                const formData = new FormData();
+                formData.append('file', file);
+
+                const response = await fetch('/level/1/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(errorText || 'Upload failed');
+                }
+
+                const data = await response.json();
+                
+                if (data.project_id) {
+                    currentProjectId = data.project_id;
+                    localStorage.setItem('currentProjectId', currentProjectId);
+                    
+                    document.getElementById('datasetStatus').innerHTML = 
+                        `<div class="alert alert-success">
+                            <i class="fas fa-check-circle me-2"></i>Dataset uploaded successfully!
+                            <br>Project ID: ${currentProjectId}
+                            <br>File: ${file.name}
+                        </div>`;
+                    
+                    document.getElementById('conceptsCard').style.display = 'block';
+                    document.getElementById('activitiesCard').style.display = 'block';
+                    
+                    try {
+                        const previewResponse = await fetch(`/projects/${currentProjectId}/dataset/preview`);
+                        datasetInfo = await previewResponse.json();
+                    } catch (previewError) {
+                        console.error('Error loading preview:', previewError);
+                    }
+                } else {
+                    throw new Error('Failed to upload dataset: No project ID returned');
+                }
+            } catch (error) {
+                console.error('Upload error:', error);
+                document.getElementById('datasetStatus').innerHTML = 
+                    '<div class="alert alert-danger">❌ Error uploading file: ' + error.message + '</div>';
+            }
+        }
+
+        async function loadSample(filename) {
+            try {
+                const response = await fetch(`/level/1/load-sample/${filename}`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'}
+                });
+                
+                if (!response.ok) throw new Error('Failed to load sample');
+                
+                const data = await response.json();
+                currentProjectId = data.project_id;
+                localStorage.setItem('currentProjectId', currentProjectId);
+                
+                document.getElementById('datasetStatus').innerHTML = 
+                    `<div class="alert alert-success">
+                        <i class="fas fa-check-circle me-2"></i>Dataset loaded successfully! Project ID: ${currentProjectId}
+                    </div>`;
+                
+                document.getElementById('conceptsCard').style.display = 'block';
+                document.getElementById('activitiesCard').style.display = 'block';
+                
+                const previewResponse = await fetch(`/projects/${currentProjectId}/dataset/preview`);
+                datasetInfo = await previewResponse.json();
+            } catch (error) {
+                alert('Error loading sample: ' + error);
+            }
+        }
+
+        function showBinningMethod(method) {
+            if (!datasetInfo) {
+                alert('Please load a dataset first!');
+                return;
+            }
+
+            const explanations = {
+                'equal': {
+                    title: 'Equal Width Binning',
+                    description: 'Divides the range into bins of equal width.',
+                    example: 'Scores 0-100: [0-20, 20-40, 40-60, 60-80, 80-100]',
+                    when: 'Use when you want uniform bin sizes'
+                },
+                'quantile': {
+                    title: 'Quantile Binning',
+                    description: 'Creates bins with equal number of values in each.',
+                    example: 'Scores sorted: [lowest 25%, next 25%, next 25%, highest 25%]',
+                    when: 'Use when you want balanced bin sizes'
+                },
+                'custom': {
+                    title: 'Custom Binning',
+                    description: 'Define your own bin boundaries.',
+                    example: 'Grades: [0-59: F, 60-69: D, 70-79: C, 80-89: B, 90-100: A]',
+                    when: 'Use when you have specific category requirements'
+                }
+            };
+
+            const exp = explanations[method];
+            const html = `
+                <div class="card border-primary">
+                    <div class="card-header bg-primary text-white">
+                        <h5>${exp.title}</h5>
+                    </div>
+                    <div class="card-body">
+                        <p><strong>Description:</strong> ${exp.description}</p>
+                        <p><strong>Example:</strong> ${exp.example}</p>
+                        <p><strong>When to use:</strong> ${exp.when}</p>
+                        <div class="alert alert-info mt-3">
+                            <i class="fas fa-hand-pointer me-2"></i>
+                            <strong>Try it:</strong> Use the activities below to practice binning with your data!
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('binningExplanation').innerHTML = html;
+        }
+
+        async function binDesignChallenge() {
+            if (!currentProjectId) {
+                alert('Please load a dataset first!');
+                return;
+            }
+
+            try {
+                const response = await fetch(`/projects/${currentProjectId}/columns`);
+                const data = await response.json();
+                
+                // Pick a random numeric column
+                const numericCols = data.numeric_columns;
+                if (numericCols.length === 0) {
+                    alert('No numeric columns found in your dataset');
+                    return;
+                }
+                
+                const col = numericCols[0];
+                const values = datasetInfo.head.map(row => parseFloat(row[col])).filter(v => !isNaN(v));
+                const min = Math.min(...values);
+                const max = Math.max(...values);
+                const range = max - min;
+                
+                let html = '<h6>🎯 Challenge: Design Your Own Bins!</h6>';
+                html += `<p class="alert alert-warning"><i class="fas fa-exclamation-triangle me-2"></i><strong>Your task:</strong> Design binning strategy for "${col}" column!</p>`;
+                html += '<div class="alert alert-info">';
+                html += '<h6>Column Info:</h6>';
+                html += `<p><strong>Column:</strong> ${col}</p>`;
+                html += `<p><strong>Min value:</strong> ${min}</p>`;
+                html += `<p><strong>Max value:</strong> ${max}</p>`;
+                html += `<p><strong>Range:</strong> ${range}</p>`;
+                html += '</div>';
+                
+                html += '<div class="mb-3">';
+                html += '<label class="form-label"><strong>How many bins do you want?</strong></label>';
+                html += '<select class="form-select" id="binCount" onchange="showBinningOptions()">';
+                html += '<option value="">Choose...</option>';
+                for (let i = 2; i <= 10; i++) {
+                    html += `<option value="${i}">${i} bins</option>`;
+                }
+                html += '</select>';
+                html += '</div>';
+                
+                html += '<div id="binningOptions"></div>';
+                html += '<div id="binningResults"></div>';
+                
+                document.getElementById('activityResult').innerHTML = html;
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('activityResult').innerHTML = 
+                    '<div class="alert alert-danger">Error: ' + error.message + '</div>';
+            }
+        }
+
+        function showBinningOptions() {
+            const binCount = parseInt(document.getElementById('binCount').value);
+            if (!binCount) return;
+            
+            const col = datasetInfo.head ? Object.keys(datasetInfo.dtypes)[0] : 'Column';
+            const values = datasetInfo.head ? datasetInfo.head.map(row => parseFloat(Object.values(row)[0])).filter(v => !isNaN(v)) : [];
+            const min = values.length > 0 ? Math.min(...values) : 0;
+            const max = values.length > 0 ? Math.max(...values) : 100;
+            const range = max - min;
+            const binWidth = range / binCount;
+            
+            const optionsDiv = document.getElementById('binningOptions');
+            const resultsDiv = document.getElementById('binningResults');
+            
+            let html = '<h6 class="mt-3">📋 Suggested Bins:</h6>';
+            html += '<div class="row g-2">';
+            
+            for (let i = 0; i < binCount; i++) {
+                const binStart = min + (i * binWidth);
+                const binEnd = min + ((i + 1) * binWidth);
+                const binName = `Bin ${i + 1}`;
+                
+                html += '<div class="col-md-6">';
+                html += `<div class="bin-box">`;
+                html += `<label class="form-label"><strong>${binName}</strong></label>`;
+                html += `<input type="text" class="form-control mb-2" value="${binStart.toFixed(1)} - ${binEnd.toFixed(1)}" readonly>`;
+                html += '<input type="text" class="form-control" placeholder="Label (e.g., Low, Medium)" id="label' + i + '">';
+                html += `</div></div>`;
+            }
+            
+            html += '</div>';
+            html += '<button class="btn btn-success mt-3" onclick="previewBinning()">Preview My Binning Strategy</button>';
+            
+            optionsDiv.innerHTML = html;
+        }
+
+        function previewBinning() {
+            const binCount = parseInt(document.getElementById('binCount').value);
+            const resultsDiv = document.getElementById('binningResults');
+            
+            let html = '<div class="alert alert-success mt-3">';
+            html += '<h6>✅ Your Binning Strategy:</h6>';
+            html += '<p>You\'ve created <strong>' + binCount + '</strong> bins!</p>';
+            html += '<p>💡 This will help you analyze patterns in your data</p>';
+            html += '</div>';
+            
+            resultsDiv.innerHTML = html;
+        }
+
+        async function autoBinningDemo() {
+            if (!currentProjectId) {
+                alert('Please load a dataset first!');
+                return;
+            }
+
+            try {
+                const response = await fetch(`/projects/${currentProjectId}/columns`);
+                const data = await response.json();
+                
+                const col = data.numeric_columns[0];
+                if (!col) {
+                    alert('No numeric columns in your dataset');
+                    return;
+                }
+                
+                const values = datasetInfo.head.map(row => parseFloat(row[col])).filter(v => !isNaN(v));
+                
+                let html = '<h6>🤖 Auto Binning Demo</h6>';
+                html += `<p class="alert alert-info"><i class="fas fa-info-circle me-2"></i>Automatic binning for "${col}" column:</p>`;
+                
+                html += '<div class="row mb-3">';
+                html += '<div class="col-md-4">';
+                html += '<button class="btn btn-primary w-100" onclick="showEqualWidthBins()">Equal Width</button>';
+                html += '</div>';
+                html += '<div class="col-md-4">';
+                html += '<button class="btn btn-success w-100" onclick="showQuantileBins()">Quantile</button>';
+                html += '</div>';
+                html += '<div class="col-md-4">';
+                html += '<button class="btn btn-warning w-100" onclick="showCustomBins()">Custom</button>';
+                html += '</div>';
+                html += '</div>';
+                
+                html += '<div id="binningDemo" class="mt-3"></div>';
+                
+                document.getElementById('activityResult').innerHTML = html;
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('activityResult').innerHTML = 
+                    '<div class="alert alert-danger">Error: ' + error.message + '</div>';
+            }
+        }
+
+        function showEqualWidthBins() {
+            const demoDiv = document.getElementById('binningDemo');
+            demoDiv.innerHTML = '<div class="alert alert-success">Equal Width bins created! Each bin has the same size range.</div>';
+        }
+
+        function showQuantileBins() {
+            const demoDiv = document.getElementById('binningDemo');
+            demoDiv.innerHTML = '<div class="alert alert-success">Quantile bins created! Each bin has the same number of values.</div>';
+        }
+
+        function showCustomBins() {
+            const demoDiv = document.getElementById('binningDemo');
+            demoDiv.innerHTML = '<div class="alert alert-success">Custom bins allow you to define your own ranges!</div>';
+        }
+
+        async function manualBinning() {
+            if (!currentProjectId) {
+                alert('Please load a dataset first!');
+                return;
+            }
+
+            try {
+                const response = await fetch(`/projects/${currentProjectId}/columns`);
+                const data = await response.json();
+                
+                const numericCols = data.numeric_columns;
+                if (numericCols.length === 0) {
+                    alert('No numeric columns found in your dataset');
+                    return;
+                }
+                
+                // Pick a column to work with
+                const col = numericCols[0];
+                const values = datasetInfo.head.map(row => parseFloat(row[col])).filter(v => !isNaN(v));
+                const min = Math.min(...values);
+                const max = Math.max(...values);
+                
+                let html = '<h6>✏️ Manual Binning: Create Custom Bins</h6>';
+                html += `<p class="alert alert-warning"><i class="fas fa-exclamation-triangle me-2"></i><strong>Your task:</strong> Create custom bin ranges for "${col}"!</p>`;
+                html += '<div class="alert alert-info">';
+                html += '<h6>Column Information:</h6>';
+                html += `<p><strong>Column:</strong> ${col}</p>`;
+                html += `<p><strong>Value range:</strong> ${min} to ${max}</p>`;
+                html += `<p><strong>Sample values:</strong> ${values.slice(0, 5).join(', ')}...</p>`;
+                html += '</div>';
+                
+                html += '<div class="mb-3">';
+                html += '<label class="form-label"><strong>How many bins do you want to create?</strong></label>';
+                html += '<select class="form-select" id="numBins" onchange="createBinInputs()">';
+                html += '<option value="">Choose number of bins...</option>';
+                for (let i = 2; i <= 10; i++) {
+                    html += `<option value="${i}">${i} bins</option>`;
+                }
+                html += '</select>';
+                html += '</div>';
+                
+                html += '<div id="binInputsSection"></div>';
+                html += '<div id="manualBinningResults"></div>';
+                
+                document.getElementById('activityResult').innerHTML = html;
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('activityResult').innerHTML = 
+                    '<div class="alert alert-danger">Error: ' + error.message + '</div>';
+            }
+        }
+
+        function createBinInputs() {
+            const numBins = parseInt(document.getElementById('numBins').value);
+            if (!numBins) return;
+            
+            const inputsSection = document.getElementById('binInputsSection');
+            const resultsDiv = document.getElementById('manualBinningResults');
+            
+            let html = '<h6 class="mt-3">📝 Define Your Bin Ranges:</h6>';
+            html += '<div class="alert alert-secondary">';
+            html += '<p><i class="fas fa-info-circle me-2"></i>Enter the minimum and maximum value for each bin:</p>';
+            html += '</div>';
+            
+            html += '<div class="row g-3">';
+            
+            for (let i = 0; i < numBins; i++) {
+                const col = datasetInfo.head ? Object.keys(datasetInfo.dtypes)[0] : '';
+                const values = datasetInfo.head ? datasetInfo.head.map(row => parseFloat(Object.values(row)[0])).filter(v => !isNaN(v)) : [];
+                const min = values.length > 0 ? Math.min(...values) : 0;
+                const max = values.length > 0 ? Math.max(...values) : 100;
+                const range = max - min;
+                const binWidth = range / numBins;
+                const binStart = min + (i * binWidth);
+                const binEnd = min + ((i + 1) * binWidth);
+                
+                html += '<div class="col-md-6">';
+                html += '<div class="card mb-3">';
+                html += '<div class="card-body">';
+                html += `<h6>Bin ${i + 1}</h6>`;
+                html += '<div class="mb-2">';
+                html += '<label class="form-label small">Label for this bin:</label>';
+                html += `<input type="text" class="form-control form-control-sm" id="label${i}" placeholder="e.g., Low, Medium, High" value="Bin ${i + 1}">`;
+                html += '</div>';
+                html += '<div class="row">';
+                html += '<div class="col-6">';
+                html += '<label class="form-label small">From:</label>';
+                html += `<input type="number" class="form-control form-control-sm" id="from${i}" value="${binStart.toFixed(1)}" step="0.1">`;
+                html += '</div>';
+                html += '<div class="col-6">';
+                html += '<label class="form-label small">To:</label>';
+                html += `<input type="number" class="form-control form-control-sm" id="to${i}" value="${binEnd.toFixed(1)}" step="0.1">`;
+                html += '</div>';
+                html += '</div>';
+                html += '</div></div></div>';
+            }
+            
+            html += '</div>';
+            html += '<button class="btn btn-success btn-lg mt-3" onclick="previewManualBinning()"><i class="fas fa-check me-2"></i>Preview My Custom Bins</button>';
+            
+            inputsSection.innerHTML = html;
+            resultsDiv.innerHTML = '';
+        }
+
+        function previewManualBinning() {
+            const numBins = parseInt(document.getElementById('numBins').value);
+            const resultsDiv = document.getElementById('manualBinningResults');
+            
+            let bins = [];
+            for (let i = 0; i < numBins; i++) {
+                const label = document.getElementById(`label${i}`).value || `Bin ${i + 1}`;
+                const from = parseFloat(document.getElementById(`from${i}`).value);
+                const to = parseFloat(document.getElementById(`to${i}`).value);
+                
+                bins.push({
+                    label: label,
+                    from: from,
+                    to: to
+                });
+            }
+            
+            let html = '<div class="card border-success mt-3">';
+            html += '<div class="card-header bg-success text-white">';
+            html += '<h6>✅ Your Custom Binning Strategy:</h6>';
+            html += '</div>';
+            html += '<div class="card-body">';
+            html += '<div class="table-responsive">';
+            html += '<table class="table table-sm">';
+            html += '<thead class="table-dark"><tr><th>Bin #</th><th>Label</th><th>Range</th><th>Count</th></tr></thead>';
+            html += '<tbody>';
+            
+            bins.forEach((bin, idx) => {
+                html += '<tr>';
+                html += `<td><strong>${idx + 1}</strong></td>`;
+                html += `<td><span class="badge bg-primary">${bin.label}</span></td>`;
+                html += `<td>${bin.from.toFixed(1)} - ${bin.to.toFixed(1)}</td>`;
+                html += '<td><button class="btn btn-sm btn-outline-info" onclick="countInBin(' + idx + ',' + bin.from + ',' + bin.to + ')">Count</button></td>';
+                html += '</tr>';
+            });
+            
+            html += '</tbody></table>';
+            html += '</div>';
+            html += '<div class="alert alert-info mt-3">';
+            html += '<p>💡 <strong>Next steps:</strong></p>';
+            html += '<ul>';
+            html += '<li>Click "Count" to see how many values fall in each bin</li>';
+            html += '<li>Adjust ranges if needed</li>';
+            html += '<li>Use these bins for your analysis!</li>';
+            html += '</ul>';
+            html += '</div>';
+            html += '</div></div>';
+            html += '<div id="binCountResults"></div>';
+            
+            resultsDiv.innerHTML = html;
+        }
+
+        function countInBin(binIdx, from, to) {
+            const col = datasetInfo.head ? Object.keys(datasetInfo.dtypes)[0] : '';
+            const allValues = datasetInfo.head.map(row => parseFloat(Object.values(row)[0])).filter(v => !isNaN(v));
+            const count = allValues.filter(v => v >= from && v <= to).length;
+            
+            const countResults = document.getElementById('binCountResults');
+            const existingDiv = document.getElementById('countResult' + binIdx);
+            
+            let resultHtml = '';
+            if (existingDiv) {
+                existingDiv.remove();
+            }
+            
+            resultHtml = '<div class="alert alert-info" id="countResult' + binIdx + '">';
+            resultHtml += `<p><strong>Bin ${binIdx + 1}:</strong> ${count} values fall in this range (${from} - ${to})</p>`;
+            resultHtml += '</div>';
+            
+            countResults.innerHTML += resultHtml;
+        }
+
+        async function binTheValues() {
+            if (!currentProjectId) {
+                alert('Please load a dataset first!');
+                return;
+            }
+
+            const values = [25, 45, 65, 85, 95];
+            const bins = ['0-50 (Low)', '50-75 (Medium)', '75-100 (High)'];
+            
+            let html = '<h6>🎯 Task: Assign Values to Bins</h6>';
+            html += '<p class="alert alert-warning"><i class="fas fa-exclamation-triangle me-2"></i><strong>Your task:</strong> Drag each value to the correct bin!</p>';
+            
+            html += '<div class="row">';
+            html += '<div class="col-md-6"><h6>Values:</h6>';
+            html += '<div class="d-flex flex-wrap gap-2 mb-3">';
+            values.forEach(v => {
+                html += `<span class="badge bg-primary p-2" draggable="true" ondragstart="dragValue(event)" id="val${v}">${v}</span>`;
+            });
+            html += '</div></div>';
+            
+            html += '<div class="col-md-6"><h6>Bins:</h6>';
+            bins.forEach((bin, idx) => {
+                html += `<div class="bin-box mb-2 p-3" ondrop="dropBin(event, ${idx})" ondragover="allowDrop(event)">`;
+                html += `<strong>${bin}</strong>`;
+                html += `<div id="bin${idx}Drop"></div>`;
+                html += '</div>';
+            });
+            html += '</div></div>';
+            
+            html += '<div id="binningScore" class="alert alert-info mt-3"></div>';
+            
+            document.getElementById('activityResult').innerHTML = html;
+        }
+
+        function allowDrop(ev) {
+            ev.preventDefault();
+        }
+
+        function dragValue(ev) {
+            ev.dataTransfer.setData("text", ev.target.id);
+        }
+
+        function dropBin(ev, binIdx) {
+            ev.preventDefault();
+            const data = ev.dataTransfer.getData("text");
+            const element = document.getElementById(data);
+            
+            const binDrop = document.getElementById('bin' + binIdx + 'Drop');
+            if (binDrop) {
+                binDrop.innerHTML += element.outerHTML + ' ';
+                element.remove();
+                
+                // Check if all values binned
+                const remaining = document.querySelectorAll('[draggable="true"]').length;
+                if (remaining === 0) {
+                    document.getElementById('binningScore').innerHTML = 
+                        '<h6>🎉 Great job! All values binned correctly!</h6>';
+                }
+            }
+        }
+
+        async function compareBinnings() {
+            if (!currentProjectId) {
+                alert('Please load a dataset first!');
+                return;
+            }
+
+            let html = '<h6>📊 Compare Different Binning Strategies</h6>';
+            html += '<p class="alert alert-info"><i class="fas fa-info-circle me-2"></i>See how different strategies affect your data:</p>';
+            
+            html += '<table class="table table-striped">';
+            html += '<thead><tr><th>Strategy</th><th>Bin Ranges</th><th>Pros</th><th>Cons</th></tr></thead>';
+            html += '<tbody>';
+            html += '<tr><td>Equal Width</td><td>0-25, 25-50, 50-75, 75-100</td><td>Simple, uniform</td><td>Uneven distribution</td></tr>';
+            html += '<tr><td>Quantile</td><td>Each bin has 25% of values</td><td>Balanced distribution</td><td>Different range sizes</td></tr>';
+            html += '<tr><td>Custom</td><td>0-60, 60-80, 80-100</td><td>Domain-specific</td><td>Requires knowledge</td></tr>';
+            html += '</tbody></table>';
+            
+            html += '<div class="alert alert-success mt-3">';
+            html += '<p>💡 <strong>Tip:</strong> Choose the strategy that best fits your analysis goals!</p>';
+            html += '</div>';
+            
+            document.getElementById('activityResult').innerHTML = html;
+        }
+
+        async function binningQuiz() {
+            if (!currentProjectId) {
+                alert('Please load a dataset first!');
+                return;
+            }
+
+            const questions = [
+                {
+                    q: 'When should you use equal-width binning?',
+                    options: ['Always', 'When you want uniform bin sizes', 'Never', 'Only for text data'],
+                    correct: 1
+                },
+                {
+                    q: 'What is quantile binning?',
+                    options: ['Bins with equal size', 'Bins with equal count', 'Custom bins', 'No bins'],
+                    correct: 1
+                },
+                {
+                    q: 'If you have scores 10, 20, 30, 40, 50, how many bins for equal-width?',
+                    options: ['2 bins', '3 bins', '4 bins', '5 bins'],
+                    correct: 1
+                }
+            ];
+
+            let html = '<h6>🧠 Binning Knowledge Quiz</h6>';
+            html += '<p class="alert alert-warning"><i class="fas fa-exclamation-triangle me-2"></i>Test your understanding:</p>';
+            
+            questions.forEach((q, idx) => {
+                html += `<div class="card mb-3">`;
+                html += `<div class="card-body">`;
+                html += `<p><strong>${idx + 1}. ${q.q}</strong></p>`;
+                q.options.forEach((opt, optIdx) => {
+                    html += `<button class="btn btn-outline-primary me-2 mb-2" onclick="checkBinningAnswer(${idx}, ${optIdx}, ${optIdx === q.correct})">${opt}</button>`;
+                });
+                html += `<div id="quizResult${idx}" class="mt-2"></div>`;
+                html += '</div></div>';
+            });
+            
+            document.getElementById('activityResult').innerHTML = html;
+        }
+
+        function checkBinningAnswer(qIdx, selectedIdx, isCorrect) {
+            const resultDiv = document.getElementById('quizResult' + qIdx);
+            if (isCorrect) {
+                resultDiv.innerHTML = '<div class="alert alert-success"><i class="fas fa-check me-2"></i>Correct!</div>';
+            } else {
+                resultDiv.innerHTML = '<div class="alert alert-danger"><i class="fas fa-times me-2"></i>Incorrect</div>';
+            }
+        }
+
+        // Load dataset if available
+        if (currentProjectId) {
+            fetch(`/projects/${currentProjectId}/dataset/preview`)
+            .then(r => r.json())
+            .then(data => {
+                datasetInfo = data;
+                document.getElementById('conceptsCard').style.display = 'block';
+                document.getElementById('activitiesCard').style.display = 'block';
+                document.getElementById('datasetStatus').innerHTML = 
+                    '<div class="alert alert-success">Dataset already loaded!</div>';
+            });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,38 @@
+{
+  "date": {
+    "type": "categorical",
+    "count": 28,
+    "unique": 14,
+    "mode": "2024-01-01"
+  },
+  "store": {
+    "type": "categorical",
+    "count": 28,
+    "unique": 2,
+    "mode": "Store A"
+  },
+  "product": {
+    "type": "categorical",
+    "count": 28,
+    "unique": 3,
+    "mode": "Product A"
+  },
+  "units": {
+    "type": "numeric",
+    "count": 28,
+    "mean": 15.178571428571429,
+    "median": 15.5,
+    "std": 4.922010816342288,
+    "min": 7.0,
+    "max": 24.0
+  },
+  "sales": {
+    "type": "numeric",
+    "count": 28,
+    "mean": 455.35714285714283,
+    "median": 465.0,
+    "std": 147.66032449026864,
+    "min": 210.0,
+    "max": 720.0
+  }
+}

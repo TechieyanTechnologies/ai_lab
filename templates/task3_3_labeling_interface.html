@@ -1,0 +1,918 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task 3.3: Custom Labeling Interface</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .task-header { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; padding: 2rem 0; }
+        .learning-objective { background: #f8f9fa; padding: 1rem; border-left: 4px solid #f5576c; }
+        
+        #canvasContainer { 
+            position: relative; 
+            display: inline-block; 
+            border: 2px solid #f5576c; 
+            border-radius: 8px;
+            background: #f8f9fa;
+            overflow: auto;
+            max-width: 100%;
+        }
+        
+        #imageCanvas { 
+            display: block; 
+            cursor: crosshair; 
+            max-width: 100%;
+            height: auto;
+        }
+        
+        .bbox { 
+            position: absolute; 
+            border: 2px solid #00ff00; 
+            background: rgba(0, 255, 0, 0.1);
+            cursor: move;
+        }
+        
+        .bbox.selected { 
+            border-color: #ff0000; 
+            background: rgba(255, 0, 0, 0.2);
+            z-index: 10;
+        }
+        
+        .bbox-label { 
+            position: absolute; 
+            top: -18px; 
+            left: 0; 
+            background: rgba(0, 255, 0, 0.8); 
+            color: white; 
+            padding: 2px 6px; 
+            font-size: 11px; 
+            white-space: nowrap;
+        }
+        
+        .bbox.selected .bbox-label {
+            background: rgba(255, 0, 0, 0.8);
+        }
+        
+        .controls-panel { 
+            background: white; 
+            border: 1px solid #dee2e6; 
+            border-radius: 8px; 
+            padding: 1rem; 
+            margin-bottom: 1rem; 
+        }
+        
+        .annotation-list { 
+            max-height: 400px; 
+            overflow-y: auto; 
+        }
+        
+        .annotation-item { 
+            padding: 0.5rem; 
+            margin-bottom: 0.5rem; 
+            border: 1px solid #dee2e6; 
+            border-radius: 4px; 
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .annotation-item:hover { 
+            background: #f8f9fa; 
+        }
+        
+        .annotation-item.selected { 
+            background: #fff3cd; 
+            border-color: #ff0000; 
+        }
+        
+        .image-thumbnail { 
+            width: 80px; 
+            height: 80px; 
+            object-fit: cover; 
+            border-radius: 4px; 
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+        
+        .image-thumbnail:hover { 
+            border-color: #f5576c; 
+        }
+        
+        .image-thumbnail.current { 
+            border-color: #f5576c; 
+            border-width: 3px; 
+        }
+        
+        .image-thumbnail.annotated::after {
+            content: '✓';
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            background: #28a745;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+        
+        .drawing-mode { 
+            background: #fff3cd; 
+            border: 2px solid #ffc107; 
+        }
+    </style>
+</head>
+<body>
+    <div class="task-header">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1><i class="fas fa-mouse-pointer me-3"></i>Task 3.3: Custom Labeling Interface</h1>
+                    <p class="lead mb-0">Annotate images with bounding boxes using our LabelIMG-style interface</p>
+                </div>
+                <a href="/level/3" class="btn btn-light">← Back to Level 3</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="container-fluid py-4">
+        <!-- Learning Objective -->
+        <div class="learning-objective mb-4">
+            <h4><i class="fas fa-bullseye me-2"></i>Learning Objective</h4>
+            <p class="mb-0">Learn to create bounding box annotations for object detection. Draw boxes around objects, assign classes, and save annotations in JSON format.</p>
+        </div>
+
+        <!-- Project Check -->
+        <div class="card mb-4" id="noProjectCard">
+            <div class="card-body text-center">
+                <i class="fas fa-exclamation-triangle text-warning" style="font-size: 3rem;"></i>
+                <h5 class="mt-3">No Project or Images Found</h5>
+                <p>Please create a project and upload images in previous tasks</p>
+                <a href="/level/3/task/1" class="btn btn-primary me-2">
+                    <i class="fas fa-arrow-left me-2"></i>Task 3.1: Setup
+                </a>
+                <a href="/level/3/task/2" class="btn btn-primary">
+                    Task 3.2: Upload <i class="fas fa-arrow-right ms-2"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- Labeling Interface -->
+        <div id="labelingInterface" style="display: none;">
+            <div class="row">
+                <!-- Left Sidebar: Controls -->
+                <div class="col-md-3">
+                    <!-- Class Selection -->
+                    <div class="controls-panel">
+                        <h6><i class="fas fa-tags me-2"></i>Select Class</h6>
+                        <select id="classSelector" class="form-select mb-3">
+                            <option value="">Choose a class...</option>
+                        </select>
+                        <div class="alert alert-info small mb-0">
+                            <i class="fas fa-info-circle me-1"></i>Select class, then draw box on image
+                        </div>
+                    </div>
+
+                    <!-- Drawing Controls -->
+                    <div class="controls-panel">
+                        <h6><i class="fas fa-draw-polygon me-2"></i>Drawing Controls</h6>
+                        <button id="drawModeBtn" class="btn btn-success w-100 mb-2" onclick="toggleDrawMode()">
+                            <i class="fas fa-mouse-pointer me-2"></i>Draw Mode: ON
+                        </button>
+                        <button class="btn btn-outline-danger w-100 mb-2" onclick="deleteSelectedBox()">
+                            <i class="fas fa-trash me-2"></i>Delete Selected Box
+                        </button>
+                        <button class="btn btn-outline-warning w-100" onclick="clearAllBoxes()">
+                            <i class="fas fa-eraser me-2"></i>Clear All Boxes
+                        </button>
+                    </div>
+
+                    <!-- Current Annotations -->
+                    <div class="controls-panel">
+                        <h6><i class="fas fa-list me-2"></i>Current Annotations (<span id="annotationCount">0</span>)</h6>
+                        <div id="annotationList" class="annotation-list">
+                            <p class="text-muted small">No annotations yet. Draw boxes to annotate objects.</p>
+                        </div>
+                    </div>
+
+                    <!-- Image Navigation -->
+                    <div class="controls-panel">
+                        <h6><i class="fas fa-images me-2"></i>Images (<span id="totalImagesCount">0</span>)</h6>
+                        <div class="d-flex justify-content-between mb-2">
+                            <button class="btn btn-sm btn-outline-primary" onclick="previousImage()">
+                                <i class="fas fa-chevron-left"></i> Previous
+                            </button>
+                            <span class="small align-self-center">
+                                <span id="currentImageIndex">0</span> / <span id="totalImages">0</span>
+                            </span>
+                            <button class="btn btn-sm btn-outline-primary" onclick="nextImage()">
+                                Next <i class="fas fa-chevron-right"></i>
+                            </button>
+                        </div>
+                        <div id="imageThumbnails" class="d-flex flex-wrap gap-2">
+                            <!-- Thumbnails will be populated here -->
+                        </div>
+                    </div>
+
+                    <!-- Save Button -->
+                    <div class="controls-panel">
+                        <button class="btn btn-success w-100 btn-lg" onclick="saveAnnotations()">
+                            <i class="fas fa-save me-2"></i>Save Annotations
+                        </button>
+                        <div id="saveStatus" class="mt-2"></div>
+                    </div>
+                </div>
+
+                <!-- Center: Canvas Area -->
+                <div class="col-md-9">
+                    <div class="card">
+                        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">
+                                <i class="fas fa-image me-2"></i>
+                                <span id="currentImageName">No image loaded</span>
+                            </h5>
+                            <div>
+                                <span class="badge bg-light text-dark me-2">
+                                    Zoom: <span id="zoomLevel">100%</span>
+                                </span>
+                                <button class="btn btn-sm btn-light" onclick="resetZoom()">
+                                    <i class="fas fa-search-minus"></i> Reset Zoom
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-body p-0">
+                            <div id="canvasContainer" class="w-100 text-center">
+                                <canvas id="imageCanvas"></canvas>
+                                <!-- Bounding boxes will be rendered here -->
+                            </div>
+                        </div>
+                        <div class="card-footer bg-light">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <small class="text-muted">
+                                        <strong>Instructions:</strong> Select class → Click and drag to draw box → Release to finish
+                                    </small>
+                                </div>
+                                <div class="col-md-6 text-end">
+                                    <small class="text-muted">
+                                        <strong>Shortcuts:</strong> [N] Next | [P] Previous | [D] Delete | [S] Save
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Progress Indicator -->
+                    <div class="card mt-3">
+                        <div class="card-body">
+                            <h6><i class="fas fa-chart-line me-2"></i>Annotation Progress</h6>
+                            <div class="progress mb-2" style="height: 30px;">
+                                <div class="progress-bar progress-bar-striped" role="progressbar" 
+                                     id="progressBar" style="width: 0%">
+                                    <span id="progressText">0%</span>
+                                </div>
+                            </div>
+                            <p class="small mb-0">
+                                <span id="annotatedCount">0</span> of <span id="totalImagesForProgress">0</span> images annotated
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <div class="card mt-4">
+            <div class="card-body text-center">
+                <a href="/level/3/task/2" class="btn btn-outline-secondary me-2">
+                    <i class="fas fa-arrow-left me-2"></i>Previous Task
+                </a>
+                <a href="/level/3" class="btn btn-outline-secondary me-2">
+                    Back to Level 3
+                </a>
+                <a href="/level/3/task/4" class="btn btn-primary" id="nextTaskBtn" style="display: none;">
+                    Next Task <i class="fas fa-arrow-right ms-2"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Global state
+        let currentProjectId = null;
+        let projectClasses = [];
+        let images = [];
+        let currentImageIndex = 0;
+        let currentImage = null;
+        let annotations = []; // [{id, class, x, y, width, height}, ...]
+        let selectedBoxId = null;
+        let isDrawing = false;
+        let isDrawMode = true;
+        let drawStartX = 0;
+        let drawStartY = 0;
+        let canvas = null;
+        let ctx = null;
+        let canvasImage = null;
+        let scale = 1.0;
+
+        // Initialize on page load
+        window.addEventListener('DOMContentLoaded', async () => {
+            currentProjectId = localStorage.getItem('level3_project_id');
+            
+            if (!currentProjectId) {
+                document.getElementById('noProjectCard').style.display = 'block';
+                return;
+            }
+
+            // Load project metadata
+            const projectLoaded = await loadProjectData();
+            if (!projectLoaded) {
+                document.getElementById('noProjectCard').style.display = 'block';
+                return;
+            }
+
+            await loadImages();
+            
+            if (images.length > 0) {
+                setupCanvas();
+                loadImage(0);
+                setupKeyboardShortcuts();
+                document.getElementById('labelingInterface').style.display = 'block';
+            } else {
+                // Show message that project exists but no images
+                document.getElementById('noProjectCard').innerHTML = `
+                    <div class="card-body text-center">
+                        <i class="fas fa-images text-info" style="font-size: 3rem;"></i>
+                        <h5 class="mt-3">No Images Found</h5>
+                        <p>Your project exists, but no images have been uploaded yet.</p>
+                        <a href="/level/3/task/2" class="btn btn-primary">
+                            <i class="fas fa-arrow-left me-2"></i>Go to Task 3.2: Upload Images
+                        </a>
+                    </div>
+                `;
+                document.getElementById('noProjectCard').style.display = 'block';
+            }
+        });
+
+        async function loadProjectData() {
+            try {
+                const response = await fetch(`/level/3/projects/${currentProjectId}/metadata`);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.classes && data.classes.length > 0) {
+                        projectClasses = data.classes;
+                        populateClassSelector();
+                        return true;
+                    }
+                }
+                
+                // Fallback to localStorage
+                const classesJson = localStorage.getItem('level3_classes');
+                if (classesJson) {
+                    projectClasses = JSON.parse(classesJson);
+                    populateClassSelector();
+                    return true;
+                }
+                
+                return false;
+            } catch (error) {
+                console.error('Error loading project data:', error);
+                // Fallback to localStorage
+                const classesJson = localStorage.getItem('level3_classes');
+                if (classesJson) {
+                    projectClasses = JSON.parse(classesJson);
+                    populateClassSelector();
+                    return true;
+                }
+                return false;
+            }
+        }
+
+        function populateClassSelector() {
+            const selector = document.getElementById('classSelector');
+            selector.innerHTML = '<option value="">Choose a class...</option>';
+            projectClasses.forEach(className => {
+                const option = document.createElement('option');
+                option.value = className;
+                option.textContent = className;
+                selector.appendChild(option);
+            });
+        }
+
+        async function loadImages() {
+            try {
+                const response = await fetch(`/level/3/projects/${currentProjectId}/images`);
+                
+                // Accept both 200 OK and 404 (404 just means no images yet)
+                const data = await response.json();
+                images = data.images || [];
+                
+                document.getElementById('totalImagesCount').textContent = images.length;
+                document.getElementById('totalImages').textContent = images.length;
+                document.getElementById('totalImagesForProgress').textContent = images.length;
+                
+                if (images.length > 0) {
+                    renderThumbnails();
+                    updateProgress();
+                }
+            } catch (error) {
+                console.error('Error loading images:', error);
+                images = [];
+            }
+        }
+
+        function renderThumbnails() {
+            const container = document.getElementById('imageThumbnails');
+            container.innerHTML = '';
+            
+            images.forEach((img, index) => {
+                const wrapper = document.createElement('div');
+                wrapper.style.position = 'relative';
+                const thumbnail = document.createElement('img');
+                thumbnail.src = `/artifacts/projects/${currentProjectId}/images/${img.class}/${img.filename}`;
+                thumbnail.className = 'image-thumbnail';
+                thumbnail.title = img.filename;
+                thumbnail.onclick = () => loadImage(index);
+                
+                // Check if annotated
+                checkIfAnnotated(img.filename).then(annotated => {
+                    if (annotated) {
+                        thumbnail.classList.add('annotated');
+                    }
+                });
+                
+                if (index === currentImageIndex) {
+                    thumbnail.classList.add('current');
+                }
+                
+                wrapper.appendChild(thumbnail);
+                container.appendChild(wrapper);
+            });
+        }
+
+        async function checkIfAnnotated(filename) {
+            try {
+                const response = await fetch(
+                    `/level/3/projects/${currentProjectId}/load-annotation?image_filename=${encodeURIComponent(filename)}`
+                );
+                const data = await response.json();
+                return data.success && data.annotations && data.annotations.length > 0;
+            } catch (error) {
+                return false;
+            }
+        }
+
+        function setupCanvas() {
+            canvas = document.getElementById('imageCanvas');
+            ctx = canvas.getContext('2d');
+            
+            // Mouse events for drawing
+            canvas.addEventListener('mousedown', startDrawing);
+            canvas.addEventListener('mousemove', updateDrawing);
+            canvas.addEventListener('mouseup', finishDrawing);
+            canvas.addEventListener('mouseleave', cancelDrawing);
+            
+            // Mouse events for selecting boxes
+            canvas.addEventListener('click', handleCanvasClick);
+        }
+
+        async function loadImage(index) {
+            if (index < 0 || index >= images.length) return;
+            
+            currentImageIndex = index;
+            currentImage = images[index];
+            
+            // Load image
+            const img = new Image();
+            img.onload = () => {
+                // Calculate canvas size
+                const maxWidth = window.innerWidth * 0.65;
+                const maxHeight = window.innerHeight * 0.7;
+                let canvasWidth = img.width;
+                let canvasHeight = img.height;
+                
+                if (canvasWidth > maxWidth) {
+                    canvasHeight = (canvasHeight * maxWidth) / canvasWidth;
+                    canvasWidth = maxWidth;
+                }
+                if (canvasHeight > maxHeight) {
+                    canvasWidth = (canvasWidth * maxHeight) / canvasHeight;
+                    canvasHeight = maxHeight;
+                }
+                
+                scale = canvasWidth / img.width;
+                canvas.width = canvasWidth;
+                canvas.height = canvasHeight;
+                
+                // Draw image
+                ctx.drawImage(img, 0, 0, canvasWidth, canvasHeight);
+                canvasImage = img; // Store original image
+                
+                // Load existing annotations
+                loadAnnotations();
+                
+                // Update UI
+                document.getElementById('currentImageName').textContent = currentImage.filename;
+                document.getElementById('currentImageIndex').textContent = index + 1;
+                
+                // Update thumbnails
+                document.querySelectorAll('.image-thumbnail').forEach((thumb, i) => {
+                    thumb.classList.toggle('current', i === index);
+                });
+            };
+            
+            img.src = `/artifacts/projects/${currentProjectId}/images/${currentImage.class}/${currentImage.filename}`;
+        }
+
+        async function loadAnnotations() {
+            try {
+                const response = await fetch(
+                    `/level/3/projects/${currentProjectId}/load-annotation?image_filename=${encodeURIComponent(currentImage.filename)}`
+                );
+                const data = await response.json();
+                
+                if (data.success) {
+                    annotations = (data.annotations || []).map((ann, index) => ({
+                        id: `bbox_${Date.now()}_${index}`,
+                        class: ann.class || ann.class_name,
+                        x: ann.x,
+                        y: ann.y,
+                        width: ann.width,
+                        height: ann.height
+                    }));
+                    
+                    renderAnnotations();
+                    updateAnnotationList();
+                }
+            } catch (error) {
+                console.error('Error loading annotations:', error);
+                annotations = [];
+            }
+        }
+
+        function startDrawing(e) {
+            if (!isDrawMode) return;
+            
+            const selectedClass = document.getElementById('classSelector').value;
+            if (!selectedClass) {
+                alert('Please select a class first!');
+                return;
+            }
+            
+            const rect = canvas.getBoundingClientRect();
+            const x = (e.clientX - rect.left);
+            const y = (e.clientY - rect.top);
+            
+            // Check if clicking on existing box
+            const clickedBox = getBoxAt(x, y);
+            if (clickedBox) {
+                selectBox(clickedBox.id);
+                return;
+            }
+            
+            isDrawing = true;
+            drawStartX = x;
+            drawStartY = y;
+        }
+
+        function updateDrawing(e) {
+            if (!isDrawing) return;
+            
+            const rect = canvas.getBoundingClientRect();
+            const currentX = (e.clientX - rect.left);
+            const currentY = (e.clientY - rect.top);
+            
+            // Redraw image and existing boxes
+            redrawCanvas();
+            
+            // Draw current box being drawn
+            ctx.strokeStyle = '#00ff00';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(
+                drawStartX,
+                drawStartY,
+                currentX - drawStartX,
+                currentY - drawStartY
+            );
+        }
+
+        function finishDrawing(e) {
+            if (!isDrawing) return;
+            
+            const rect = canvas.getBoundingClientRect();
+            const endX = (e.clientX - rect.left);
+            const endY = (e.clientY - rect.top);
+            
+            const selectedClass = document.getElementById('classSelector').value;
+            
+            // Calculate normalized coordinates (0-1)
+            const x = Math.min(drawStartX, endX) / canvas.width;
+            const y = Math.min(drawStartY, endY) / canvas.height;
+            const width = Math.abs(endX - drawStartX) / canvas.width;
+            const height = Math.abs(endY - drawStartY) / canvas.height;
+            
+            // Only create box if it's large enough
+            if (width > 0.01 && height > 0.01) {
+                const boxId = `bbox_${Date.now()}`;
+                annotations.push({
+                    id: boxId,
+                    class: selectedClass,
+                    x: x,
+                    y: y,
+                    width: width,
+                    height: height
+                });
+                
+                renderAnnotations();
+                updateAnnotationList();
+            }
+            
+            isDrawing = false;
+            redrawCanvas();
+        }
+
+        function cancelDrawing() {
+            isDrawing = false;
+            redrawCanvas();
+        }
+
+        function handleCanvasClick(e) {
+            if (isDrawing || isDrawMode) return;
+            
+            const rect = canvas.getBoundingClientRect();
+            const x = (e.clientX - rect.left);
+            const y = (e.clientY - rect.top);
+            
+            const clickedBox = getBoxAt(x, y);
+            if (clickedBox) {
+                selectBox(clickedBox.id);
+            } else {
+                selectedBoxId = null;
+                redrawCanvas();
+            }
+        }
+
+        function getBoxAt(x, y) {
+            for (const ann of annotations) {
+                const boxX = ann.x * canvas.width;
+                const boxY = ann.y * canvas.height;
+                const boxW = ann.width * canvas.width;
+                const boxH = ann.height * canvas.height;
+                
+                if (x >= boxX && x <= boxX + boxW && y >= boxY && y <= boxY + boxH) {
+                    return ann;
+                }
+            }
+            return null;
+        }
+
+        function selectBox(boxId) {
+            selectedBoxId = boxId;
+            redrawCanvas();
+            
+            // Update annotation list
+            document.querySelectorAll('.annotation-item').forEach(item => {
+                item.classList.toggle('selected', item.dataset.boxId === boxId);
+            });
+        }
+
+        function redrawCanvas() {
+            if (!canvasImage) return;
+            
+            // Clear and redraw image
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(canvasImage, 0, 0, canvas.width, canvas.height);
+            
+            // Draw all boxes
+            renderAnnotations();
+        }
+
+        function renderAnnotations() {
+            annotations.forEach(ann => {
+                const boxX = ann.x * canvas.width;
+                const boxY = ann.y * canvas.height;
+                const boxW = ann.width * canvas.width;
+                const boxH = ann.height * canvas.height;
+                
+                const isSelected = ann.id === selectedBoxId;
+                
+                // Draw box
+                ctx.strokeStyle = isSelected ? '#ff0000' : '#00ff00';
+                ctx.lineWidth = isSelected ? 3 : 2;
+                ctx.fillStyle = isSelected ? 'rgba(255, 0, 0, 0.2)' : 'rgba(0, 255, 0, 0.1)';
+                ctx.fillRect(boxX, boxY, boxW, boxH);
+                ctx.strokeRect(boxX, boxY, boxW, boxH);
+                
+                // Draw label
+                ctx.fillStyle = isSelected ? 'rgba(255, 0, 0, 0.8)' : 'rgba(0, 255, 0, 0.8)';
+                ctx.font = '11px Arial';
+                const labelText = ann.class;
+                const labelWidth = ctx.measureText(labelText).width;
+                ctx.fillRect(boxX, boxY - 18, labelWidth + 8, 16);
+                ctx.fillStyle = 'white';
+                ctx.fillText(labelText, boxX + 4, boxY - 4);
+            });
+        }
+
+        function updateAnnotationList() {
+            const list = document.getElementById('annotationList');
+            const count = document.getElementById('annotationCount');
+            count.textContent = annotations.length;
+            
+            if (annotations.length === 0) {
+                list.innerHTML = '<p class="text-muted small">No annotations yet. Draw boxes to annotate objects.</p>';
+                return;
+            }
+            
+            list.innerHTML = '';
+            annotations.forEach((ann, index) => {
+                const item = document.createElement('div');
+                item.className = 'annotation-item' + (ann.id === selectedBoxId ? ' selected' : '');
+                item.dataset.boxId = ann.id;
+                item.innerHTML = `
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>${ann.class}</strong>
+                            <br>
+                            <small class="text-muted">
+                                Pos: (${(ann.x * 100).toFixed(1)}%, ${(ann.y * 100).toFixed(1)}%)<br>
+                                Size: ${(ann.width * 100).toFixed(1)}% × ${(ann.height * 100).toFixed(1)}%
+                            </small>
+                        </div>
+                        <button class="btn btn-sm btn-outline-danger" onclick="deleteBox('${ann.id}')">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                `;
+                item.onclick = (e) => {
+                    if (e.target.tagName !== 'BUTTON') {
+                        selectBox(ann.id);
+                    }
+                };
+                list.appendChild(item);
+            });
+        }
+
+        function deleteBox(boxId) {
+            annotations = annotations.filter(ann => ann.id !== boxId);
+            if (selectedBoxId === boxId) {
+                selectedBoxId = null;
+            }
+            redrawCanvas();
+            updateAnnotationList();
+        }
+
+        function deleteSelectedBox() {
+            if (selectedBoxId) {
+                deleteBox(selectedBoxId);
+            } else {
+                alert('No box selected. Click on a box to select it first.');
+            }
+        }
+
+        function clearAllBoxes() {
+            if (annotations.length > 0 && confirm('Are you sure you want to clear all annotations for this image?')) {
+                annotations = [];
+                selectedBoxId = null;
+                redrawCanvas();
+                updateAnnotationList();
+            }
+        }
+
+        function toggleDrawMode() {
+            isDrawMode = !isDrawMode;
+            const btn = document.getElementById('drawModeBtn');
+            if (isDrawMode) {
+                btn.className = 'btn btn-success w-100 mb-2';
+                btn.innerHTML = '<i class="fas fa-mouse-pointer me-2"></i>Draw Mode: ON';
+            } else {
+                btn.className = 'btn btn-secondary w-100 mb-2';
+                btn.innerHTML = '<i class="fas fa-hand-pointer me-2"></i>Draw Mode: OFF';
+            }
+        }
+
+        function previousImage() {
+            if (currentImageIndex > 0) {
+                saveAnnotations(true); // Auto-save
+                loadImage(currentImageIndex - 1);
+            }
+        }
+
+        function nextImage() {
+            if (currentImageIndex < images.length - 1) {
+                saveAnnotations(true); // Auto-save
+                loadImage(currentImageIndex + 1);
+            }
+        }
+
+        async function saveAnnotations(silent = false) {
+            if (!currentImage) return;
+            
+            const statusDiv = document.getElementById('saveStatus');
+            if (!silent) {
+                statusDiv.innerHTML = '<div class="alert alert-info"><i class="fas fa-spinner fa-spin me-2"></i>Saving...</div>';
+            }
+            
+            try {
+                const response = await fetch(`/level/3/projects/${currentProjectId}/save-annotation`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        image_path: `${currentImage.class}/${currentImage.filename}`,
+                        image_filename: currentImage.filename,
+                        annotations: annotations.map(ann => ({
+                            class: ann.class,
+                            x: ann.x,
+                            y: ann.y,
+                            width: ann.width,
+                            height: ann.height
+                        }))
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    if (!silent) {
+                        statusDiv.innerHTML = '<div class="alert alert-success"><i class="fas fa-check-circle me-2"></i>Annotations saved successfully!</div>';
+                    }
+                    
+                    // Update thumbnail
+                    updateProgress();
+                    renderThumbnails();
+                    
+                    // Show next task button if all images annotated
+                    if (checkAllAnnotated()) {
+                        document.getElementById('nextTaskBtn').style.display = 'inline-block';
+                    }
+                } else {
+                    throw new Error(data.error || 'Save failed');
+                }
+            } catch (error) {
+                statusDiv.innerHTML = `<div class="alert alert-danger"><i class="fas fa-exclamation-circle me-2"></i>Error: ${error.message}</div>`;
+            }
+        }
+
+        async function updateProgress() {
+            let annotatedCount = 0;
+            for (const img of images) {
+                const annotated = await checkIfAnnotated(img.filename);
+                if (annotated) annotatedCount++;
+            }
+            
+            const percentage = images.length > 0 ? (annotatedCount / images.length) * 100 : 0;
+            document.getElementById('progressBar').style.width = percentage + '%';
+            document.getElementById('progressText').textContent = percentage.toFixed(0) + '%';
+            document.getElementById('annotatedCount').textContent = annotatedCount;
+        }
+
+        async function checkAllAnnotated() {
+            for (const img of images) {
+                const annotated = await checkIfAnnotated(img.filename);
+                if (!annotated) return false;
+            }
+            return true;
+        }
+
+        function resetZoom() {
+            // Currently zoom is handled by canvas scaling, can be enhanced later
+        }
+
+        function setupKeyboardShortcuts() {
+            document.addEventListener('keydown', (e) => {
+                // Ignore if typing in input fields
+                if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return;
+                
+                switch(e.key.toLowerCase()) {
+                    case 'n':
+                        if (e.ctrlKey || e.metaKey) return; // Allow Ctrl+N
+                        e.preventDefault();
+                        nextImage();
+                        break;
+                    case 'p':
+                        if (e.ctrlKey || e.metaKey) return;
+                        e.preventDefault();
+                        previousImage();
+                        break;
+                    case 'd':
+                        e.preventDefault();
+                        deleteSelectedBox();
+                        break;
+                    case 's':
+                        if (e.ctrlKey || e.metaKey) return; // Allow Ctrl+S for save page
+                        e.preventDefault();
+                        saveAnnotations();
+                        break;
+                }
+            });
+        }
+    </script>
+</body>
+</html>
+

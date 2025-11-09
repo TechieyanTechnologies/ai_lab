@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task 2.1: Data Preparation</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .task-header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 2rem 0; }
+        .learning-objective { background: #f8f9fa; padding: 1rem; border-left: 4px solid #667eea; }
+        .activity-card { background: #fff; border: 2px solid #667eea; border-radius: 8px; padding: 1.5rem; margin-bottom: 1rem; }
+        .activity-card h6 { color: #667eea; font-weight: bold; }
+        #preparationResult { min-height: 200px; background: white; border: 1px solid #dee2e6; padding: 1.5rem; }
+        .step-card { background: #f8f9fa; border-left: 4px solid #667eea; padding: 1rem; margin-bottom: 1rem; }
+    </style>
+</head>
+<body>
+    <div class="task-header">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1><i class="fas fa-database me-3"></i>Task 2.1: Data Preparation</h1>
+                    <p class="lead mb-0">Prepare your dataset for machine learning</p>
+                </div>
+                <div class="text-end">
+                    <a href="/level/2" class="btn btn-light me-2">← Back to Level 2</a>
+                    <span class="badge bg-light text-dark me-2" style="font-size: 0.9rem;">
+                        <i class="fas fa-clock me-1"></i>30 minutes
+                    </span>
+                    <a href="/level/2/task/1/document" target="_blank" class="btn btn-light btn-sm">
+                        <i class="fas fa-book me-2"></i>Document
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container py-4">
+        <!-- Learning Objective -->
+        <div class="learning-objective mb-4">
+            <h4><i class="fas fa-bullseye me-2"></i>Learning Objective</h4>
+            <p class="mb-0">Learn to prepare datasets for machine learning by handling missing values, encoding categorical variables, scaling features, and splitting data into training and testing sets.</p>
+        </div>
+
+        <!-- Dataset Selection -->
+        <div class="card mb-4">
+            <div class="card-header bg-secondary text-white">
+                <h4><i class="fas fa-database me-2"></i>Select Your Dataset</h4>
+            </div>
+            <div class="card-body">
+                <p>Choose a dataset to work with for this task:</p>
+                
+                <!-- Upload Your Own Dataset -->
+                <div class="mb-3">
+                    <label class="form-label"><i class="fas fa-upload me-2"></i>Upload Your Own Dataset</label>
+                    <div class="input-group">
+                        <input type="file" class="form-control" id="csvFileInput" accept=".csv" onchange="handleFileUpload(event)">
+                        <button class="btn btn-primary" onclick="document.getElementById('csvFileInput').click()">
+                            <i class="fas fa-folder-open me-2"></i>Browse CSV Files
+                        </button>
+                    </div>
+                    <small class="text-muted">Upload a CSV file for machine learning</small>
+                </div>
+                
+                <hr class="my-4">
+                
+                <p class="mb-2">Or choose from sample datasets:</p>
+                <div class="btn-group" role="group">
+                    <button type="button" class="btn btn-outline-primary" onclick="loadSample('housing_small')">
+                        <i class="fas fa-home me-2"></i>Housing Data
+                    </button>
+                    <button type="button" class="btn btn-outline-primary" onclick="loadSample('student_performance')">
+                        <i class="fas fa-graduation-cap me-2"></i>Student Performance
+                    </button>
+                </div>
+                <div id="datasetStatus" class="mt-3"></div>
+                
+                <!-- Data Preview Section -->
+                <div id="dataPreview" class="mt-4" style="display: none;">
+                    <h6><i class="fas fa-eye me-2"></i>Dataset Preview</h6>
+                    <div id="dataInfo" class="alert alert-info mb-3"></div>
+                    <div id="dataTable" class="table-responsive"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Data Preparation Steps -->
+        <div class="card mb-4" id="preparationCard" style="display: none;">
+            <div class="card-header bg-primary text-white">
+                <h5><i class="fas fa-tools me-2"></i>Data Preparation Tasks</h5>
+            </div>
+            <div class="card-body">
+                <p class="mb-4">Click on each task to prepare your data for machine learning:</p>
+                
+                <!-- Step 1 -->
+                <div class="step-card">
+                    <h6><i class="fas fa-search me-2"></i>Activity 1: Explore Your Data</h6>
+                    <p class="small mb-3">Select columns to analyze and understand your dataset structure.</p>
+                    
+                    <div class="mb-3">
+                        <label class="form-label"><i class="fas fa-list me-2"></i>Select Columns to Analyze</label>
+                        <div id="columnCheckboxes" class="row g-2"></div>
+                        <small class="text-muted">Check the columns you want to explore</small>
+                    </div>
+                    
+                    <button onclick="performExplore()" class="btn btn-success btn-sm">
+                        <i class="fas fa-chart-line me-2"></i>Analyze Selected Columns
+                    </button>
+                    <div id="exploreResult" class="mt-3" style="display: none;"></div>
+                </div>
+
+                <!-- Step 2 -->
+                <div class="step-card">
+                    <h6><i class="fas fa-exclamation-triangle me-2"></i>Activity 2: Handle Missing Values</h6>
+                    <p class="small mb-3">Choose strategies to handle missing values in your dataset.</p>
+                    
+                    <div class="mb-3">
+                        <label class="form-label"><i class="fas fa-wrench me-2"></i>Select Missing Value Strategy</label>
+                        <select class="form-select" id="missingStrategy">
+                            <option value="mean">Fill with Mean (for numeric columns)</option>
+                            <option value="median">Fill with Median (for numeric columns)</option>
+                            <option value="mode">Fill with Mode (for categorical columns)</option>
+                            <option value="drop">Drop rows with missing values</option>
+                        </select>
+                        <small class="text-muted">Choose how to handle missing values</small>
+                    </div>
+                    
+                    <button onclick="performHandleMissing()" class="btn btn-success btn-sm">
+                        <i class="fas fa-broom me-2"></i>Clean Dataset
+                    </button>
+                    <div id="missingResult" class="mt-3" style="display: none;"></div>
+                </div>
+
+                <!-- Step 3 -->
+                <div class="step-card">
+                    <h6><i class="fas fa-tags me-2"></i>Activity 3: Encode Categorical Variables</h6>
+                    <p class="small mb-3">Choose an encoding method to convert categorical data to numbers.</p>
+                    
+                    <div class="mb-3">
+                        <label class="form-label"><i class="fas fa-cogs me-2"></i>Select Encoding Method</label>
+                        <select class="form-select" id="encodingMethod">
+                            <option value="onehot">One-Hot Encoding (creates binary columns)</option>
+                            <option value="label">Label Encoding (assigns numbers)</option>
+                        </select>
+                        <small class="text-muted">Choose how to encode categorical variables</small>
+                    </div>
+                    
+                    <button onclick="performEncode()" class="btn btn-success btn-sm">
+                        <i class="fas fa-code me-2"></i>Encode Variables
+                    </button>
+                    <div id="encodeResult" class="mt-3" style="display: none;"></div>
+                </div>
+
+                <!-- Step 4 -->
+                <div class="step-card">
+                    <h6><i class="fas fa-balance-scale me-2"></i>Activity 4: Scale Features</h6>
+                    <p class="small mb-3">Choose a scaling method to normalize your numeric features.</p>
+                    
+                    <div class="mb-3">
+                        <label class="form-label"><i class="fas fa-sliders-h me-2"></i>Select Scaling Method</label>
+                        <select class="form-select" id="scalingMethod">
+                            <option value="standard">StandardScaler (mean=0, std=1)</option>
+                            <option value="minmax">MinMaxScaler (range [0,1])</option>
+                            <option value="robust">RobustScaler (uses median & IQR)</option>
+                        </select>
+                        <small class="text-muted">Choose how to scale numeric features</small>
+                    </div>
+                    
+                    <button onclick="performScale()" class="btn btn-success btn-sm">
+                        <i class="fas fa-ruler me-2"></i>Scale Features
+                    </button>
+                    <div id="scaleResult" class="mt-3" style="display: none;"></div>
+                </div>
+
+                <!-- Step 5 -->
+                <div class="step-card">
+                    <h6><i class="fas fa-cut me-2"></i>Activity 5: Split Data</h6>
+                    <p class="small mb-3">Adjust the split ratio and split your data for training and testing.</p>
+                    
+                    <div class="mb-3">
+                        <label class="form-label"><i class="fas fa-percentage me-2"></i>Test Size: <span id="testSizeValue">20%</span></label>
+                        <input type="range" class="form-range" id="testSizeSlider" min="10" max="40" value="20" step="5" oninput="updateTestSize(this.value)">
+                        <small class="text-muted">Slide to adjust test set percentage (10% to 40%)</small>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label"><i class="fas fa-dice me-2"></i>Random State</label>
+                        <input type="number" class="form-control" id="randomState" value="42" min="1" max="100">
+                        <small class="text-muted">Enter a random state for reproducibility</small>
+                    </div>
+                    
+                    <button onclick="performSplit()" class="btn btn-success btn-sm">
+                        <i class="fas fa-random me-2"></i>Split Dataset
+                    </button>
+                    <div id="splitResult" class="mt-3" style="display: none;"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <div class="card">
+            <div class="card-body text-center">
+                <a href="/level/2" class="btn btn-outline-secondary me-2">
+                    <i class="fas fa-arrow-left me-2"></i>Back to Level 2
+                </a>
+                <a href="/level/2/task/2" class="btn btn-primary">
+                    Next Task <i class="fas fa-arrow-right ms-2"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let currentProjectId = localStorage.getItem('currentProjectId');
+
+        // Load dataset if available
+        if (currentProjectId) {
+            document.getElementById('datasetStatus').innerHTML = '<div class="alert alert-success">Dataset loaded! Project ID: ' + currentProjectId + '</div>';
+            document.getElementById('preparationCard').style.display = 'block';
+            document.getElementById('activitiesCard').style.display = 'block';
+            
+            fetch(`/projects/${currentProjectId}/dataset/preview`)
+                .then(r => r.json())
+                .then(data => {
+                    document.getElementById('datasetStatus').innerHTML = `<div class="alert alert-success"><i class="fas fa-check-circle me-2"></i>Dataset loaded: ${data.shape[0]} rows, ${data.shape[1]} columns</div>`;
+                });
+        }
+
+        async function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            if (!file.name.endsWith('.csv')) {
+                alert('Please upload a CSV file'); return;
+            }
+
+            document.getElementById('datasetStatus').innerHTML = '<div class="alert alert-info">Uploading... <i class="fas fa-spinner fa-spin"></i></div>';
+
+            try {
+                const formData = new FormData();
+                formData.append('file', file);
+                const response = await fetch('/level/2/upload', { method: 'POST', body: formData });
+
+                if (!response.ok) throw new Error('Upload failed');
+                const data = await response.json();
+
+                if (data.project_id) {
+                    currentProjectId = data.project_id;
+                    localStorage.setItem('currentProjectId', currentProjectId);
+                    document.getElementById('datasetStatus').innerHTML = `<div class="alert alert-success">Dataset uploaded! Project ID: ${currentProjectId}</div>`;
+                    document.getElementById('preparationCard').style.display = 'block';
+                    
+                    loadDatasetInfo();
+                }
+            } catch (error) {
+                document.getElementById('datasetStatus').innerHTML = '<div class="alert alert-danger">Error: ' + error.message + '</div>';
+            }
+        }
+
+        async function loadSample(filename) {
+            if (!filename) { alert('Please select a dataset'); return; }
+
+            try {
+                const response = await fetch(`/level/2/load-sample/${filename}`, { method: 'POST' });
+                const data = await response.json();
+
+                if (data.project_id) {
+                    currentProjectId = data.project_id;
+                    localStorage.setItem('currentProjectId', currentProjectId);
+                    document.getElementById('datasetStatus').innerHTML = `<div class="alert alert-success">Sample loaded! Project ID: ${currentProjectId}</div>`;
+                    document.getElementById('preparationCard').style.display = 'block';
+                    
+                    loadDatasetInfo();
+                }
+            } catch (error) {
+                alert('Error loading sample: ' + error.message);
+            }
+        }
+
+        async function loadDatasetInfo() {
+            try {
+                const response = await fetch(`/projects/${currentProjectId}/columns`);
+                const data = await response.json();
+                
+                // Show data preview
+                showDataPreview(data);
+                
+                // Populate column checkboxes for exploration
+                await populateColumnCheckboxes();
+                
+                document.getElementById('datasetStatus').innerHTML = `<div class="alert alert-success"><i class="fas fa-check-circle me-2"></i>Dataset loaded: ${data.shape[0]} rows, ${data.shape[1]} columns</div>`;
+            } catch (error) {
+                console.error('Error loading dataset info:', error);
+            }
+        }
+
+        async function showDataPreview(data) {
+            // Show data info
+            let infoHtml = `<h6>📊 Dataset Information:</h6>`;
+            infoHtml += `<div class="row">`;
+            infoHtml += `<div class="col-md-6">`;
+            infoHtml += `<p><strong>Total Rows:</strong> ${data.shape[0]}</p>`;
+            infoHtml += `<p><strong>Total Columns:</strong> ${data.shape[1]}</p>`;
+            infoHtml += `</div>`;
+            infoHtml += `<div class="col-md-6">`;
+            infoHtml += `<p><strong>Numeric Columns:</strong> ${data.numeric_columns.length}</p>`;
+            infoHtml += `<p><strong>Categorical Columns:</strong> ${data.columns.length - data.numeric_columns.length}</p>`;
+            infoHtml += `</div>`;
+            infoHtml += `</div>`;
+            
+            document.getElementById('dataInfo').innerHTML = infoHtml;
+            
+            // Show data table preview
+            try {
+                const previewResponse = await fetch(`/projects/${currentProjectId}/dataset/preview`);
+                const previewData = await previewResponse.json();
+                
+                let tableHtml = `<table class="table table-sm table-striped">`;
+                tableHtml += `<thead><tr>`;
+                previewData.columns.forEach(col => {
+                    const isNumeric = data.numeric_columns.includes(col);
+                    const icon = isNumeric ? 'fas fa-calculator' : 'fas fa-tag';
+                    tableHtml += `<th><i class="${icon} me-1"></i>${col}</th>`;
+                });
+                tableHtml += `</tr></thead><tbody>`;
+                
+                // Convert head data (list of objects) to array format
+                previewData.head.slice(0, 10).forEach(row => {
+                    tableHtml += `<tr>`;
+                    previewData.columns.forEach(col => {
+                        tableHtml += `<td>${row[col]}</td>`;
+                    });
+                    tableHtml += `</tr>`;
+                });
+                tableHtml += `</tbody></table>`;
+                
+                if (previewData.head.length > 10) {
+                    tableHtml += `<p class="small text-muted">Showing first 10 rows of ${previewData.head.length} total rows</p>`;
+                }
+                
+                document.getElementById('dataTable').innerHTML = tableHtml;
+                document.getElementById('dataPreview').style.display = 'block';
+            } catch (error) {
+                console.error('Error loading data preview:', error);
+            }
+        }
+
+        // Helper function to populate column checkboxes
+        async function populateColumnCheckboxes() {
+            try {
+                const response = await fetch(`/projects/${currentProjectId}/columns`);
+                const data = await response.json();
+                
+                const container = document.getElementById('columnCheckboxes');
+                container.innerHTML = '';
+                
+                data.columns.forEach(col => {
+                    const isNumeric = data.numeric_columns.includes(col);
+                    const div = document.createElement('div');
+                    div.className = 'col-md-6 col-lg-4';
+                    div.innerHTML = `
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="${col}" id="col_${col}" checked>
+                            <label class="form-check-label" for="col_${col}">
+                                ${col} ${isNumeric ? '<i class="fas fa-calculator text-primary ms-1"></i>' : '<i class="fas fa-tag text-info ms-1"></i>'}
+                            </label>
+                        </div>
+                    `;
+                    container.appendChild(div);
+                });
+            } catch (error) {
+                console.error('Error populating columns:', error);
+            }
+        }
+
+        // Helper function for slider
+        function updateTestSize(value) {
+            document.getElementById('testSizeValue').textContent = value + '%';
+        }
+
+        async function performExplore() {
+            if (!currentProjectId) { alert('Please load a dataset first!'); return; }
+            
+            try {
+                // Get selected columns
+                const checkboxes = document.querySelectorAll('#columnCheckboxes input[type="checkbox"]:checked');
+                if (checkboxes.length === 0) {
+                    alert('Please select at least one column to explore!');
+                    return;
+                }
+                
+                const response = await fetch(`/projects/${currentProjectId}/explore-data`, { method: 'POST' });
+                const data = await response.json();
+                
+                if (!data.success) {
+                    throw new Error(data.error);
+                }
+                
+                let html = '<h6><i class="fas fa-check-circle text-success me-2"></i>Data Exploration Complete!</h6>';
+                html += '<div class="alert alert-success">';
+                html += '<h6>📊 Dataset Overview:</h6>';
+                html += `<p><strong>Total Rows:</strong> ${data.rows.toLocaleString()}</p>`;
+                html += `<p><strong>Total Columns:</strong> ${data.columns}</p>`;
+                html += `<p><strong>Numeric Columns:</strong> ${data.numeric_columns.length}</p>`;
+                html += `<p><strong>Categorical Columns:</strong> ${data.categorical_columns.length}</p>`;
+                html += '</div>';
+                
+                html += '<div class="alert alert-info">';
+                html += '<h6>📈 Statistical Summary (Numeric Columns):</h6>';
+                html += '<div class="table-responsive">';
+                html += '<table class="table table-sm table-striped">';
+                html += '<thead><tr><th>Column</th><th>Mean</th><th>Std Dev</th><th>Min</th><th>Max</th><th>Count</th></tr></thead><tbody>';
+                
+                for (const col in data.statistics) {
+                    const stats = data.statistics[col];
+                    html += `<tr>`;
+                    html += `<td><strong>${col}</strong></td>`;
+                    html += `<td>${stats.mean.toFixed(2)}</td>`;
+                    html += `<td>${stats.std.toFixed(2)}</td>`;
+                    html += `<td>${stats.min.toFixed(2)}</td>`;
+                    html += `<td>${stats.max.toFixed(2)}</td>`;
+                    html += `<td>${stats.count}</td>`;
+                    html += `</tr>`;
+                }
+                
+                html += '</tbody></table></div>';
+                html += '</div>';
+                
+                html += '<div class="alert alert-warning">';
+                html += '<h6>⚠️ Missing Values Check:</h6>';
+                const hasMissing = Object.values(data.missing_values).some(v => v > 0);
+                if (hasMissing) {
+                    html += '<ul class="list-unstyled">';
+                    for (const [col, count] of Object.entries(data.missing_values)) {
+                        if (count > 0) {
+                            html += `<li><strong>${col}:</strong> ${count} missing values</li>`;
+                        }
+                    }
+                    html += '</ul>';
+                } else {
+                    html += '<p>✅ No missing values found!</p>';
+                }
+                html += '</div>';
+                
+                document.getElementById('exploreResult').innerHTML = html;
+                document.getElementById('exploreResult').style.display = 'block';
+            } catch (error) {
+                document.getElementById('exploreResult').innerHTML = '<div class="alert alert-danger">Error: ' + error.message + '</div>';
+                document.getElementById('exploreResult').style.display = 'block';
+            }
+        }
+
+        async function performHandleMissing() {
+            if (!currentProjectId) { alert('Please load a dataset first!'); return; }
+            
+            const strategy = document.getElementById('missingStrategy').value;
+            
+            try {
+                const response = await fetch(`/projects/${currentProjectId}/handle-missing`, { 
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ strategy: strategy })
+                });
+                const data = await response.json();
+                
+                if (!data.success) {
+                    throw new Error(data.error);
+                }
+                
+                let html = '<h6><i class="fas fa-check-circle text-success me-2"></i>Missing Values Handled!</h6>';
+                html += '<div class="alert alert-success">';
+                html += '<h6>🔍 Missing Values Check:</h6>';
+                
+                if (data.missing_count > 0) {
+                    html += `<p><strong>Total Missing Values:</strong> ${data.missing_count}</p>`;
+                    html += `<p><strong>Columns with Missing Values:</strong> ${data.columns_with_missing.join(', ')}</p>`;
+                    html += '<p class="text-success">✅ Missing values have been filled:</p>';
+                    html += '<ul class="small">';
+                    html += '<li>Numeric columns: filled with mean values</li>';
+                    html += '<li>Categorical columns: filled with mode</li>';
+                    html += '</ul>';
+                    html += '<p class="mb-0">📁 Cleaned dataset saved as <code>cleaned.csv</code></p>';
+                } else {
+                    html += '<p><strong>Result:</strong> No missing values found in your dataset!</p>';
+                    html += '<p class="small">Your data is clean and ready for machine learning.</p>';
+                }
+                html += '</div>';
+                
+                html += '<div class="alert alert-info">';
+                html += '<h6>💡 Missing Value Strategies Used:</h6>';
+                html += '<ul class="small mb-0">';
+                html += '<li><strong>Mean/Median:</strong> For numeric columns with few missing values</li>';
+                html += '<li><strong>Mode:</strong> For categorical columns</li>';
+                html += '<li><strong>Drop:</strong> Remove rows with missing values (if many)</li>';
+                html += '<li><strong>Forward Fill:</strong> Use previous values for time series</li>';
+                html += '</ul>';
+                html += '</div>';
+                
+                document.getElementById('missingResult').innerHTML = html;
+                document.getElementById('missingResult').style.display = 'block';
+            } catch (error) {
+                document.getElementById('missingResult').innerHTML = '<div class="alert alert-danger">Error: ' + error.message + '</div>';
+                document.getElementById('missingResult').style.display = 'block';
+            }
+        }
+
+        async function performEncode() {
+            if (!currentProjectId) { alert('Please load a dataset first!'); return; }
+            
+            const method = document.getElementById('encodingMethod').value;
+            
+            try {
+                const response = await fetch(`/projects/${currentProjectId}/encode-categorical`, { 
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ method: method })
+                });
+                const data = await response.json();
+                
+                if (!data.success) {
+                    throw new Error(data.error);
+                }
+                
+                let html = '<h6><i class="fas fa-check-circle text-success me-2"></i>Categorical Encoding Complete!</h6>';
+                html += '<div class="alert alert-success">';
+                html += '<h6>🏷️ Encoding Strategy Applied:</h6>';
+                
+                if (data.categorical_columns && data.categorical_columns.length > 0) {
+                    html += `<p><strong>Encoded ${data.categorical_columns.length} categorical column(s):</strong></p>`;
+                    html += '<ul>';
+                    data.categorical_columns.forEach(col => {
+                        html += `<li><strong>${col}</strong> - Encoded using One-Hot Encoding</li>`;
+                    });
+                    html += '</ul>';
+                    html += '<p class="mb-0">📁 Encoded dataset saved as <code>encoded.csv</code></p>';
+                } else {
+                    html += '<p><strong>No categorical columns found!</strong></p>';
+                    html += '<p class="small">Your dataset contains only numeric data.</p>';
+                }
+                
+                html += '</div>';
+                
+                if (data.encoded_shape) {
+                    html += '<div class="alert alert-info">';
+                    html += '<h6>📊 Encoding Results:</h6>';
+                    html += `<p><strong>Original Shape:</strong> ${data.original_shape[0]} rows × ${data.original_shape[1]} columns</p>`;
+                    html += `<p><strong>Encoded Shape:</strong> ${data.encoded_shape[0]} rows × ${data.encoded_shape[1]} columns</p>`;
+                    html += `<p class="mb-0"><strong>New Columns Added:</strong> ${data.encoded_shape[1] - data.original_shape[1]}</p>`;
+                    html += '</div>';
+                }
+                
+                html += '<div class="alert alert-info">';
+                html += '<h6>📚 Encoding Methods:</h6>';
+                html += '<ul class="small mb-0">';
+                html += '<li><strong>One-Hot Encoding:</strong> Creates binary columns for each category</li>';
+                html += '<li><strong>Label Encoding:</strong> Assigns numbers to categories</li>';
+                html += '<li><strong>Target Encoding:</strong> Uses target variable statistics</li>';
+                html += '</ul>';
+                html += '</div>';
+                
+                document.getElementById('encodeResult').innerHTML = html;
+                document.getElementById('encodeResult').style.display = 'block';
+            } catch (error) {
+                document.getElementById('encodeResult').innerHTML = '<div class="alert alert-danger">Error: ' + error.message + '</div>';
+                document.getElementById('encodeResult').style.display = 'block';
+            }
+        }
+
+        async function performScale() {
+            if (!currentProjectId) { alert('Please load a dataset first!'); return; }
+            
+            const method = document.getElementById('scalingMethod').value;
+            
+            try {
+                const response = await fetch(`/projects/${currentProjectId}/scale-features`, { 
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ method: method })
+                });
+                const data = await response.json();
+                
+                if (!data.success) {
+                    throw new Error(data.error);
+                }
+                
+                let html = '<h6><i class="fas fa-check-circle text-success me-2"></i>Feature Scaling Complete!</h6>';
+                html += '<div class="alert alert-success">';
+                html += '<h6>⚖️ Scaling Applied:</h6>';
+                
+                if (data.scaled_columns && data.scaled_columns.length > 0) {
+                    html += `<p><strong>Method:</strong> ${data.method}</p>`;
+                    html += `<p><strong>Scaled Columns:</strong> ${data.scaled_columns.join(', ')}</p>`;
+                    html += `<p class="mb-0">📁 Scaled dataset saved as <code>scaled.csv</code></p>`;
+                } else {
+                    html += '<p class="small">No numeric columns to scale.</p>';
+                }
+                html += '</div>';
+                
+                if (data.method) {
+                    html += '<div class="alert alert-info">';
+                    html += '<h6>📊 Scaling Statistics:</h6>';
+                    html += `<p><strong>Method:</strong> ${data.method}</p>`;
+                    html += `<p><strong>Mean:</strong> ${data.mean}</p>`;
+                    html += `<p class="mb-0"><strong>Standard Deviation:</strong> ${data.std}</p>`;
+                    html += '</div>';
+                }
+                
+                html += '<div class="alert alert-info">';
+                html += '<h6>📏 Scaling Methods:</h6>';
+                html += '<ul class="small mb-0">';
+                html += '<li><strong>StandardScaler:</strong> (x - mean) / std → mean=0, std=1</li>';
+                html += '<li><strong>MinMaxScaler:</strong> (x - min) / (max - min) → range [0,1]</li>';
+                html += '<li><strong>RobustScaler:</strong> Uses median and IQR (outlier-resistant)</li>';
+                html += '</ul>';
+                html += '</div>';
+                
+                document.getElementById('scaleResult').innerHTML = html;
+                document.getElementById('scaleResult').style.display = 'block';
+            } catch (error) {
+                document.getElementById('scaleResult').innerHTML = '<div class="alert alert-danger">Error: ' + error.message + '</div>';
+                document.getElementById('scaleResult').style.display = 'block';
+            }
+        }
+
+        async function performSplit() {
+            if (!currentProjectId) { alert('Please load a dataset first!'); return; }
+            
+            const testSize = document.getElementById('testSizeSlider').value;
+            const randomState = document.getElementById('randomState').value;
+            
+            try {
+                const response = await fetch(`/projects/${currentProjectId}/split-data`, { 
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ test_size: testSize / 100, random_state: parseInt(randomState) })
+                });
+                const data = await response.json();
+                
+                if (!data.success) {
+                    throw new Error(data.error);
+                }
+                
+                let html = '<h6><i class="fas fa-check-circle text-success me-2"></i>Data Split Complete!</h6>';
+                html += '<div class="alert alert-success">';
+                html += '<h6>✂️ Data Split Results:</h6>';
+                html += '<div class="row">';
+                html += '<div class="col-md-4"><strong>Training Set:</strong><br>' + data.train_percent + ' (' + data.train_size.toLocaleString() + ' samples)</div>';
+                html += '<div class="col-md-4"><strong>Testing Set:</strong><br>' + data.test_percent + ' (' + data.test_size.toLocaleString() + ' samples)</div>';
+                html += '<div class="col-md-4"><strong>Random State:</strong><br>' + data.random_state + ' (reproducible)</div>';
+                html += '</div>';
+                html += `<p class="mb-0 mt-3"><strong>Total Dataset:</strong> ${data.total_size.toLocaleString()} samples</p>`;
+                html += '</div>';
+                
+                html += '<div class="alert alert-info">';
+                html += '<h6>📁 Files Saved:</h6>';
+                html += '<ul class="small mb-3">';
+                html += '<li><code>train.csv</code> - Training dataset</li>';
+                html += '<li><code>test.csv</code> - Testing dataset</li>';
+                html += '</ul>';
+                html += '<h6>🎯 Why Split Data?</h6>';
+                html += '<ul class="small mb-0">';
+                html += '<li><strong>Training:</strong> Teach the model patterns</li>';
+                html += '<li><strong>Testing:</strong> Evaluate model performance</li>';
+                html += '<li><strong>Validation:</strong> Tune hyperparameters</li>';
+                html += '</ul>';
+                html += '</div>';
+                
+                document.getElementById('splitResult').innerHTML = html;
+                document.getElementById('splitResult').style.display = 'block';
+            } catch (error) {
+                document.getElementById('splitResult').innerHTML = '<div class="alert alert-danger">Error: ' + error.message + '</div>';
+                document.getElementById('splitResult').style.display = 'block';
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task 8: Correlation Analysis</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .task-header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 2rem 0; }
+        .learning-objective { background: #f8f9fa; padding: 1rem; border-left: 4px solid #667eea; }
+        .concept-card { transition: transform 0.2s; cursor: pointer; border: 1px solid #dee2e6; }
+        .concept-card:hover { transform: translateY(-5px); box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        .activity-card { background: #fff; border: 2px solid #667eea; border-radius: 8px; padding: 1.5rem; margin-bottom: 1rem; }
+        .activity-card h6 { color: #667eea; font-weight: bold; }
+        #activityResult { min-height: 200px; }
+    </style>
+</head>
+<body>
+    <div class="task-header">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+            <h1><i class="fas fa-project-diagram me-3"></i>Task 8: Correlation Analysis</h1>
+                    <p class="lead mb-0">Understand relationships between variables using correlation</p>
+                </div>
+                <div class="text-end">
+                    <a href="/level/1" class="btn btn-light me-2">← Back to Level 1</a>
+                    <span class="badge bg-light text-dark me-2" style="font-size: 0.9rem;">
+                        <i class="fas fa-clock me-1"></i>25 minutes
+                    </span>
+                    <a href="/level/1/task/8/document" target="_blank" class="btn btn-light btn-sm">
+                        <i class="fas fa-book me-2"></i>Document
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container py-4">
+        <!-- Dataset Selection -->
+        <div class="card mb-4">
+            <div class="card-header bg-secondary text-white">
+                <h4><i class="fas fa-database me-2"></i>Select Your Dataset</h4>
+            </div>
+            <div class="card-body">
+                <p>Choose a dataset to work with for this task:</p>
+                
+                <!-- Upload Your Own Dataset -->
+                <div class="mb-3">
+                    <label class="form-label"><i class="fas fa-upload me-2"></i>Upload Your Own Dataset</label>
+                    <div class="input-group">
+                        <input type="file" class="form-control" id="csvFileInput" accept=".csv" onchange="handleFileUpload(event)">
+                        <button class="btn btn-primary" onclick="document.getElementById('csvFileInput').click()">
+                            <i class="fas fa-folder-open me-2"></i>Browse CSV Files
+                        </button>
+                    </div>
+                    <small class="text-muted">Upload a CSV file to practice with your own data</small>
+                </div>
+                
+                <hr class="my-4">
+                
+                <p class="mb-2">Or choose from sample datasets:</p>
+                <div class="btn-group" role="group">
+                    <button type="button" class="btn btn-outline-primary" onclick="loadSample('student_marks')">
+                        <i class="fas fa-file-csv me-2"></i>Student Marks
+                    </button>
+                    <button type="button" class="btn btn-outline-primary" onclick="loadSample('weather_week')">
+                        <i class="fas fa-file-csv me-2"></i>Weather Data
+                    </button>
+                    <button type="button" class="btn btn-outline-primary" onclick="loadSample('sales_small')">
+                        <i class="fas fa-file-csv me-2"></i>Sales Data
+                    </button>
+                    <button type="button" class="btn btn-outline-primary" onclick="loadSample('survey_small')">
+                        <i class="fas fa-file-csv me-2"></i>Survey Data
+                    </button>
+                </div>
+                <div id="datasetStatus" class="mt-3"></div>
+            </div>
+        </div>
+
+        <!-- Learning Objective -->
+        <div class="learning-objective mb-4">
+            <h4><i class="fas fa-bullseye me-2"></i>Learning Objective</h4>
+            <p class="mb-0">Discover relationships between numeric variables in your dataset. Learn to interpret correlation values and visualize them with heatmaps.</p>
+        </div>
+
+        <!-- Correlation Concepts -->
+        <div class="card mb-4" id="conceptsCard" style="display: none;">
+            <div class="card-header bg-info text-white">
+                <h5><i class="fas fa-lightbulb me-2"></i>Correlation Concepts</h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <div class="concept-card card h-100" onclick="showCorrelationConcept('positive')">
+                            <div class="card-body">
+                                <h6><i class="fas fa-arrow-up text-success"></i> Positive Correlation (0 to +1)</h6>
+                                <p class="small">When one variable increases, the other also increases. Example: Height and Weight</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="concept-card card h-100" onclick="showCorrelationConcept('negative')">
+                            <div class="card-body">
+                                <h6><i class="fas fa-arrow-down text-danger"></i> Negative Correlation (-1 to 0)</h6>
+                                <p class="small">When one variable increases, the other decreases. Example: Temperature and Heating Cost</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="concept-card card h-100" onclick="showCorrelationConcept('none')">
+                            <div class="card-body">
+                                <h6><i class="fas fa-minus-circle text-secondary"></i> No Correlation (0)</h6>
+                                <p class="small">Variables are independent. Example: Shoe Size and IQ</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="correlationExplanation" class="mt-3"></div>
+            </div>
+        </div>
+
+        <!-- Interactive Activities -->
+        <div class="card mb-4" id="activitiesCard" style="display: none;">
+            <div class="card-header bg-success text-white">
+                <h5><i class="fas fa-hands-on me-2"></i>Interactive Activities</h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="activity-card">
+                            <h6><i class="fas fa-calculator"></i> 1. Find Strongest Relationship</h6>
+                            <p class="small">Calculate correlations between all numeric columns to find the strongest relationship.</p>
+                            <button onclick="findStrongestRelation()" class="btn btn-primary btn-sm w-100">Find Strongest Correlation</button>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="activity-card">
+                            <h6><i class="fas fa-chart-line"></i> 2. Visualize with Heatmap</h6>
+                            <p class="small">Generate a beautiful correlation heatmap to see relationships at a glance.</p>
+                            <button onclick="createHeatmap()" class="btn btn-primary btn-sm w-100">Generate Heatmap</button>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="activity-card">
+                            <h6><i class="fas fa-search"></i> 3. Compare Specific Variables</h6>
+                            <p class="small">Select two columns and see their correlation value and interpretation.</p>
+                            <button onclick="compareVariables()" class="btn btn-primary btn-sm w-100">Compare Variables</button>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="activity-card">
+                            <h6><i class="fas fa-table"></i> 4. Download Correlation Matrix</h6>
+                            <p class="small">Export the complete correlation matrix as CSV for further analysis.</p>
+                            <button onclick="downloadMatrix()" class="btn btn-primary btn-sm w-100">Download Matrix</button>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="activity-card">
+                            <h6><i class="fas fa-brain"></i> 5. Correlation Quiz</h6>
+                            <p class="small">Test your understanding with interactive questions about correlation.</p>
+                            <button onclick="startQuiz()" class="btn btn-primary btn-sm w-100">Take Quiz</button>
+                    </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="activity-card">
+                            <h6><i class="fas fa-chart-scatter"></i> 6. Scatter Plot Explorer</h6>
+                            <p class="small">Visualize relationships with interactive scatter plots.</p>
+                            <button onclick="exploreScatter()" class="btn btn-primary btn-sm w-100">Explore Scatter Plot</button>
+                    </div>
+                    </div>
+                </div>
+
+                <!-- Activity Result Display -->
+                <div class="mt-4">
+                    <div class="card">
+                        <div class="card-header bg-light">
+                            <h6 class="mb-0"><i class="fas fa-vial me-2"></i>Activity Result</h6>
+                        </div>
+                        <div class="card-body" id="activityResult">
+                            <p class="text-muted text-center">Select an activity above to see results here.</p>
+            </div>
+        </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Back/Next Navigation -->
+        <div class="card">
+            <div class="card-body text-center">
+                <a href="/level/1" class="btn btn-outline-secondary me-2">
+                    <i class="fas fa-arrow-left me-2"></i>Back to Tasks
+                </a>
+                <a href="/level/1/task/9" class="btn btn-primary">
+                    Next Task <i class="fas fa-arrow-right ms-2"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let currentProjectId = localStorage.getItem('currentProjectId');
+        let datasetInfo = null;
+
+        // Load dataset if available
+        if (currentProjectId) {
+            document.getElementById('datasetStatus').innerHTML = 
+                '<div class="alert alert-success">Dataset loaded! Project ID: ' + currentProjectId + '</div>';
+            document.getElementById('conceptsCard').style.display = 'block';
+            document.getElementById('activitiesCard').style.display = 'block';
+            
+            fetch(`/projects/${currentProjectId}/dataset/preview`)
+                .then(r => r.json())
+                .then(data => {
+                    datasetInfo = data;
+                    document.getElementById('datasetStatus').innerHTML = 
+                        `<div class="alert alert-success">
+                            <i class="fas fa-check-circle me-2"></i>Dataset loaded: ${data.shape[0]} rows, ${data.shape[1]} columns
+                        </div>`;
+                });
+        }
+
+        async function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            if (!file.name.endsWith('.csv')) {
+                alert('Please upload a CSV file');
+                return;
+            }
+
+            document.getElementById('datasetStatus').innerHTML = 
+                '<div class="alert alert-info">Uploading... <i class="fas fa-spinner fa-spin"></i></div>';
+
+            try {
+                const formData = new FormData();
+                formData.append('file', file);
+                const response = await fetch('/level/1/upload', { method: 'POST', body: formData });
+
+                if (!response.ok) throw new Error('Upload failed');
+
+                const data = await response.json();
+                if (data.project_id) {
+                    currentProjectId = data.project_id;
+                    localStorage.setItem('currentProjectId', currentProjectId);
+                    document.getElementById('datasetStatus').innerHTML = 
+                        `<div class="alert alert-success">Dataset uploaded! Project ID: ${currentProjectId}</div>`;
+                    document.getElementById('conceptsCard').style.display = 'block';
+                    document.getElementById('activitiesCard').style.display = 'block';
+                    
+                    const previewResponse = await fetch(`/projects/${currentProjectId}/dataset/preview`);
+                    datasetInfo = await previewResponse.json();
+                }
+            } catch (error) {
+                document.getElementById('datasetStatus').innerHTML = 
+                    '<div class="alert alert-danger">Error: ' + error.message + '</div>';
+            }
+        }
+
+        async function loadSample(filename) {
+            if (!filename) { alert('Please select a dataset'); return; }
+
+            try {
+                const response = await fetch(`/level/1/load-sample/${filename}`, { method: 'POST' });
+                const data = await response.json();
+
+                if (data.project_id) {
+                    currentProjectId = data.project_id;
+                    localStorage.setItem('currentProjectId', currentProjectId);
+                    document.getElementById('datasetStatus').innerHTML = 
+                        `<div class="alert alert-success">Sample loaded! Project ID: ${currentProjectId}</div>`;
+                    document.getElementById('conceptsCard').style.display = 'block';
+                    document.getElementById('activitiesCard').style.display = 'block';
+                    
+                    const previewResponse = await fetch(`/projects/${currentProjectId}/dataset/preview`);
+                    datasetInfo = await previewResponse.json();
+                }
+            } catch (error) {
+                alert('Error loading sample: ' + error.message);
+            }
+        }
+
+        function showCorrelationConcept(type) {
+            const explanations = {
+                positive: '<div class="alert alert-success"><h6><i class="fas fa-info-circle me-2"></i>Positive Correlation</h6><p>Values range from 0 to +1. A value of +1 means perfect positive correlation (when one goes up, the other goes up perfectly). For example, study time and test scores usually have positive correlation.</p><p class="small">🧮 <strong>Calculation:</strong> Measures how much two variables move together in the same direction.</p></div>',
+                negative: '<div class="alert alert-danger"><h6><i class="fas fa-info-circle me-2"></i>Negative Correlation</h6><p>Values range from -1 to 0. A value of -1 means perfect negative correlation (when one goes up, the other goes down). For example, temperature and hot chocolate sales.</p><p class="small">🧮 <strong>Calculation:</strong> Measures how much two variables move in opposite directions.</p></div>',
+                none: '<div class="alert alert-secondary"><h6><i class="fas fa-info-circle me-2"></i>No Correlation</h6><p>A value close to 0 means no linear relationship. Variables are independent of each other. For example, shoe size and intelligence have no correlation.</p><p class="small">🧮 <strong>Calculation:</strong> Correlation of 0 indicates no linear relationship exists.</p></div>'
+            };
+            
+            document.getElementById('correlationExplanation').innerHTML = explanations[type] || '';
+        }
+
+        async function findStrongestRelation() {
+            if (!currentProjectId) { alert('Please load a dataset first!'); return; }
+
+            try {
+                document.getElementById('activityResult').innerHTML = 
+                    '<div class="alert alert-info">Calculating correlations... <i class="fas fa-spinner fa-spin"></i></div>';
+
+                const response = await fetch(`/projects/${currentProjectId}/columns`);
+                const data = await response.json();
+                const numericCols = data.numeric_columns;
+
+                if (numericCols.length < 2) {
+                    alert('Need at least 2 numeric columns for correlation');
+                    return;
+                }
+
+                // Fetch CSV data
+                const csvResponse = await fetch(`/artifacts/projects/${currentProjectId}/dataset/original.csv`);
+                const csvText = await csvResponse.text();
+                const lines = csvText.split('\n').filter(line => line.trim());
+                
+                if (lines.length < 2) {
+                    throw new Error('Not enough data in CSV');
+                }
+
+                const headers = lines[0].split(',').map(h => h.trim());
+                const dataValues = [];
+                
+                // Get column indices
+                const colIndices = numericCols.map(col => headers.indexOf(col));
+                
+                // Parse data
+                for (let i = 1; i < lines.length && i < 1000; i++) {
+                    const cols = lines[i].split(',').map(c => c.trim());
+                    const row = [];
+                    let valid = true;
+                    
+                    for (const idx of colIndices) {
+                        const val = parseFloat(cols[idx]);
+                        if (isNaN(val)) {
+                            valid = false;
+                            break;
+                        }
+                        row.push(val);
+                    }
+                    
+                    if (valid) dataValues.push(row);
+                }
+
+                // Calculate correlations between all pairs
+                const correlations = [];
+                
+                for (let i = 0; i < numericCols.length; i++) {
+                    for (let j = i + 1; j < numericCols.length; j++) {
+                        const col1 = numericCols[i];
+                        const col2 = numericCols[j];
+                        const col1Idx = colIndices[i];
+                        const col2Idx = colIndices[j];
+                        
+                        // Calculate correlation
+                        const xVals = dataValues.map(row => row[col1Idx - colIndices[0]]);
+                        const yVals = dataValues.map(row => row[col2Idx - colIndices[0]]);
+                        
+                        let meanX = 0, meanY = 0;
+                        xVals.forEach((x, idx) => { meanX += x; meanY += yVals[idx]; });
+                        meanX /= xVals.length; meanY /= xVals.length;
+
+                        let sumXY = 0, sumXX = 0, sumYY = 0;
+                        xVals.forEach((x, idx) => {
+                            const dx = x - meanX, dy = yVals[idx] - meanY;
+                            sumXY += dx * dy;
+                            sumXX += dx * dx;
+                            sumYY += dy * dy;
+                        });
+
+                        const correlation = sumXY / Math.sqrt(sumXX * sumYY);
+                        
+                        correlations.push({
+                            col1, col2,
+                            correlation: correlation,
+                            absCorrelation: Math.abs(correlation)
+                        });
+                    }
+                }
+
+                // Sort by absolute correlation
+                correlations.sort((a, b) => b.absCorrelation - a.absCorrelation);
+
+                // Display results
+                let html = '<h6>🔍 Strongest Relationships Found</h6>';
+                html += '<div class="alert alert-success">';
+                html += '<h6 class="mb-3">Top Relationships in Your Dataset:</h6>';
+                
+                const topN = Math.min(5, correlations.length);
+                
+                html += '<table class="table table-sm">';
+                html += '<thead><tr><th>#</th><th>Variables</th><th>Correlation</th><th>Strength</th></tr></thead>';
+                html += '<tbody>';
+                
+                for (let i = 0; i < topN; i++) {
+                    const corr = correlations[i];
+                    const strength = corr.absCorrelation > 0.7 ? 'Strong' : 
+                                    corr.absCorrelation > 0.3 ? 'Moderate' : 'Weak';
+                    const strengthClass = corr.absCorrelation > 0.7 ? 'success' : 
+                                         corr.absCorrelation > 0.3 ? 'warning' : 'secondary';
+                    const direction = corr.correlation > 0 ? '↑ (positive)' : '↓ (negative)';
+                    
+                    html += `<tr>`;
+                    html += `<td>${i + 1}</td>`;
+                    html += `<td><strong>${corr.col1}</strong> ↔ <strong>${corr.col2}</strong></td>`;
+                    html += `<td>${corr.correlation.toFixed(3)} ${direction}</td>`;
+                    html += `<td><span class="badge bg-${strengthClass}">${strength}</span></td>`;
+                    html += `</tr>`;
+                }
+                
+                html += '</tbody></table>';
+                html += '</div>';
+                
+                html += '<div class="alert alert-info">';
+                html += '<h6>💡 Interpretation:</h6>';
+                html += '<ul class="small">';
+                html += '<li><strong>Strong (>0.7):</strong> Variables change together - very related</li>';
+                html += '<li><strong>Moderate (0.3-0.7):</strong> Some relationship exists</li>';
+                html += '<li><strong>Weak (<0.3):</strong> Little to no linear relationship</li>';
+                html += '</ul>';
+                html += '</div>';
+
+                document.getElementById('activityResult').innerHTML = html;
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('activityResult').innerHTML = 
+                    '<div class="alert alert-danger">Error: ' + error.message + '</div>';
+            }
+        }
+
+        async function createHeatmap() {
+            if (!currentProjectId) { alert('Please load a dataset first!'); return; }
+
+            try {
+                const response = await fetch(`/projects/${currentProjectId}/columns`);
+                const data = await response.json();
+                const numericCols = data.numeric_columns;
+
+                if (numericCols.length < 2) {
+                    alert('Need at least 2 numeric columns for correlation heatmap');
+                    return;
+                }
+
+                document.getElementById('activityResult').innerHTML = 
+                    '<div class="alert alert-info">Generating heatmap... <i class="fas fa-spinner fa-spin"></i></div>';
+
+                const corrResponse = await fetch(`/projects/${currentProjectId}/correlation`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ columns: numericCols })
+                });
+                const result = await corrResponse.json();
+
+                if (result.plot_filename && result.corr_filename) {
+                    const imageUrl = `/artifacts/projects/${currentProjectId}/runs/${result.plot_filename}`;
+                    
+                    let html = '<h6>🌡️ Correlation Heatmap Generated!</h6>';
+                    html += '<div class="alert alert-success">';
+                    html += '<h6 class="mb-2">Understanding Your Heatmap:</h6>';
+                    html += '<ul class="small mb-3">';
+                    html += '<li><strong>Red colors:</strong> Strong positive correlation (+0.5 to +1)</li>';
+                    html += '<li><strong>White/Light:</strong> Weak or no correlation (-0.3 to +0.3)</li>';
+                    html += '<li><strong>Blue colors:</strong> Strong negative correlation (-1 to -0.5)</li>';
+                    html += '<li><strong>Numbers:</strong> Exact correlation values</li>';
+                    html += '</ul>';
+                    html += '<img src="' + imageUrl + '" class="img-fluid border rounded shadow" alt="Correlation Heatmap">';
+                    html += '</div>';
+                    html += '<div class="alert alert-info">';
+                    html += '<h6>📊 How to Read This:</h6>';
+                    html += '<p class="small">Each cell shows how two variables relate. The diagonal is always 1 (variable with itself). Look for off-diagonal patterns!</p>';
+                    html += '</div>';
+
+                    document.getElementById('activityResult').innerHTML = html;
+                } else {
+                    throw new Error('Failed to generate heatmap');
+                }
+            } catch (error) {
+                document.getElementById('activityResult').innerHTML = 
+                    '<div class="alert alert-danger">Error: ' + error.message + '</div>';
+            }
+        }
+
+        async function compareVariables() {
+            if (!currentProjectId) { alert('Please load a dataset first!'); return; }
+
+            try {
+                const response = await fetch(`/projects/${currentProjectId}/columns`);
+                const data = await response.json();
+                const numericCols = data.numeric_columns;
+
+                if (numericCols.length < 2) {
+                    alert('Need at least 2 numeric columns');
+                    return;
+                }
+
+                let html = '<h6>🔍 Compare Two Variables</h6>';
+                html += '<div class="mb-3">';
+                html += '<label class="form-label">Select First Variable:</label>';
+                html += '<select id="var1" class="form-select">';
+                numericCols.forEach(col => html += `<option value="${col}">${col}</option>`);
+                html += '</select>';
+                html += '</div>';
+                html += '<div class="mb-3">';
+                html += '<label class="form-label">Select Second Variable:</label>';
+                html += '<select id="var2" class="form-select">';
+                numericCols.forEach(col => html += `<option value="${col}">${col}</option>`);
+                html += '</select>';
+                html += '</div>';
+                html += '<button onclick="calculateCorrelation()" class="btn btn-primary w-100">Calculate Correlation</button>';
+
+                document.getElementById('activityResult').innerHTML = html;
+            } catch (error) {
+                document.getElementById('activityResult').innerHTML = 
+                    '<div class="alert alert-danger">Error: ' + error.message + '</div>';
+            }
+        }
+
+        async function calculateCorrelation() {
+            const var1 = document.getElementById('var1').value;
+            const var2 = document.getElementById('var2').value;
+
+            // Simplified correlation calculation
+            const csvResponse = await fetch(`/artifacts/projects/${currentProjectId}/dataset/original.csv`);
+            const csvText = await csvResponse.text();
+            const lines = csvText.split('\n');
+            const headers = lines[0].split(',');
+            const idx1 = headers.indexOf(var1);
+            const idx2 = headers.indexOf(var2);
+
+            const values = [];
+            for (let i = 1; i < lines.length && i < 1000; i++) {
+                const cols = lines[i].split(',');
+                if (cols[idx1] && cols[idx2]) {
+                    const x = parseFloat(cols[idx1]);
+                    const y = parseFloat(cols[idx2]);
+                    if (!isNaN(x) && !isNaN(y)) values.push([x, y]);
+                }
+            }
+
+            // Calculate correlation
+            let meanX = 0, meanY = 0;
+            values.forEach(([x, y]) => { meanX += x; meanY += y; });
+            meanX /= values.length; meanY /= values.length;
+
+            let sumXY = 0, sumXX = 0, sumYY = 0;
+            values.forEach(([x, y]) => {
+                const dx = x - meanX, dy = y - meanY;
+                sumXY += dx * dy;
+                sumXX += dx * dx;
+                sumYY += dy * dy;
+            });
+
+            const correlation = sumXY / Math.sqrt(sumXX * sumYY);
+
+            let html = '<h6>📊 Correlation Result</h6>';
+            html += '<div class="alert alert-' + (Math.abs(correlation) > 0.7 ? 'success' : Math.abs(correlation) > 0.3 ? 'warning' : 'secondary') + '">';
+            html += '<h6>' + var1 + ' vs ' + var2 + '</h6>';
+            html += '<h3>' + correlation.toFixed(3) + '</h3>';
+            
+            if (Math.abs(correlation) > 0.7) {
+                html += '<p><strong>Strong correlation!</strong> These variables are closely related.</p>';
+            } else if (Math.abs(correlation) > 0.3) {
+                html += '<p><strong>Moderate correlation.</strong> Some relationship exists.</p>';
+            } else {
+                html += '<p><strong>Weak or no correlation.</strong> Variables are mostly independent.</p>';
+            }
+            html += '</div>';
+
+            document.getElementById('activityResult').innerHTML = html;
+        }
+
+        async function downloadMatrix() {
+            if (!currentProjectId) { alert('Please load a dataset first!'); return; }
+
+            try {
+                const corrResponse = await fetch(`/projects/${currentProjectId}/correlation`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({})
+                });
+                const result = await corrResponse.json();
+
+                if (result.corr_filename) {
+                    window.open(`/artifacts/projects/${currentProjectId}/runs/correlation.csv`);
+                    document.getElementById('activityResult').innerHTML = 
+                        '<div class="alert alert-success">Correlation matrix downloaded!</div>';
+                }
+            } catch (error) {
+                document.getElementById('activityResult').innerHTML = 
+                    '<div class="alert alert-danger">Error: ' + error.message + '</div>';
+            }
+        }
+
+        function startQuiz() {
+            const questions = [
+                { q: 'What does a correlation of +0.9 mean?', 
+                  options: ['Strong positive relationship', 'Strong negative relationship', 'No relationship', 'Weak relationship'],
+                  correct: 0, expl: 'A correlation of +0.9 is very close to +1, indicating a strong positive relationship.' },
+                { q: 'If temperature and ice cream sales have a positive correlation, what does this mean?',
+                  options: ['When temperature increases, sales decrease', 'When temperature increases, sales increase', 'They have no relationship', 'Temperature causes sales'],
+                  correct: 1, expl: 'Positive correlation means both variables move in the same direction - higher temperature leads to higher sales.' },
+                { q: 'What correlation value indicates no linear relationship?',
+                  options: ['-1', '+1', '0', '0.5'],
+                  correct: 2, expl: 'A correlation of 0 means no linear relationship exists between the variables.' }
+            ];
+
+            let html = '<h6>🧠 Correlation Quiz</h6>';
+            html += '<p>Answer 3 questions about correlation!</p>';
+            questions.forEach((q, i) => {
+                html += '<div class="mb-3">';
+                html += '<p><strong>Question ' + (i+1) + ':</strong> ' + q.q + '</p>';
+                q.options.forEach((opt, idx) => {
+                    html += '<button class="btn btn-sm btn-outline-primary w-100 mb-2" onclick="checkAnswer(' + i + ', ' + idx + ', ' + q.correct + ', \'' + q.expl.replace(/'/g, "\\'") + '\')">' + opt + '</button>';
+                });
+                html += '<div id="result' + i + '"></div>';
+                html += '</div>';
+            });
+
+            document.getElementById('activityResult').innerHTML = html;
+        }
+
+        function checkAnswer(qIdx, selected, correct, expl) {
+            const resultDiv = document.getElementById('result' + qIdx);
+            if (selected === correct) {
+                resultDiv.innerHTML = '<div class="alert alert-success">✅ Correct! ' + expl + '</div>';
+            } else {
+                resultDiv.innerHTML = '<div class="alert alert-danger">❌ Incorrect. ' + expl + '</div>';
+            }
+        }
+
+        async function exploreScatter() {
+            if (!currentProjectId) { alert('Please load a dataset first!'); return; }
+
+            try {
+                const response = await fetch(`/projects/${currentProjectId}/columns`);
+                const data = await response.json();
+                const numericCols = data.numeric_columns;
+
+                if (numericCols.length < 2) {
+                    alert('Need at least 2 numeric columns');
+                    return;
+                }
+
+                let html = '<h6>📈 Scatter Plot Explorer</h6>';
+                html += '<div class="mb-3">';
+                html += '<label class="form-label">Select X-axis Variable:</label>';
+                html += '<select id="scatterX" class="form-select">';
+                numericCols.forEach(col => html += `<option value="${col}">${col}</option>`);
+                html += '</select>';
+                html += '</div>';
+                html += '<div class="mb-3">';
+                html += '<label class="form-label">Select Y-axis Variable:</label>';
+                html += '<select id="scatterY" class="form-select">';
+                numericCols.forEach(col => html += `<option value="${col}">${col}</option>`);
+                html += '</select>';
+                html += '</div>';
+                html += '<button onclick="generateScatterPlot()" class="btn btn-primary w-100">Generate Scatter Plot</button>';
+
+                document.getElementById('activityResult').innerHTML = html;
+            } catch (error) {
+                document.getElementById('activityResult').innerHTML = 
+                    '<div class="alert alert-danger">Error: ' + error.message + '</div>';
+            }
+        }
+
+        async function generateScatterPlot() {
+            const xCol = document.getElementById('scatterX').value;
+            const yCol = document.getElementById('scatterY').value;
+
+            try {
+                const response = await fetch(`/projects/${currentProjectId}/visualize`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        chart_type: 'scatter',
+                        params: {
+                            x_column: xCol,
+                            y_column: yCol,
+                            title: `Relationship: ${xCol} vs ${yCol}`
+                        }
+                    })
+                });
+                const result = await response.json();
+
+                if (result.success && result.plot_filename) {
+                    const imageUrl = `/artifacts/projects/${currentProjectId}/runs/${result.plot_filename}`;
+                    
+                    let html = '<h6>📈 Scatter Plot Generated</h6>';
+                    html += '<div class="alert alert-info">';
+                    html += '<p>A scatter plot shows how two variables relate to each other. Each point represents one data observation.</p>';
+                    html += '<img src="' + imageUrl + '" class="img-fluid border rounded shadow" alt="Scatter Plot">';
+                    html += '</div>';
+                    html += '<div class="alert alert-secondary">';
+                    html += '<h6>💡 How to Read Scatter Plots:</h6>';
+                    html += '<ul class="small">';
+                    html += '<li><strong>Trending upward:</strong> Positive correlation - as X increases, Y tends to increase</li>';
+                    html += '<li><strong>Trending downward:</strong> Negative correlation - as X increases, Y tends to decrease</li>';
+                    html += '<li><strong>No pattern:</strong> Weak or no correlation - variables are independent</li>';
+                    html += '</ul>';
+                    html += '</div>';
+
+                    document.getElementById('activityResult').innerHTML = html;
+                } else {
+                    throw new Error('Failed to generate scatter plot');
+                }
+            } catch (error) {
+                document.getElementById('activityResult').innerHTML = 
+                    '<div class="alert alert-danger">Error: ' + error.message + '</div>';
+            }
+        }
+    </script>
+</body>
+</html>

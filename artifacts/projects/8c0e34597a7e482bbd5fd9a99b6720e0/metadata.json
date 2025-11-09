@@ -1,0 +1,14 @@
+{
+  "project_id": "8c0e34597a7e482bbd5fd9a99b6720e0",
+  "level": 3,
+  "title": "My Image Project",
+  "classes": [
+    "cat",
+    "dog"
+  ],
+  "created_at": "2025-10-29T16:42:32.992721",
+  "image_count": 0,
+  "annotated_count": 0,
+  "model_trained": false,
+  "runs": []
+}

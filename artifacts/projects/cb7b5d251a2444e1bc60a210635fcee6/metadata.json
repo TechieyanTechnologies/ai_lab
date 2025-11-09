@@ -1,0 +1,32 @@
+{
+  "project_id": "cb7b5d251a2444e1bc60a210635fcee6",
+  "title": "Data Analysis Project - sales_small",
+  "level": 1,
+  "created_at": "2025-10-27T10:32:28.741119",
+  "datasets": [
+    {
+      "filename": "original.csv",
+      "path": "dataset/original.csv",
+      "uploaded_at": "2025-10-27T10:32:28.744717",
+      "source": "sample_sales_small"
+    }
+  ],
+  "cleaned_versions": [
+    {
+      "name": "cleaned_v1.csv",
+      "path": "dataset/cleaned_v1.csv",
+      "notes": ""
+    }
+  ],
+  "runs": [
+    {
+      "run_id": "1f328ee12a03428999a86d84461b7a94",
+      "type": "summary",
+      "artifacts": [
+        "summary.json"
+      ],
+      "created_at": "2025-10-27T10:34:06.959917"
+    }
+  ],
+  "reports": []
+}
